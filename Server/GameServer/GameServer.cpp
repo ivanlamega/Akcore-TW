@@ -477,6 +477,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		{
 			CClientSession::SendCharLearnSkillReq(pPacket, app);
 		}
+			break;
 		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
 		{
 			CClientSession::SendCharSkillByItemRes(pPacket, app); 

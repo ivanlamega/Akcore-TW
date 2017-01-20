@@ -977,12 +977,7 @@ END_PROTOCOL()
 BEGIN_PROTOCOL(UG_SKILL_LEARN_REQ)
 	TBLIDX				skillTblidx;
 END_PROTOCOL()
-BEGIN_PROTOCOL(UG_SKILL_LEARN_BY_ITEM_REQ)
-TBLIDX				skillTblidx;
-BYTE test;
-WORD test1;
 
-END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_SKILL_UPGRADE_REQ)
 	BYTE				bySlotIndex;
@@ -2041,7 +2036,12 @@ END_PROTOCOL()
 BEGIN_PROTOCOL(UG_SCOUTER_ACTIVATION_REQ)
 HOBJECT				hTarget; 
 END_PROTOCOL()
+BEGIN_PROTOCOL(UG_SKILL_LEARN_BY_ITEM_REQ)
+TBLIDX				skillTblidx;
+BYTE test;
+WORD test1;
 
+END_PROTOCOL()
 #pragma pack()
 
 

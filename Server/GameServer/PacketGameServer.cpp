@@ -4468,7 +4468,7 @@ void CClientSession::SendCharSkillByItemRes(CNtlPacket * pPacket, CGameServer * 
 	printf("item %d \n test %d \n test1 %d \n tblidx %d \n ", req->skillTblidx, req->test, req->test1, item );
 	//CSkillTable * pSkillTable = app->g_pTableContainer->GetSkillTable();
 	//sSKILL_TBLDAT *pSkillSetTblData = reinterpret_cast<sSKILL_TBLDAT*>(pSkillTable->FindData(req->skillTblidx));
-	if (item == 11120142)
+	if (item == 11120142)//Fly skill MA
 	{
 		res->wOpCode = GU_SKILL_LEARNED_NFY;
 		res->skillId = 20911;
@@ -4477,14 +4477,252 @@ void CClientSession::SendCharSkillByItemRes(CNtlPacket * pPacket, CGameServer * 
 		g_pApp->Send(this->GetHandle(), &packetSkill);
 
 		//app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+
+		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+
+		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+		app->db->setInt(1, plr->GetCharID());
+		app->db->setInt(2, req->test);
+		app->db->setInt(3, req->skillTblidx);
+		app->db->execute();
+		app->db->fetch();
+
+		RwUInt32 u_itemid = app->db->getInt("id");
+		RwUInt32 item_place = app->db->getInt("place");
+		RwUInt32 item_pos = app->db->getInt("pos");
+
+		res1->wOpCode = GU_ITEM_DELETE_RES;
+		res1->wResultCode = GAME_SUCCESS;
+		res1->byPlace = req1->bySrcPlace;
+		res1->byPos = req1->bySrcPos;
+
+		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+		g_pApp->Send(this->GetHandle(), &packet1);
+
+		// DELETE ITEM
+		app->qry->DeleteItemById(u_itemid);
+
+		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+
+		res2->bySrcPlace = item_place;
+		res2->bySrcPos = item_pos;
+		res2->hSrcItem = u_itemid;
+		res2->wOpCode = GU_ITEM_DELETE;
+		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+		g_pApp->Send(this->GetHandle(), &packet2);
+		plr = NULL;
+		delete plr;
 	}
-	else
+	else if (item == 11120118)//power UP M.A
 	{
-		
+		res->wOpCode = GU_SKILL_LEARNED_NFY;
+		res->skillId = 20221;
+		res->bySlot = 51;
+		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+		g_pApp->Send(this->GetHandle(), &packetSkill);
+
+		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+
+		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+
+		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+		app->db->setInt(1, plr->GetCharID());
+		app->db->setInt(2, req->test);
+		app->db->setInt(3, req->skillTblidx);
+		app->db->execute();
+		app->db->fetch();
+
+		RwUInt32 u_itemid = app->db->getInt("id");
+		RwUInt32 item_place = app->db->getInt("place");
+		RwUInt32 item_pos = app->db->getInt("pos");
+
+		res1->wOpCode = GU_ITEM_DELETE_RES;
+		res1->wResultCode = GAME_SUCCESS;
+		res1->byPlace = req1->bySrcPlace;
+		res1->byPos = req1->bySrcPos;
+
+		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+		g_pApp->Send(this->GetHandle(), &packet1);
+
+		// DELETE ITEM
+		app->qry->DeleteItemById(u_itemid);
+
+		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+
+		res2->bySrcPlace = item_place;
+		res2->bySrcPos = item_pos;
+		res2->hSrcItem = u_itemid;
+		res2->wOpCode = GU_ITEM_DELETE;
+		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+		g_pApp->Send(this->GetHandle(), &packet2);
+		plr = NULL;
+		delete plr;
 	}
+	else if (item == 11120124)//Guard skill M.A
+	{
+		res->wOpCode = GU_SKILL_LEARNED_NFY;
+		res->skillId = 20201;
+		res->bySlot = 52;
+		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+		g_pApp->Send(this->GetHandle(), &packetSkill);
 
-	
+		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
+		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+
+		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+		app->db->setInt(1, plr->GetCharID());
+		app->db->setInt(2, req->test);
+		app->db->setInt(3, req->skillTblidx);
+		app->db->execute();
+		app->db->fetch();
+
+		RwUInt32 u_itemid = app->db->getInt("id");
+		RwUInt32 item_place = app->db->getInt("place");
+		RwUInt32 item_pos = app->db->getInt("pos");
+
+		res1->wOpCode = GU_ITEM_DELETE_RES;
+		res1->wResultCode = GAME_SUCCESS;
+		res1->byPlace = req1->bySrcPlace;
+		res1->byPos = req1->bySrcPos;
+
+		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+		g_pApp->Send(this->GetHandle(), &packet1);
+
+		// DELETE ITEM
+		app->qry->DeleteItemById(u_itemid);
+
+		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+
+		res2->bySrcPlace = item_place;
+		res2->bySrcPos = item_pos;
+		res2->hSrcItem = u_itemid;
+		res2->wOpCode = GU_ITEM_DELETE;
+		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+		g_pApp->Send(this->GetHandle(), &packet2);
+		plr = NULL;
+		delete plr;
+	}
+	else if (item == 11120130)//Dash skill M.A
+	{
+		res->wOpCode = GU_SKILL_LEARNED_NFY;
+		res->skillId = 20211;
+		res->bySlot = 53;
+		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+		g_pApp->Send(this->GetHandle(), &packetSkill);
+
+		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+
+		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+
+		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+		app->db->setInt(1, plr->GetCharID());
+		app->db->setInt(2, req->test);
+		app->db->setInt(3, req->skillTblidx);
+		app->db->execute();
+		app->db->fetch();
+
+		RwUInt32 u_itemid = app->db->getInt("id");
+		RwUInt32 item_place = app->db->getInt("place");
+		RwUInt32 item_pos = app->db->getInt("pos");
+
+		res1->wOpCode = GU_ITEM_DELETE_RES;
+		res1->wResultCode = GAME_SUCCESS;
+		res1->byPlace = req1->bySrcPlace;
+		res1->byPos = req1->bySrcPos;
+
+		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+		g_pApp->Send(this->GetHandle(), &packet1);
+
+		// DELETE ITEM
+		app->qry->DeleteItemById(u_itemid);
+
+		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+
+		res2->bySrcPlace = item_place;
+		res2->bySrcPos = item_pos;
+		res2->hSrcItem = u_itemid;
+		res2->wOpCode = GU_ITEM_DELETE;
+		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+		g_pApp->Send(this->GetHandle(), &packet2);
+		plr = NULL;
+		delete plr;
+	}
+	else if (item == 11120136)//Contra atack skill M.A
+	{
+		res->wOpCode = GU_SKILL_LEARNED_NFY;
+		res->skillId = 10021;
+		res->bySlot = 54;
+		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+		g_pApp->Send(this->GetHandle(), &packetSkill);
+
+		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+
+		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+
+		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+		app->db->setInt(1, plr->GetCharID());
+		app->db->setInt(2, req->test);
+		app->db->setInt(3, req->skillTblidx);
+		app->db->execute();
+		app->db->fetch();
+
+		RwUInt32 u_itemid = app->db->getInt("id");
+		RwUInt32 item_place = app->db->getInt("place");
+		RwUInt32 item_pos = app->db->getInt("pos");
+
+		res1->wOpCode = GU_ITEM_DELETE_RES;
+		res1->wResultCode = GAME_SUCCESS;
+		res1->byPlace = req1->bySrcPlace;
+		res1->byPos = req1->bySrcPos;
+
+		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+		g_pApp->Send(this->GetHandle(), &packet1);
+
+		// DELETE ITEM
+		app->qry->DeleteItemById(u_itemid);
+
+		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+
+		res2->bySrcPlace = item_place;
+		res2->bySrcPos = item_pos;
+		res2->hSrcItem = u_itemid;
+		res2->wOpCode = GU_ITEM_DELETE;
+		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+		g_pApp->Send(this->GetHandle(), &packet2);
+		plr = NULL;
+		delete plr;
+	}
 	CNtlPacket packetSkill1(sizeof(sGU_SKILL_LEARN_RES));
 	sGU_SKILL_LEARN_RES * res1 = (sGU_SKILL_LEARN_RES *)packetSkill1.GetPacketData();
 
