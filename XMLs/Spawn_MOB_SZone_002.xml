@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<dataroot>
+	<Table_Data_KOR>
+		<FieldName_0>Tblidx</FieldName_0>
+		<FieldName_1>Mob_Tblidx</FieldName_1>
+		<FieldName_2>Spawn_Loc_X</FieldName_2>
+		<FieldName_3>Spawn_Loc_Y</FieldName_3>
+		<FieldName_4>Spawn_Loc_Z</FieldName_4>
+		<FieldName_5>Spawn_Dir_X</FieldName_5>
+		<FieldName_6>Spawn_Dir_Z</FieldName_6>
+		<FieldName_7>Spawn_Loc_Range</FieldName_7>
+		<FieldName_8>Spawn_Quantity</FieldName_8>
+		<FieldName_9>Spawn_Cool_Time</FieldName_9>
+		<FieldName_10>Spawn_Move_Type</FieldName_10>
+		<FieldName_11>Wander_Range</FieldName_11>
+		<FieldName_12>Move_Range</FieldName_12>
+		<FieldName_13>Move_Delay_Time</FieldName_13>
+		<FieldName_14>Path_Table_Index</FieldName_14>
+		<FieldName_15>PlayScript_Number</FieldName_15>
+		<FieldName_16>PlayScript_Scene_Number</FieldName_16>
+		<FieldName_17>AIScript_Number</FieldName_17>
+		<FieldName_18>AIScript_Scene_Number</FieldName_18>
+		<FieldName_19>AIScript_Number</FieldName_19>
+		<FieldName_20>Follow_Distance_Loc_X</FieldName_20>
+		<FieldName_21>Follow_Distance_Loc_Z</FieldName_21>
+		<FieldName_22>Party_Index</FieldName_22>
+		<FieldName_23>Party_Leader_Able</FieldName_23>
+		<FieldName_24>Spawn_Group</FieldName_24>
+	</Table_Data_KOR>
+</dataroot>

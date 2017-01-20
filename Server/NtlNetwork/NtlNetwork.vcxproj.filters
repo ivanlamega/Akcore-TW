@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Packet">
+      <UniqueIdentifier>{78de80f2-aa9d-4b75-a76d-9b363b494c2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{ee78a8f1-3175-42f4-b901-f35feeef39f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket">
+      <UniqueIdentifier>{5af5bec5-0d50-4f2f-af5e-887ad555c7a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{c3b7449f-2f6f-4a1b-8c03-12b676182679}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NtlNetBuffer.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlPacket.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlPacketEncoder.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlPacketEncoder_RandKey.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlPacketEncoder_XOR.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlPacketSYS.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlAcceptor.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlConnection.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlConnector.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlIOCP.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlNetwork.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlNetworkProcessor.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSockAddr.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSocket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSession.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSessionFactory.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSessionList.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="NtlSessionMap.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="BotSystemLog_Server.h" />
+    <ClInclude Include="NetworkCompileOption.h" />
+    <ClInclude Include="NtlPacketEncoder_TW.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="dbo_random.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NtlPacket.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlPacketEncoder.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlPacketEncoder_RandKey.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlPacketEncoder_XOR.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlAcceptor.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlConnection.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlConnector.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlIOCP.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlNetwork.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlNetworkProcessor.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlSocket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlSession.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="NtlSessionList.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="BotSystemLog_Server.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="NtlPacketEncoder_TW.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="dbo_random.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

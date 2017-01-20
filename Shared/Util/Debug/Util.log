@@ -1,0 +1,44 @@
+﻿Build started 19-01-2017 22:40:26.
+     1>Project "C:\Users\marco\Desktop\Dbo Portugal TW\Shared\Util\Util.vcxproj" on node 3 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I..\..\server\gslib /I..\..\server\baselib /I..\ /ZI /nologo /W4 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _CRT_SECURE_NO_DEPRECATE /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\Util.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt PacketTrace.cpp
+         PacketTrace.cpp
+     1>c:\users\marco\desktop\dbo portugal tw\server\baselib\skill.h(481): warning C4408: anonymous union did not declare any data members
+       Lib:
+         C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"C:\Users\marco\Desktop\Dbo Portugal TW\Debug\Util.lib" /NOLOGO /NODEFAULTLIB Debug\CFixedStringListA.obj
+         Debug\CFixedStringListW.obj
+         Debug\CFixedStringA.obj
+         Debug\CFixedStringA_Format.obj
+         Debug\CFixedStringW.obj
+         Debug\CFixedStringW_Format.obj
+         Debug\CBaseQueue.obj
+         Debug\CLogMessageManager.obj
+         Debug\CLogMessageManager_Format.obj
+         Debug\CLogMessageManager_GlobalError.obj
+         Debug\CLogMessageManager_GlobalLog.obj
+         Debug\CLogMessageManager_GlobalTrace.obj
+         Debug\PacketTrace.obj
+         Debug\stdafx.obj
+         Debug\AESCipher.obj
+         Debug\Blowfish.obj
+         Debug\CDes.obj
+         Debug\Cipher.obj
+         Debug\CryptRSA.obj
+         Debug\md5.obj
+         Debug\NtlCipher.obj
+         Debug\TripleDes.obj
+         Debug\TwofishCipher.obj
+         Debug\NtlNaviData.obj
+         Debug\NtlNaviDataMng.obj
+         Debug\NtlBitFlagManager.obj
+         Debug\NtlFileSerializer.obj
+         Debug\NtlHex.obj
+         Debug\NtlSerializer.obj
+         Debug\NtlStringHandler.obj
+         Debug\NtlTokenizer.obj
+         Util.vcxproj -> C:\Users\marco\Desktop\Dbo Portugal TW\Debug\Util.lib
+     1>Done Building Project "C:\Users\marco\Desktop\Dbo Portugal TW\Shared\Util\Util.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:20.60

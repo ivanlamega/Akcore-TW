@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<dataroot>
+	<Table_Data_KOR>
+		<FieldName_0>Tblidx</FieldName_0>
+		<FieldName_1>Function_Name</FieldName_1>
+		<FieldName_2>Note</FieldName_2>
+		<FieldName_3>Type</FieldName_3>
+		<FieldName_4>Animation_ID</FieldName_4>
+		<FieldName_5>Direction_Func_Flag</FieldName_5>
+	</Table_Data_KOR>
+</dataroot>
