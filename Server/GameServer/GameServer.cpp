@@ -233,7 +233,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_FALLING:
 		{
-			//CClientSession::SendCharFalling(pPacket, app);
+			CClientSession::SendCharFalling(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TOGG_SITDOWN:
@@ -248,8 +248,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TOGG_FIGHTING:
 		{
 			CClientSession::SendCharToggleFighting(pPacket, app);
-			CClientSession::SendNetPyStart(pPacket, app);
-			
 		}
 			break;
 		//case UG_CHAR_TOGG_RUNNING:
@@ -260,7 +258,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_SELECT:
 		{
 			CClientSession::SendCharTargetSelect(pPacket);
-			//CClientSession::SendScouterIndicatorReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TARGET_INFO:
@@ -271,20 +268,17 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_FACING:
 		{
 			CClientSession::SendCharTargetFacing(pPacket);
-			
 		}
 			break;
 		case UG_CHAR_ATTACK_BEGIN:
 		{
 			CClientSession::SendAttackBegin(pPacket,app);
-			
 
 		}
 			break;
 		case UG_CHAR_ATTACK_END:
 		{
 			CClientSession::SendAttackEnd(pPacket,app);
-								  
 		}
 			break;
 		case UG_CHAR_CHARGE:
@@ -314,12 +308,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_SERVER_CHANGE_REQ:
 		{
-			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");//
-			//CClientSession::SendServerChangeReq(pPacket, app);
-			CClientSession::SendWorldEnterReq1(pPacket, app);
-			CClientSession::SendEnterWorldComplete(pPacket);
-			//CClientSession::SendNpcCreate(pPacket, app);
-			//CClientSession::SendMonsterCreate(pPacket, app);
+			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");
+			CClientSession::SendServerChangeReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:
@@ -476,11 +466,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SKILL_LEARN_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
 		{
 			CClientSession::SendCharLearnSkillReq(pPacket, app);
-		}
-			break;
-		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
-		{
-			CClientSession::SendCharSkillByItemRes(pPacket, app); 
 		}
 			break;
 		case UG_PARTY_CREATE_REQ:
@@ -1041,6 +1026,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_PORTAL_REQ:
 		{
 			CClientSession::SendPortalTelReq(pPacket, app);
+			
 		}
 			break;
 		case UG_WAR_FOG_UPDATE_REQ:
@@ -1278,13 +1264,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_PARTY_DIFF_CHANGE_REQ:
 		{
 			printf("--- UG_PARTY_DIFF_CHANGE_REQ --- \n");
-			//CClientSession::SendPartyChangeDiff(pPacket, app);
+			CClientSession::SendPartyChangeDiff(pPacket, app);
 		}
 			break;
 		case UG_PARTY_DUNGEON_INIT_REQ:
 		{
 			printf("--- UG_PARTY_DUNGEON_INIT_REQ --- \n");
-			//CClientSession::SendInitPartyDungeon(pPacket, app);
+			CClientSession::SendInitPartyDungeon(pPacket, app);
 		}
 			break;
 		case UG_SKILL_INIT_REQ:
@@ -1360,13 +1346,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_HOIPOIMIX_JOB_SET_REQ:
 		{
 			printf("--- UG_HOIPOIMIX_JOB_SET_REQ --- \n");
-			//CClientSession::SendHoiPoiJob(pPacket, app);
+			CClientSession::SendHoiPoiJob(pPacket, app);
 		}
 			break;
 		case UG_HOIPOIMIX_JOB_RESET_REQ:
 		{
 			printf("--- UG_HOIPOIMIX_JOB_RESET_REQ --- \n");
-			//CClientSession::SendHoiPoiJobReset(pPacket, app);
+			CClientSession::SendHoiPoiJobReset(pPacket, app);
 		}
 			break;
 		case UG_VEHICLE_DIRECT_PLAY_CANCEL_NFY:
@@ -1467,14 +1453,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SHOP_NETPYITEM_START_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_START_REQ --- \n");
-			//CClientSession::SendNetPyStart(pPacket, app);
-			//CClientSession::SendNetPyEnd(pPacket, app);//provisory
+			CClientSession::SendNetPyStart(pPacket, app);
 		}
 			break;
 		case UG_SHOP_NETPYITEM_BUY_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_BUY_REQ --- \n");
-			//CClientSession::SendNetPyBuy(pPacket, app);
+			CClientSession::SendNetPyBuy(pPacket, app);
 		}
 			break;
 		case UG_SHOP_NETPYITEM_END_REQ:
@@ -1488,7 +1473,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			printf("--- UG_DOJO_NPC_INFO_REQ --- \n");
 			sUG_WORLD_MAP_STATUS * req = (sUG_WORLD_MAP_STATUS*)pPacket->GetPacketData();
 			req->bIsWorldMapOpen = true;
-
 		}
 			break;
 		case UG_DOJO_NPC_INFO_REQ:
@@ -1541,13 +1525,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CASHITEM_MOVE_REQ:
 		{
 			printf("--- UG_CASHITEM_MOVE_REQ --- \n");
-			//CClientSession::SendCashItemMove(pPacket, app);
+			CClientSession::SendCashItemMove(pPacket, app);
 		}
 			break;
 		case UG_CASHITEM_USE_REQ:
 		{
 			printf("--- UG_CASHITEM_USE_REQ --- \n");
-			//CClientSession::SendCashItemUse(pPacket, app);
+			CClientSession::SendCashItemUse(pPacket, app);
 		}
 			break;
 		case UG_CASHITEM_HLSHOP_START_REQ:
@@ -1571,7 +1555,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CASHITEM_BUY_REQ:
 		{
 			printf("--- UG_CASHITEM_BUY_REQ --- \n");
-			//CClientSession::SendCashItemBuy(pPacket, app);
+			CClientSession::SendCashItemBuy(pPacket, app);
 		}
 		break;
 		case UG_CASHITEM_SEND_GIFT_REQ:
@@ -1613,12 +1597,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			printf("--- UG_GIFT_SHOP_START_REQ --- \n");
 		}
 			break;
-		case UG_SCOUTER_ACTIVATION_REQ:
-		{
-				
-			
-		}
-			break;
 		case UG_PERFORMANCE_DATA_NFY:
 		case UG_PERFORMANCE_DATA_2_NFY:
 		case UG_CHAR_DEST_MOVE_SYNC:
@@ -1655,7 +1633,7 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
     if (false == fileNameList.Create())
     {
         return false;
-    } 
+    }
    // flagManager.Set(CTableContainer::TABLE_WORLD);				
     //flagManager.Set(CTableContainer::TABLE_PC);					
     flagManager.Set(CTableContainer::TABLE_MOB);				
