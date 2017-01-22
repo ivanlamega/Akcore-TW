@@ -37,9 +37,15 @@ public:
 	TBLIDX			aSkillTblidx[NTL_MAX_NEWBIE_SKILL];
 	sNEWBIE_QUICKSLOT_DATA	asQuickData[NTL_MAX_NEWBIE_QUICKSLOT_COUNT];
 	PORTALID		defaultPortalTblidx;
+	uint8_t			unknown1;
+	uint8_t			unknown2;
+
 	TBLIDX			qItemTblidx1;
 	BYTE			byQPosition1;
 	BYTE			byQStackQuantity1;
+
+	uint8_t unknown3;	/* 0x01 ? */
+	uint8_t unknown4;	/* 0x00 ? */
 protected:
 
 	virtual int GetDataSize()

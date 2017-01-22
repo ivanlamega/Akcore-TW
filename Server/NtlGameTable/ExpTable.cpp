@@ -119,6 +119,14 @@ bool CExpTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring* 
 		{
 			pExp->dwNeed_Exp = READ_DWORD( bstrData );
 		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"Unknown1"))
+		{
+			pExp->dwUnknown1 = READ_DWORD(bstrData);
+		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"Unknown2"))
+		{
+			pExp->dwUnknown2 = READ_DWORD(bstrData);
+		}
 		else
 		{
 			CTable::CallErrorCallbackFunction(L"[File] : %s\n[Error] : Unknown field name found!(Field Name = %s)", m_wszXmlFileName, pstrDataName->c_str());

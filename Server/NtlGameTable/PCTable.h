@@ -29,6 +29,7 @@ public:
 	WORD			wBlock_Rate;
 	WORD			wCurse_Success_Rate;
 	WORD			wCurse_Tolerance_Rate;
+	float			fRadius; 
 	WORD			wBasic_Aggro_Point;
 };
 #pragma pack(pop)

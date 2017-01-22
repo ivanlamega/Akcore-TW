@@ -382,6 +382,14 @@ bool CNewbieTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstrin
 		{
 			pNewbie->defaultPortalTblidx = READ_BYTE( bstrData , pstrDataName->c_str() );
 		}		
+		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown_1"))
+		{
+			pNewbie->unknown1 = READ_BYTE(bstrData, pstrDataName->c_str());
+		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown_2"))
+		{
+			pNewbie->unknown2 = READ_BYTE(bstrData, pstrDataName->c_str());
+		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"QItem_Tblidx_1"))
 		{
 			pNewbie->qItemTblidx1 = READ_DWORD( bstrData );
@@ -393,6 +401,14 @@ bool CNewbieTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstrin
 		else if (0 == wcscmp(pstrDataName->c_str(), L"QStack_Quantity_1"))
 		{
 			pNewbie->byQStackQuantity1 = READ_BYTE( bstrData , pstrDataName->c_str() );
+		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown_3"))
+		{
+			pNewbie->unknown3 = READ_BYTE(bstrData, pstrDataName->c_str());
+		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown_4"))
+		{
+			pNewbie->unknown4 = READ_BYTE(bstrData, pstrDataName->c_str());
 		}
 		else
 		{

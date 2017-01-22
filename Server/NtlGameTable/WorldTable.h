@@ -30,13 +30,11 @@ struct sWORLD_TBLDAT : public sTBLDAT
 {
 public:
 
-//	std::string		strName;
 	char			szName[ DBO_MAX_LENGTH_WORLD_NAME + 1];
-//	std::wstring	wstrName;
 	WCHAR			wszName[ DBO_MAX_LENGTH_WORLD_NAME_IN_UNICODE + 1 ];
 	bool			bDynamic;
-	int				nCreateCount;
-	DWORD			unknown1;
+	DWORD			nCreateCount;
+	TBLIDX			unknown1;
 	BYTE			byDoorType;
 
 	DWORD			dwDestroyTimeInMilliSec;
@@ -50,17 +48,24 @@ public:
 
 	CNtlVector		vStart;
 	CNtlVector		vEnd;
+
 	CNtlVector		vStandardLoc;
+
 	CNtlVector		vBattleStartLoc;
 	CNtlVector		vBattleEndLoc;
+
 	CNtlVector		vOutSideBattleStartLoc;
 	CNtlVector		vOutSideBattleEndLoc;
+
 	CNtlVector		vSpectatorStartLoc;
 	CNtlVector		vSpectatorEndLoc;
+
 	CNtlVector		vDefaultLoc;
 	CNtlVector		vDefaultDir;
+
 	CNtlVector		vStart1Loc;
 	CNtlVector		vStart1Dir;
+
 	CNtlVector		vStart2Loc;
 	CNtlVector		vStart2Dir;
 	
@@ -84,8 +89,11 @@ public:
 
 	WCHAR			wszEnterResourceFlash[ DBO_MAX_LENGTH_WORLD_RESOURCE_FLASH_NAME + 1];
 	WCHAR			wszLeaveResourceFlash[ DBO_MAX_LENGTH_WORLD_RESOURCE_FLASH_NAME + 1];
-	uint8_t			unknown3[11];
+
 	TBLIDX			wpsLinkIndex;
+
+	uint8_t			unknown3[11];
+	DWORD			unknown4;
 
 protected:
 

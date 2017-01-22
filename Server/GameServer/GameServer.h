@@ -59,6 +59,7 @@
 #include "dbo_data_table_newbie.h"
 #include "dbo_data_table_pc.h"
 #include "dbo_data_table_world.h"
+#include "TextAllTable.h" //SanGawku Testing
 // END TABLES
 #include "MobActivity.h"
 #include "NtlBitFlagManager.h"

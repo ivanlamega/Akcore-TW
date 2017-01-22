@@ -231,8 +231,8 @@ void CClientSession::SendAvatarSkillInfo(CNtlPacket * pPacket, CGameServer * app
 		res->aSkillInfo[i].dwTimeRemaining = plr->cPlayerSkills->GetSkills()[i].dwTimeRemaining;
 		res->aSkillInfo[i].nExp = plr->cPlayerSkills->GetSkills()[i].nExp;
 		res->aSkillInfo[i].tblidx = plr->cPlayerSkills->GetSkills()[i].tblidx;
-		//res->aSkillInfo[i].tblidx = 0x51af; // this is Fly skyll, dont exist in tblx
-		//res->aSkillInfo[i].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base
+		res->aSkillInfo[i].tblidx = 0x51af; // this is Fly skyll, dont exist in tblx
+		res->aSkillInfo[i].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base
 	}
 	
 	/*memset(res, 0, sizeof(sGU_AVATAR_SKILL_INFO));
@@ -6722,8 +6722,8 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 		if ( level >= 30)
 		{
 		
-	//DST_CHAR_GROWN_DOWN = "PARABÉNS! Você é uma criança!"
-	//	DST_CHAR_GROWN_UP = "Você é um Adulto!"
+	//DST_CHAR_GROWN_DOWN = "PARABÉNS! Voc??uma criança!"
+	//	DST_CHAR_GROWN_UP = "Voc??um Adulto!"
 	//int CharID = plr->GetCharID();
 	
 	adult->bIsAdult = app->db->getBoolean("Adult");

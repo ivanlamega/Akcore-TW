@@ -181,6 +181,11 @@ bool CWorldTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring
 		{
 			pWorld->nCreateCount = READ_DWORD( bstrData );
 		}
+		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown1"))
+		{
+			CheckNegativeInvalid(pstrDataName->c_str(), bstrData);
+			pWorld->unknown1 = READ_DWORD(bstrData);
+		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Field_Door_Type"))
 		{
 			CheckNegativeInvalid( pstrDataName->c_str(), bstrData );
