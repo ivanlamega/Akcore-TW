@@ -384,6 +384,8 @@ public:
 	void						CreateMonsterById(unsigned int uiMobId, int PlayerId);
 	void						CreateNPCById(unsigned int uiNpcId, int PlayerId);
 	void						SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync);
+	//Helper Functions
+	void						UpdateCharState(HOBJECT avHandle, eCHARSTATE state);
 
 	//Game Server functions
 	sGU_OBJECT_CREATE			characterspawnInfo;

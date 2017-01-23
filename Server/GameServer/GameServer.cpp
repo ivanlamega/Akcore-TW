@@ -1656,15 +1656,18 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	{
 		return false;
 	}
-	//flagManager.Set(CTableContainer::TABLE_WORLD);				
-	flagManager.Set(CTableContainer::TABLE_PC);					
+	/*Loadable Tables*/
+	flagManager.Set(CTableContainer::TABLE_PC);
+	flagManager.Set(CTableContainer::TABLE_NEWBIE);
+	flagManager.Set(CTableContainer::TABLE_SKILL);
+	
+	/*Unloadable Tables*/
+	//	 flagManager.Set(CTableContainer::TABLE_WORLD);								
 	//   flagManager.Set(CTableContainer::TABLE_MOB);				
 	//   flagManager.Set(CTableContainer::TABLE_NPC);				
 	//   flagManager.Set(CTableContainer::TABLE_ITEM);				
-	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);		
-	//   flagManager.Set(CTableContainer::TABLE_SKILL);				
+	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
 	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
-	flagManager.Set(CTableContainer::TABLE_NEWBIE);				
 	//   flagManager.Set(CTableContainer::TABLE_MERCHANT);			
 	//   flagManager.Set(CTableContainer::TABLE_HTB_SET);			
 	//   flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
@@ -1674,8 +1677,8 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_CHAT_COMMAND);		
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_ITEM);			
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_TEXT_DATA);	
-	//flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
-	//   //flagManager.Set(CTableContainer::TABLE_OBJECT);			
+	//   flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
+	//   flagManager.Set(CTableContainer::TABLE_OBJECT);			
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_MAP);			
 	//   flagManager.Set(CTableContainer::TABLE_LAND_MARK);			
 	//   flagManager.Set(CTableContainer::TABLE_HELP);				
@@ -1701,30 +1704,32 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_DOJO);				
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
-	////flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
-	////flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
-	//flagManager.Set(CTableContainer::TABLE_FORMULA);
-	//flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	//flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	//flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	//flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	//flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EACH_DROP);
-	//flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
-	//flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EXP);
+	//   flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
+	//   flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
+	//   flagManager.Set(CTableContainer::TABLE_FORMULA);
+	//   flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
+	//   flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EACH_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EXP);
 
-	//
+	/*Loadable Tables*/
+	fileNameList.SetFileName(CTableContainer::TABLE_PC, "Table_PC_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE, "Table_Newbie_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
+
+	/*Unloadable Tables*/
 	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_PC,						"Table_PC_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");	
 	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE,					"Table_Newbie_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_HTB_SET,				"Table_HTB_Set_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
@@ -1792,15 +1797,6 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//g_pTableContainer->SaveToFile(flagManager, &fileNameList, false); 
 	if (bResult != false)
 	{
-		CPCTable* pcTbl= g_pTableContainer->GetPcTable();
-
-		sPC_TBLDAT* noob = (sPC_TBLDAT*)pcTbl->GetPcTbldat(0, 0, 0);
-	
-		cout << "PC Table Data" << endl;
-
-		cout << "Adult Model" << noob->szModel_Adult << endl;
-		cout << "Child Model" << noob->szModel_Child << endl;
-		
 
 		gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
 		gs->printOk("==== LOADING MOBS / NPC ... ====");
