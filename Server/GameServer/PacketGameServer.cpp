@@ -4368,11 +4368,24 @@ void CClientSession::SendCharLearnSkillReq(CNtlPacket * pPacket, CGameServer * a
 }
 void CClientSession::SendCharSkillByItemRes(CNtlPacket * pPacket, CGameServer * app)
 {
-	sUG_SKILL_LEARN_BY_ITEM_REQ * req = (sUG_SKILL_LEARN_BY_ITEM_REQ*)pPacket->GetPacketData();
-
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	CNtlPacket packet20(sizeof(sGU_ITEM_USE_RES));
+	sGU_ITEM_USE_RES * res20 = (sGU_ITEM_USE_RES*)packet20.GetPacketData();
+	sUG_SKILL_LEARN_BY_ITEM_REQ * req = (sUG_SKILL_LEARN_BY_ITEM_REQ*)pPacket->GetPacketData();
+	int CharID = plr->GetCharID();
+	int level = 0;
+	int Class = 0;
+	
 	CNtlPacket packetSkill(sizeof(sGU_SKILL_LEARNED_NFY));
 	sGU_SKILL_LEARNED_NFY * res = (sGU_SKILL_LEARNED_NFY*)packetSkill.GetPacketData();
+	app->db->prepare("SELECT * FROM characters WHERE CharID = ?");
+	app->db->setInt(1, plr->GetCharID());
+	app->db->execute();
+	app->db->fetch();
+	 level = app->db->getInt("Level");
+	 Class = app->db->getInt("Class");
+	 res20->wOpCode = GU_ITEM_USE_RES;
+	 //Bag1 16slot
 	if (req->skillTblidx == 1)
 	{
 		req->test = 1;//pos
@@ -4453,8 +4466,823 @@ void CClientSession::SendCharSkillByItemRes(CNtlPacket * pPacket, CGameServer * 
 		req->test = 1;//bag
 		req->skillTblidx = 15;//slot
 	}
-	//Finish Main Bag 16 slot
-	int CharID = plr->GetCharID();
+	////////////////////////////////////////////////////////////////////////////////////
+	///					               BAG2											///
+	///////////////////////////////////////////////////////////////////////////////////
+	 if (req->skillTblidx == 0)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 0;//slot
+	}
+	else if (req->skillTblidx == 258)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 1;//slot
+	}
+	else if (req->skillTblidx == 514)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 2;//slot
+	}
+	else if (req->skillTblidx == 770)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 3;//slot
+	}
+	else if (req->skillTblidx == 1026)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 4;//slot
+	}
+	else if (req->skillTblidx == 1282)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 5;//slot
+	}
+	else if (req->skillTblidx == 1538)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 6;//slot
+	}
+	else if (req->skillTblidx == 1794)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 7;//slot
+	}
+	else if (req->skillTblidx == 2050)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 8;//slot
+	}
+	else if (req->skillTblidx == 2306)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 9;//slot
+	}
+	else if (req->skillTblidx == 2562)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 10;//slot
+	}
+	else if (req->skillTblidx == 2818)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 11;//slot
+	}
+	else if (req->skillTblidx == 3074)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 12;//slot
+	}
+	else if (req->skillTblidx == 3330)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 13;//slot
+	}
+	else if (req->skillTblidx == 3586)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 14;//slot
+	}
+	else if (req->skillTblidx == 3842)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 15;//slot
+	}
+	else if (req->skillTblidx == 4098)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 16;//slot
+	}
+	else if (req->skillTblidx == 4354)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 17;//slot
+	}
+	else if (req->skillTblidx == 4610)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 18;//slot
+	}
+	else if (req->skillTblidx == 4866)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 19;//slot
+	}
+	else if (req->skillTblidx == 5122)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 20;//slot
+	}
+	else if (req->skillTblidx == 5378)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 21;//slot
+	}
+	else if (req->skillTblidx == 5634)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 22;//slot
+	}
+	else if (req->skillTblidx == 5890)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 23;//slot
+	}
+	else if (req->skillTblidx == 6146)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 24;//slot
+	}
+	else if (req->skillTblidx == 6402)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 25;//slot
+	}
+	else if (req->skillTblidx == 6658)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 26;//slot
+	}
+	else if (req->skillTblidx == 6914)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 27;//slot
+	}
+	else if (req->skillTblidx == 7170)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 28;//slot
+	}
+	else if (req->skillTblidx == 7426)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 29;//slot
+	}
+	else if (req->skillTblidx == 7682)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 30;//slot
+	}
+	else if (req->skillTblidx == 7938)
+	{
+		req->test = 2;//bag
+		req->skillTblidx = 31;//slot
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//							BAG 3									  ///
+	////////////////////////////////////////////////////////////////////////
+	 if (req->skillTblidx == 3)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 0;//slot
+	}
+	else if (req->skillTblidx == 259)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 1;//slot
+	}
+	else if (req->skillTblidx == 515)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 2;//slot
+	}
+	else if (req->skillTblidx == 771)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 3;//slot
+	}
+	else if (req->skillTblidx == 1027)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 4;//slot
+	}
+	else if (req->skillTblidx == 1283)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 5;//slot
+	}
+	else if (req->skillTblidx == 1539)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 6;//slot
+	}
+	else if (req->skillTblidx == 1795)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 7;//slot
+	}
+	else if (req->skillTblidx == 2051)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 8;//slot
+	}
+	else if (req->skillTblidx == 2307)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 9;//slot
+	}
+	else if (req->skillTblidx == 2563)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 10;//slot
+	}
+	else if (req->skillTblidx == 2819)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 11;//slot
+	}
+	else if (req->skillTblidx == 3075)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 12;//slot
+	}
+	else if (req->skillTblidx == 3331)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 13;//slot
+	}
+	else if (req->skillTblidx == 3587)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 14;//slot
+	}
+	else if (req->skillTblidx == 3843)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 15;//slot
+	}
+	else if (req->skillTblidx == 4099)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 16;//slot
+	}
+	else if (req->skillTblidx == 4355)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 17;//slot
+	}
+	else if (req->skillTblidx == 4611)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 18;//slot
+	}
+	else if (req->skillTblidx == 4867)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 19;//slot
+	}
+	else if (req->skillTblidx == 5123)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 20;//slot
+	}
+	else if (req->skillTblidx == 5379)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 21;//slot
+	}
+	else if (req->skillTblidx == 5635)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 22;//slot
+	}
+	else if (req->skillTblidx == 5891)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 23;//slot
+	}
+	else if (req->skillTblidx == 6147)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 24;//slot
+	}
+	else if (req->skillTblidx == 6403)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 25;//slot
+	}
+	else if (req->skillTblidx == 6659)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 26;//slot
+	}
+	else if (req->skillTblidx == 6915)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 27;//slot
+	}
+	else if (req->skillTblidx == 7171)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 28;//slot
+	}
+	else if (req->skillTblidx == 7427)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 29;//slot
+	}
+	else if (req->skillTblidx == 7683)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 30;//slot
+	}
+	else if (req->skillTblidx == 7939)
+	{
+		req->test = 3;//bag
+		req->skillTblidx = 31;//slot
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//							BAG 4									  ///
+	////////////////////////////////////////////////////////////////////////
+	 if (req->skillTblidx == 4)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 0;//slot
+	}
+	else if (req->skillTblidx == 260)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 1;//slot
+	}
+	else if (req->skillTblidx == 516)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 2;//slot
+	}
+	else if (req->skillTblidx == 772)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 3;//slot
+	}
+	else if (req->skillTblidx == 1028)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 4;//slot
+	}
+	else if (req->skillTblidx == 1284)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 5;//slot
+	}
+	else if (req->skillTblidx == 1540)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 6;//slot
+	}
+	else if (req->skillTblidx == 1796)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 7;//slot
+	}
+	else if (req->skillTblidx == 2052)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 8;//slot
+	}
+	else if (req->skillTblidx == 2308)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 9;//slot
+	}
+	else if (req->skillTblidx == 2564)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 10;//slot
+	}
+	else if (req->skillTblidx == 2820)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 11;//slot
+	}
+	else if (req->skillTblidx == 3076)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 12;//slot
+	}
+	else if (req->skillTblidx == 3332)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 13;//slot
+	}
+	else if (req->skillTblidx == 3588)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 14;//slot
+	}
+	else if (req->skillTblidx == 3844)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 15;//slot
+	}
+	else if (req->skillTblidx == 4100)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 16;//slot
+	}
+	else if (req->skillTblidx == 4356)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 17;//slot
+	}
+	else if (req->skillTblidx == 4612)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 18;//slot
+	}
+	else if (req->skillTblidx == 4868)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 19;//slot
+	}
+	else if (req->skillTblidx == 5124)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 20;//slot
+	}
+	else if (req->skillTblidx == 5380)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 21;//slot
+	}
+	else if (req->skillTblidx == 5636)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 22;//slot
+	}
+	else if (req->skillTblidx == 5892)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 23;//slot
+	}
+	else if (req->skillTblidx == 6148)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 24;//slot
+	}
+	else if (req->skillTblidx == 6404)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 25;//slot
+	}
+	else if (req->skillTblidx == 6660)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 26;//slot
+	}
+	else if (req->skillTblidx == 6916)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 27;//slot
+	}
+	else if (req->skillTblidx == 7172)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 28;//slot
+	}
+	else if (req->skillTblidx == 7428)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 29;//slot
+	}
+	else if (req->skillTblidx == 7684)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 30;//slot
+	}
+	else if (req->skillTblidx == 7940)
+	{
+		req->test = 4;//bag
+		req->skillTblidx = 31;//slot
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//							BAG 5									  ///
+	////////////////////////////////////////////////////////////////////////
+	 if (req->skillTblidx == 5)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 0;//slot
+	}
+	else if (req->skillTblidx == 261)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 1;//slot
+	}
+	else if (req->skillTblidx == 517)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 2;//slot
+	}
+	else if (req->skillTblidx == 773)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 3;//slot
+	}
+	else if (req->skillTblidx == 1029)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 4;//slot
+	}
+	else if (req->skillTblidx == 1285)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 5;//slot
+	}
+	else if (req->skillTblidx == 1541)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 6;//slot
+	}
+	else if (req->skillTblidx == 1797)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 7;//slot
+	}
+	else if (req->skillTblidx == 2053)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 8;//slot
+	}
+	else if (req->skillTblidx == 2309)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 9;//slot
+	}
+	else if (req->skillTblidx == 2565)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 10;//slot
+	}
+	else if (req->skillTblidx == 2821)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 11;//slot
+	}
+	else if (req->skillTblidx == 3077)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 12;//slot
+	}
+	else if (req->skillTblidx == 3333)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 13;//slot
+	}
+	else if (req->skillTblidx == 3589)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 14;//slot
+	}
+	else if (req->skillTblidx == 3845)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 15;//slot
+	}
+	else if (req->skillTblidx == 4101)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 16;//slot
+	}
+	else if (req->skillTblidx == 4357)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 17;//slot
+	}
+	else if (req->skillTblidx == 4613)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 18;//slot
+	}
+	else if (req->skillTblidx == 4869)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 19;//slot
+	}
+	else if (req->skillTblidx == 5125)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 20;//slot
+	}
+	else if (req->skillTblidx == 5381)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 21;//slot
+	}
+	else if (req->skillTblidx == 5637)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 22;//slot
+	}
+	else if (req->skillTblidx == 5893)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 23;//slot
+	}
+	else if (req->skillTblidx == 6149)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 24;//slot
+	}
+	else if (req->skillTblidx == 6405)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 25;//slot
+	}
+	else if (req->skillTblidx == 6661)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 26;//slot
+	}
+	else if (req->skillTblidx == 6917)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 27;//slot
+	}
+	else if (req->skillTblidx == 7173)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 28;//slot
+	}
+	else if (req->skillTblidx == 7429)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 29;//slot
+	}
+	else if (req->skillTblidx == 7685)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 30;//slot
+	}
+	else if (req->skillTblidx == 7941)
+	{
+		req->test = 5;//bag
+		req->skillTblidx = 31;//slot
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//							BAG 6									  ///
+	////////////////////////////////////////////////////////////////////////
+	 if (req->skillTblidx == 6)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 0;//slot
+	}
+	else if (req->skillTblidx == 262)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 1;//slot
+	}
+	else if (req->skillTblidx == 518)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 2;//slot
+	}
+	else if (req->skillTblidx == 774)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 3;//slot
+	}
+	else if (req->skillTblidx == 1030)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 4;//slot
+	}
+	else if (req->skillTblidx == 1286)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 5;//slot
+	}
+	else if (req->skillTblidx == 1542)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 6;//slot
+	}
+	else if (req->skillTblidx == 1798)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 7;//slot
+	}
+	else if (req->skillTblidx == 2054)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 8;//slot
+	}
+	else if (req->skillTblidx == 2310)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 9;//slot
+	}
+	if (req->skillTblidx == 2566)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 10;//slot
+	}
+	else if (req->skillTblidx == 2822)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 11;//slot
+	}
+	else if (req->skillTblidx == 3078)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 12;//slot
+	}
+	else if (req->skillTblidx == 3334)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 13;//slot
+	}
+	else if (req->skillTblidx == 3590)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 14;//slot
+	}
+	else if (req->skillTblidx == 3846)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 15;//slot
+	}
+	else if (req->skillTblidx == 4102)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 16;//slot
+	}
+	else if (req->skillTblidx == 4358)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 17;//slot
+	}
+	else if (req->skillTblidx == 4614)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 18;//slot
+	}
+	else if (req->skillTblidx == 4870)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 19;//slot
+	}
+	else if (req->skillTblidx == 5126)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 20;//slot
+	}
+	else if (req->skillTblidx == 5382)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 21;//slot
+	}
+	else if (req->skillTblidx == 5638)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 22;//slot
+	}
+	else if (req->skillTblidx == 5894)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 23;//slot
+	}
+	else if (req->skillTblidx == 6150)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 24;//slot
+	}
+	else if (req->skillTblidx == 6406)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 25;//slot
+	}
+	else if (req->skillTblidx == 6662)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 26;//slot
+	}
+	else if (req->skillTblidx == 6918)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 27;//slot
+	}
+	else if (req->skillTblidx == 7174)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 28;//slot
+	}
+	else if (req->skillTblidx == 7430)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 29;//slot
+	}
+	else if (req->skillTblidx == 7686)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 30;//slot
+	}
+	else if (req->skillTblidx == 7942)
+	{
+		req->test = 6;//bag
+		req->skillTblidx = 31;//slot
+	}
+	//Finish all bag 
+	
 	int item = 0;
 	app->db->prepare("SELECT * FROM items WHERE owner_id = ? AND place = ? AND pos = ?");
 	app->db->setInt(1, plr->GetCharID());
@@ -4463,275 +5291,355 @@ void CClientSession::SendCharSkillByItemRes(CNtlPacket * pPacket, CGameServer * 
 	app->db->execute();
 	app->db->fetch();
 
-	item = app->db->getInt("tblidx");
-
+	item = app->db->getInt("tblidx");//disable for get bag id or crash
+	printf("class %d \n", Class);
 	printf("item %d \n test %d \n test1 %d \n tblidx %d \n ", req->skillTblidx, req->test, req->test1, item );
 	//CSkillTable * pSkillTable = app->g_pTableContainer->GetSkillTable();
 	//sSKILL_TBLDAT *pSkillSetTblData = reinterpret_cast<sSKILL_TBLDAT*>(pSkillTable->FindData(req->skillTblidx));
+	//Start skill Item Martial Artist / figther / sword
 	if (item == 11120142)//Fly skill MA
 	{
-		res->wOpCode = GU_SKILL_LEARNED_NFY;
-		res->skillId = 20911;
-		res->bySlot = 50;
-		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
-		g_pApp->Send(this->GetHandle(), &packetSkill);
+		if ((Class == 0 || Class == 7 || Class == 8))//if class is 0 MA 7 figther 8 Sworsdman
+		{
+			if (level >= 30)//se o level for maior ou igual
+			{
 
-		//app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+				res->wOpCode = GU_SKILL_LEARNED_NFY;
+				res->skillId = 20911;
+				res->bySlot = 50;
+				packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+				g_pApp->Send(this->GetHandle(), &packetSkill);
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+				//app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->test);
-		app->db->setInt(3, req->skillTblidx);
-		app->db->execute();
-		app->db->fetch();
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->test);
+				app->db->setInt(3, req->skillTblidx);
+				app->db->execute();
+				app->db->fetch();
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
+			}
+			else//falha nivel
+			{
+				printf("fail nivel");
+				res20->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
+			}
+		}
+		else//falha class
+		{
+			res20->wResultCode = GAME_ITEM_CLASS_FAIL;
+		}
 	}
+
 	else if (item == 11120118)//power UP M.A
 	{
-		res->wOpCode = GU_SKILL_LEARNED_NFY;
-		res->skillId = 20221;
-		res->bySlot = 51;
-		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
-		g_pApp->Send(this->GetHandle(), &packetSkill);
+		if ((Class == 0 || Class == 7 || Class == 8))//if class is 0 MA 7 figther 8 Sworsdman
+		{
+			if (level >= 4)
+			{
+				res->wOpCode = GU_SKILL_LEARNED_NFY;
+				res->skillId = 20221;
+				res->bySlot = 51;
+				packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+				g_pApp->Send(this->GetHandle(), &packetSkill);
 
-		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+				app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->test);
-		app->db->setInt(3, req->skillTblidx);
-		app->db->execute();
-		app->db->fetch();
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->test);
+				app->db->setInt(3, req->skillTblidx);
+				app->db->execute();
+				app->db->fetch();
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
+			}
+			else
+			{
+				res20->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
+			}
+		}
+		else
+		{
+			res20->wResultCode = GAME_ITEM_CLASS_FAIL;
+		}
 	}
 	else if (item == 11120124)//Guard skill M.A
 	{
-		res->wOpCode = GU_SKILL_LEARNED_NFY;
-		res->skillId = 20201;
-		res->bySlot = 52;
-		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
-		g_pApp->Send(this->GetHandle(), &packetSkill);
+		if ((Class == 0 || Class == 7 || Class == 8))//if class is 0 MA 7 figther 8 Sworsdman
+		{
+			if (level >= 9)
+			{
+				res->wOpCode = GU_SKILL_LEARNED_NFY;
+				res->skillId = 20201;
+				res->bySlot = 52;
+				packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+				g_pApp->Send(this->GetHandle(), &packetSkill);
 
-		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+				app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->test);
-		app->db->setInt(3, req->skillTblidx);
-		app->db->execute();
-		app->db->fetch();
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->test);
+				app->db->setInt(3, req->skillTblidx);
+				app->db->execute();
+				app->db->fetch();
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
+			}
+			else
+			{
+				res20->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
+			}
+		}
+		else
+		{
+			res20->wResultCode = GAME_ITEM_CLASS_FAIL;
+		}
 	}
 	else if (item == 11120130)//Dash skill M.A
 	{
-		res->wOpCode = GU_SKILL_LEARNED_NFY;
-		res->skillId = 20211;
-		res->bySlot = 53;
-		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
-		g_pApp->Send(this->GetHandle(), &packetSkill);
+		if ((Class == 0 || Class == 7 || Class == 8))//if class is 0 MA 7 figther 8 Sworsdman
+		{
+			if (level >= 14)
+			{
+				res->wOpCode = GU_SKILL_LEARNED_NFY;
+				res->skillId = 20211;
+				res->bySlot = 53;
+				packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+				g_pApp->Send(this->GetHandle(), &packetSkill);
 
-		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+				app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->test);
-		app->db->setInt(3, req->skillTblidx);
-		app->db->execute();
-		app->db->fetch();
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->test);
+				app->db->setInt(3, req->skillTblidx);
+				app->db->execute();
+				app->db->fetch();
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
+			}
+			else
+			{
+				res20->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
+			}
+		}
+		else
+		{
+			res20->wResultCode = GAME_ITEM_CLASS_FAIL;
+		}
 	}
 	else if (item == 11120136)//Contra atack skill M.A
 	{
-		res->wOpCode = GU_SKILL_LEARNED_NFY;
-		res->skillId = 10021;
-		res->bySlot = 54;
-		packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
-		g_pApp->Send(this->GetHandle(), &packetSkill);
+		if ((Class == 0 || Class == 7 || Class == 8))//if class is 0 MA 7 figther 8 Sworsdman
+		{
+			if (level >= 9)
+			{
+				res->wOpCode = GU_SKILL_LEARNED_NFY;
+				res->skillId = 10021;
+				res->bySlot = 54;
+				packetSkill.SetPacketLen(sizeof(sGU_SKILL_LEARNED_NFY));
+				g_pApp->Send(this->GetHandle(), &packetSkill);
 
-		app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
+				app->qry->InsertNewSkill(res->skillId, plr->GetCharID(), res->bySlot, 0, 1);
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->test);
-		app->db->setInt(3, req->skillTblidx);
-		app->db->execute();
-		app->db->fetch();
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->test);
+				app->db->setInt(3, req->skillTblidx);
+				app->db->execute();
+				app->db->fetch();
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
+			}
+			else
+			{
+				res20->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
+			}
+		}
+		else
+		{
+			res20->wResultCode = GAME_ITEM_CLASS_FAIL;
+		}
+
 	}
+	//Spiritualist / Turtle / Crane
+
+	packet20.SetPacketLen(sizeof(sGU_ITEM_USE_RES));
+	g_pApp->Send(this->GetHandle(), &packet20);
+	
 	CNtlPacket packetSkill1(sizeof(sGU_SKILL_LEARN_RES));
 	sGU_SKILL_LEARN_RES * res1 = (sGU_SKILL_LEARN_RES *)packetSkill1.GetPacketData();
 
 	res1->wOpCode = GU_SKILL_LEARN_RES;
-	res1->wResultCode = 500;
+	res1->wResultCode = GAME_SUCCESS;
 
 	packetSkill1.SetPacketLen(sizeof(sGU_SKILL_LEARN_RES));
 	g_pApp->Send(this->GetHandle(), &packetSkill1);
-
+	
 
 
 	plr = NULL;
@@ -6852,12 +7760,58 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 		{
 			res->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
 		}
-	}
+	}	
 	
+	else if (res->tblidxItem == 11120117)
+	{
+		if (level <= 29)
+		{
+		
+		CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_SP));
+		sGU_UPDATE_CHAR_SP * res2 = (sGU_UPDATE_CHAR_SP *)packet2.GetPacketData();
+		plr->GetPcProfile()->dwCurExp -= plr->GetPcProfile()->dwMaxExpInThisLevel;
+		plr->GetPcProfile()->dwMaxExpInThisLevel += (plr->GetPcProfile()->dwMaxExpInThisLevel * 1);
+		CNtlPacket packet1(sizeof(sGU_UPDATE_CHAR_LEVEL));
+		sGU_UPDATE_CHAR_LEVEL * response1 = (sGU_UPDATE_CHAR_LEVEL*)packet1.GetPacketData();
+		plr->GetPcProfile()->byLevel = 30;
+		response1->byCurLevel = plr->GetPcProfile()->byLevel;
+		response1->byPrevLevel = plr->GetPcProfile()->byLevel - 1;
+		response1->dwMaxExpInThisLevel = plr->GetPcProfile()->dwMaxExpInThisLevel;
+		response1->handle = plr->GetAvatarHandle();
+		response1->wOpCode = GU_UPDATE_CHAR_LEVEL;
+		packet1.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LEVEL));
+		g_pApp->Send(this->GetHandle(), &packet1);
+		plr->SetLevelUP();
+		//plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
+		plr->GetPcProfile()->dwSpPoint = 30;
+		app->qry->UpdateSPPoint(plr->GetCharID(), plr->GetPcProfile()->dwSpPoint);
+		app->qry->UpdatePlayerLevel(plr->GetPcProfile()->byLevel, plr->GetCharID(), plr->GetPcProfile()->dwCurExp, plr->GetPcProfile()->dwMaxExpInThisLevel);
+		//response->dwCurExp = plr->GetPcProfile()->dwCurExp;
+		plr->SetRPBall();
+		plr->SendRpBallInformation();
+		res2->wOpCode = GU_UPDATE_CHAR_SP;
+		res2->dwSpPoint = plr->GetPcProfile()->dwSpPoint;
+		packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SP));
+		g_pApp->Send(this->GetHandle(), &packet2);
+
+		CNtlPacket packet4(sizeof(sGU_UPDATE_CHAR_STATE));
+		sGU_UPDATE_CHAR_STATE* res4 = (sGU_UPDATE_CHAR_STATE*)packet4.GetPacketData();
+		res4->handle = this->GetavatarHandle();
+		res4->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+		res4->wOpCode = GU_UPDATE_CHAR_STATE;
+		packet4.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+		g_pApp->Send(this->GetHandle(), &packet4);
+		}
+		else
+		{
+			res->wResultCode = GAME_ITEM_NOT_READY_TO_BE_USED;
+		}
+	}
 	else//se nao for kid clock id falha
 	{
-		res->wResultCode = GAME_ITEM_CANT_USE_NOW;
+		res->wResultCode = GAME_ITEM_NOT_READY_TO_BE_USED;
 	}
+		
 		packet.SetPacketLen(sizeof(sGU_ITEM_USE_RES));
 		packet5.SetPacketLen(sizeof(sGU_VEHICLE_START_NFY));
 		packet6.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
@@ -7700,101 +8654,19 @@ void CClientSession::SendPartyChangeItem(CNtlPacket * pPacket, CGameServer * app
 //----------------------------------//
 void CClientSession::SendNetPyStart(CNtlPacket * pPacket, CGameServer * app)
 {
-	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-	//plr->SetPlayerFight(false);
-	CNtlPacket packet3(sizeof(SpawnMOB));
-	SpawnMOB * res3 = (SpawnMOB *)packet3.GetPacketData();
-	CGameServer::ITEMDROPEDFROMMOB* itemDropped = app->FindItemPickup(res3->Handle);
-	res3->wOpCode = GU_OBJECT_CREATE;
-	res3->Type = OBJTYPE_MOB;
-	res3->Handle = 10;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res3->Tblidx = 11111101;
-	res3->Loc[0] = 4745.970215;// curpos.x;
-	res3->Loc[1] = -61.810001; //curpos.y;
-	res3->Loc[2] = 4070.149902;// curpos.z;
-	res3->Dir[0] = 0.000000;
-	res3->Dir[1] = -0.0;
-	res3->Dir[2] = 1.000000;
-	res3->Size = 10;
-	res3->curEP = 0;
-	res3->maxEP = 0;
-	res3->curLP = 0;
-	res3->maxLP = 0;
-	res3->Level = 70;
-	res3->StateID = CHARSTATE_FAINTING;
+	
 
-	//CNtlPacket packet1(sizeof(sGU_SHOP_NETPYITEM_START_RES));
-	//sGU_SHOP_NETPYITEM_START_RES* res1 = (sGU_SHOP_NETPYITEM_START_RES*)packet1.GetPacketData();
+	CNtlPacket packet1(sizeof(sGU_SHOP_NETPYITEM_START_RES));
+	sGU_SHOP_NETPYITEM_START_RES* res1 = (sGU_SHOP_NETPYITEM_START_RES*)packet1.GetPacketData();
 
-	//res1->byType = 0;
-	//res1->wOpCode = GU_SHOP_NETPYITEM_START_RES;
-	//res1->wResultCode = GAME_SUCCESS;
-	//packet1.SetPacketLen(sizeof(sGU_SHOP_NETPYITEM_START_RES));
-	//g_pApp->Send(this->GetHandle(), &packet1);
+	res1->byType = 0;
+	res1->wOpCode = GU_SHOP_NETPYITEM_START_RES;
+	res1->wResultCode = GAME_SUCCESS;
+	packet1.SetPacketLen(sizeof(sGU_SHOP_NETPYITEM_START_RES));
+	g_pApp->Send(this->GetHandle(), &packet1);
 
 	
-	CNtlPacket packet(sizeof(Drop));
-	Drop * res = (Drop *)packet.GetPacketData();
-
-	//Legendary Drops
-	//if (DropDat->aLegendaryDropTblidx[i] != INVALID_TBLIDX  && (random <= DropDat->afLegendaryTblidxRate[i]))
-	{
-			//sLEGENDARY_DROP_TBLDAT* sDropDat = (sLEGENDARY_DROP_TBLDAT*)(sdrop->FindData(DropDat->aLegendaryDropTblidx[i]));
-		//	cout << "lDropDat tblidx = " << sDropDat->aItem_Tblidx[i] << endl;
-			//for (int z = 0; z < NTL_MAX_LEGENDARY_DROP; z++)
-		{
-					//if (sDropDat->aItem_Tblidx[z] != INVALID_TBLIDX && sDropDat->aItem_Tblidx[z] < 200000 && (random <= sDropDat->afDrop_Rate[i]))
-			{
-				printf("item drop \n");
-				//Randomizing numbers for  see if the player get a Fucking item
-				std::random_device rd4;
-				std::mt19937_64 mt4(rd4());
-				std::uniform_int_distribution<int> distribution4(10, 15);
-				//sITEM_TBLDAT* pLegendary = (sITEM_TBLDAT*)app->g_pTableContainer->GetItemTable()->FindData(sDropDat->aItem_Tblidx[z]);
-				res->Handle = AcquireItemSerialId()+1;
-				res->Type = OBJTYPE_DROPITEM;
-				res->Tblidx = 11170019 + rand() % 261 +1;
-				res->Grade = 0;
-				res->Rank = ITEM_RANK_LEGENDARY;
-				res->IsNew = false;
-				//res->bNeedToIdentify = false;
-				res->Loc[0] = 4745 + rand() % 5 + 1;
-				res->Loc[1] = 0;
-				res->Loc[2] = 4070 + rand() % 5 +1;
-				
-				//res->Size = 5;
-				
-				res->wOpCode = GU_OBJECT_CREATE;
-				printf("Item Created %d \n Local X %d \n Local Y %d \n Local Z %d \n", res->Tblidx, res->Loc[0], res->Tblidx, res->Loc[1], res->Tblidx, res->Loc[2]);
-				
-				//		app->AddNewItemDrop(res2->handle, sDropDat->aItem_Tblidx[z], res2->sObjectInfo.itemBrief.byGrade, res2->sObjectInfo.itemBrief.byRank);
-				if (res->Tblidx == 11170058)
-				{
-					printf("item Error \n");
-					res->Handle = AcquireItemSerialId() +1;
-					res->Type = OBJTYPE_DROPITEM;
-					res->Tblidx = 11170019;
-					res->Grade = 0;
-					res->Rank = ITEM_RANK_LEGENDARY;
-					res->IsNew = false;
-					//res->bNeedToIdentify = false;
-					res->Loc[0] = 4718 + rand() % 50;
-					res->Loc[1] = 0;
-					res->Loc[2] = 4068 + rand() % 50;
-					res->Dir[0] = 0 + rand() % 50;
-					res->Dir[1] = 0;
-					res->Dir[2] = 0 + rand() % 50;
-					res->wOpCode = GU_OBJECT_CREATE;
-				}
-				
-				
-			}
-		}
-	}
-	packet.SetPacketLen(sizeof(Drop));
-	g_pApp->Send(this->GetHandle(), &packet);
-	packet3.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(this->GetHandle(), &packet3);
+	
 
 	
 }
@@ -8726,11 +9598,11 @@ void CClientSession::SendDragonballsEvent(CNtlPacket * pPacket, CGameServer * ap
 	sGU_DRAGONBALL_SCHEDULE_INFO* res = (sGU_DRAGONBALL_SCHEDULE_INFO*)packet.GetPacketData();
 
 	res->bIsAlive = 1;
-	res->byEventType = 1;
-	res->byTermType = 0;
-	res->dwMainTerm = 0;
-	res->dwSubTerm = 1;
-	res->nEndTime = 0;
+	res->byEventType = 2;
+	res->byTermType = 5;
+	res->dwMainTerm = 4;
+	res->dwSubTerm = 3;
+	res->nEndTime = 6;
 	res->nStartTime = 1;
 	res->wOpCode = GU_DRAGONBALL_SCHEDULE_INFO;
 	
@@ -8774,14 +9646,101 @@ void CClientSession::SendUpdateToken(CNtlPacket * pPacket, CGameServer * app)
 }
 void CClientSession::SenGiftShop(CNtlPacket * pPacket, CGameServer * app)
 {
-	CNtlPacket packet(sizeof(sGU_GIFT_SHOP_START_REQ));
-	sGU_GIFT_SHOP_START_REQ* res = (sGU_GIFT_SHOP_START_REQ*)packet.GetPacketData();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	//plr->SetPlayerFight(false);
+	CNtlPacket packet3(sizeof(SpawnMOB));
+	SpawnMOB * res3 = (SpawnMOB *)packet3.GetPacketData();
+	CGameServer::ITEMDROPEDFROMMOB* itemDropped = app->FindItemPickup(res3->Handle);
+	res3->wOpCode = GU_OBJECT_CREATE;
+	res3->Type = OBJTYPE_MOB;
+	res3->Handle = 10;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
+	res3->Tblidx = 11111101;
+	res3->Loc[0] = 4745.970215;// curpos.x;
+	res3->Loc[1] = -61.810001; //curpos.y;
+	res3->Loc[2] = 4070.149902;// curpos.z;
+	res3->Dir[0] = 0.000000;
+	res3->Dir[1] = -0.0;
+	res3->Dir[2] = 1.000000;
+	res3->Size = 10;
+	res3->curEP = 0;
+	res3->maxEP = 0;
+	res3->curLP = 0;
+	res3->maxLP = 0;
+	res3->Level = 70;
+	res3->StateID = CHARSTATE_FAINTING;
 
-	res->dwRemainAmount = 10;
-	res->wOpCode = GU_GIFT_SHOP_START_REQ;
-	
+	//CNtlPacket packet1(sizeof(sGU_SHOP_NETPYITEM_START_RES));
+	//sGU_SHOP_NETPYITEM_START_RES* res1 = (sGU_SHOP_NETPYITEM_START_RES*)packet1.GetPacketData();
+
+	//res1->byType = 0;
+	//res1->wOpCode = GU_SHOP_NETPYITEM_START_RES;
+	//res1->wResultCode = GAME_SUCCESS;
+	//packet1.SetPacketLen(sizeof(sGU_SHOP_NETPYITEM_START_RES));
+	//g_pApp->Send(this->GetHandle(), &packet1);
 
 
-	packet.SetPacketLen(sizeof(sGU_GIFT_SHOP_START_REQ));
+	CNtlPacket packet(sizeof(Drop));
+	Drop * res = (Drop *)packet.GetPacketData();
+
+	//Legendary Drops
+	//if (DropDat->aLegendaryDropTblidx[i] != INVALID_TBLIDX  && (random <= DropDat->afLegendaryTblidxRate[i]))
+	{
+		//sLEGENDARY_DROP_TBLDAT* sDropDat = (sLEGENDARY_DROP_TBLDAT*)(sdrop->FindData(DropDat->aLegendaryDropTblidx[i]));
+		//	cout << "lDropDat tblidx = " << sDropDat->aItem_Tblidx[i] << endl;
+		//for (int z = 0; z < NTL_MAX_LEGENDARY_DROP; z++)
+		{
+			//if (sDropDat->aItem_Tblidx[z] != INVALID_TBLIDX && sDropDat->aItem_Tblidx[z] < 200000 && (random <= sDropDat->afDrop_Rate[i]))
+			{
+				printf("item drop \n");
+				//Randomizing numbers for  see if the player get a Fucking item
+				std::random_device rd4;
+				std::mt19937_64 mt4(rd4());
+				std::uniform_int_distribution<int> distribution4(10, 15);
+				//sITEM_TBLDAT* pLegendary = (sITEM_TBLDAT*)app->g_pTableContainer->GetItemTable()->FindData(sDropDat->aItem_Tblidx[z]);
+				res->Handle = AcquireItemSerialId() + 1;
+				res->Type = OBJTYPE_DROPITEM;
+				res->Tblidx = 11170019 + rand() % 261 + 1;
+				res->Grade = 0;
+				res->Rank = ITEM_RANK_LEGENDARY;
+				res->IsNew = false;
+				//res->bNeedToIdentify = false;
+				res->Loc[0] = 4745 + rand() % 5 + 1;
+				res->Loc[1] = 0;
+				res->Loc[2] = 4070 + rand() % 5 + 1;
+
+				//res->Size = 5;
+
+				res->wOpCode = GU_OBJECT_CREATE;
+				printf("Item Created %d \n Local X %d \n Local Y %d \n Local Z %d \n", res->Tblidx, res->Loc[0], res->Tblidx, res->Loc[1], res->Tblidx, res->Loc[2]);
+
+				//		app->AddNewItemDrop(res2->handle, sDropDat->aItem_Tblidx[z], res2->sObjectInfo.itemBrief.byGrade, res2->sObjectInfo.itemBrief.byRank);
+				if (res->Tblidx == 11170058)
+				{
+					printf("item Error \n");
+					res->Handle = AcquireItemSerialId() + 1;
+					res->Type = OBJTYPE_DROPITEM;
+					res->Tblidx = 11170019;
+					res->Grade = 0;
+					res->Rank = ITEM_RANK_LEGENDARY;
+					res->IsNew = false;
+					//res->bNeedToIdentify = false;
+					res->Loc[0] = 4718 + rand() % 50;
+					res->Loc[1] = 0;
+					res->Loc[2] = 4068 + rand() % 50;
+					res->Dir[0] = 0 + rand() % 50;
+					res->Dir[1] = 0;
+					res->Dir[2] = 0 + rand() % 50;
+					res->wOpCode = GU_OBJECT_CREATE;
+				}
+
+
+			}
+		}
+	}
+	packet.SetPacketLen(sizeof(Drop));
 	g_pApp->Send(this->GetHandle(), &packet);
+	packet3.SetPacketLen(sizeof(SpawnMOB));
+	g_pApp->Send(this->GetHandle(), &packet3);
+
+
 }
