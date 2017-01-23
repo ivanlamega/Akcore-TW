@@ -480,7 +480,6 @@ enum eOPCODE_GU
 	GU_CREATE_BANK_NFY,
 	GU_PREMIUM_SLOT_COUNT_INFO_NFY,
 	GU_CHILD_ADULT_SWITCHED_NFY,
-	GU_ADULT_CHILD_SWITCHED_NFY,
 	GU_CHANGE_CLASS_AUTHORITY_CHANGED_NFY,
 	GU_PLAY_BGM,
 	GU_PLAY_JINGLE,
@@ -1182,6 +1181,7 @@ END_PROTOCOL()
 BEGIN_PROTOCOL(GU_SKILL_LEARNED_NFY)
 	TBLIDX			skillId;
 	BYTE			bySlot;
+	WORD			wResultCode;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_SKILL_UPGRADE_RES)
@@ -3793,11 +3793,7 @@ BEGIN_PROTOCOL(GU_CHILD_ADULT_SWITCHED_NFY)
 	bool				bIsAdult;
 	WORD				wResultCode;
 END_PROTOCOL()
-BEGIN_PROTOCOL(GU_ADULT_CHILD_SWITCHED_NFY)
-HOBJECT				hSubject;
-bool				bIsAdult;
-WORD				wResultCode;
-END_PROTOCOL()
+
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHANGE_CLASS_AUTHORITY_CHANGED_NFY)
 	bool				bCanChangeClass;
@@ -4052,5 +4048,9 @@ WORD				wResultCode;
 DWORD	test;
 BYTE	test1;
 BYTE	test2;
+END_PROTOCOL()
+BEGIN_PROTOCOL(GU_CHARTITLE_ADD)
+WORD				wResultCode;
+sMARKING			title;
 END_PROTOCOL()
 #pragma pack(pop)
