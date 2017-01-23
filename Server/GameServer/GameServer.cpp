@@ -1029,18 +1029,18 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_PORTAL_START_REQ:
 		{
-			CClientSession::SendPortalStartReq(pPacket, app);
+			//CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_ADD_REQ:
 		{
-			CClientSession::SendPortalAddReq(pPacket, app);
-			CClientSession::SendPortalStartReq(pPacket, app);
+			//CClientSession::SendPortalAddReq(pPacket, app);
+			//CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_REQ:
 		{
-			CClientSession::SendPortalTelReq(pPacket, app);
+			//CClientSession::SendPortalTelReq(pPacket, app);
 		}
 			break;
 		case UG_WAR_FOG_UPDATE_REQ:
@@ -1660,12 +1660,14 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	flagManager.Set(CTableContainer::TABLE_PC);
 	flagManager.Set(CTableContainer::TABLE_NEWBIE);
 	flagManager.Set(CTableContainer::TABLE_SKILL);
-	
+	/*Tables in Progress*/
+	flagManager.Set(CTableContainer::TABLE_ITEM);	//Table loads. Data is incorrect after first 60 bytes			
+	flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);
+
 	/*Unloadable Tables*/
 	//	 flagManager.Set(CTableContainer::TABLE_WORLD);								
 	//   flagManager.Set(CTableContainer::TABLE_MOB);				
 	//   flagManager.Set(CTableContainer::TABLE_NPC);				
-	//   flagManager.Set(CTableContainer::TABLE_ITEM);				
 	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
 	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
 	//   flagManager.Set(CTableContainer::TABLE_MERCHANT);			
@@ -1723,11 +1725,14 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE, "Table_Newbie_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
 
+	/*Tables in progress*/
+	fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL_REWARD,		"Table_DB_Reward_Data");
+
 	/*Unloadable Tables*/
 	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");	
 	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
