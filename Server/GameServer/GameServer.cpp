@@ -233,7 +233,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_FALLING:
 		{
-			CClientSession::SendCharFalling(pPacket, app);
+			//CClientSession::SendCharFalling(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TOGG_SITDOWN:
@@ -248,6 +248,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TOGG_FIGHTING:
 		{
 			CClientSession::SendCharToggleFighting(pPacket, app);
+			CClientSession::SendNetPyStart(pPacket, app);
+			
 		}
 			break;
 		//case UG_CHAR_TOGG_RUNNING:
@@ -258,6 +260,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_SELECT:
 		{
 			CClientSession::SendCharTargetSelect(pPacket);
+			//CClientSession::SendScouterIndicatorReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TARGET_INFO:
@@ -268,17 +271,20 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_FACING:
 		{
 			CClientSession::SendCharTargetFacing(pPacket);
+			
 		}
 			break;
 		case UG_CHAR_ATTACK_BEGIN:
 		{
 			CClientSession::SendAttackBegin(pPacket,app);
+			
 
 		}
 			break;
 		case UG_CHAR_ATTACK_END:
 		{
 			CClientSession::SendAttackEnd(pPacket,app);
+								  
 		}
 			break;
 		case UG_CHAR_CHARGE:
@@ -308,8 +314,12 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_SERVER_CHANGE_REQ:
 		{
-			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");
-			CClientSession::SendServerChangeReq(pPacket, app);
+			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");//
+			//CClientSession::SendServerChangeReq(pPacket, app);
+			CClientSession::SendWorldEnterReq1(pPacket, app);
+			CClientSession::SendEnterWorldComplete(pPacket);
+			//CClientSession::SendNpcCreate(pPacket, app);
+			//CClientSession::SendMonsterCreate(pPacket, app);
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:
@@ -466,6 +476,11 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SKILL_LEARN_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
 		{
 			CClientSession::SendCharLearnSkillReq(pPacket, app);
+		}
+			break;
+		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
+		{
+			CClientSession::SendCharSkillByItemRes(pPacket, app); 
 		}
 			break;
 		case UG_PARTY_CREATE_REQ:
@@ -1014,19 +1029,18 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_PORTAL_START_REQ:
 		{
-			CClientSession::SendPortalStartReq(pPacket, app);
+			//CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_ADD_REQ:
 		{
-			CClientSession::SendPortalAddReq(pPacket, app);
-			CClientSession::SendPortalStartReq(pPacket, app);
+			//CClientSession::SendPortalAddReq(pPacket, app);
+			//CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_REQ:
 		{
-			CClientSession::SendPortalTelReq(pPacket, app);
-			
+			//CClientSession::SendPortalTelReq(pPacket, app);
 		}
 			break;
 		case UG_WAR_FOG_UPDATE_REQ:
@@ -1264,13 +1278,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_PARTY_DIFF_CHANGE_REQ:
 		{
 			printf("--- UG_PARTY_DIFF_CHANGE_REQ --- \n");
-			CClientSession::SendPartyChangeDiff(pPacket, app);
+			//CClientSession::SendPartyChangeDiff(pPacket, app);
 		}
 			break;
 		case UG_PARTY_DUNGEON_INIT_REQ:
 		{
 			printf("--- UG_PARTY_DUNGEON_INIT_REQ --- \n");
-			CClientSession::SendInitPartyDungeon(pPacket, app);
+			//CClientSession::SendInitPartyDungeon(pPacket, app);
 		}
 			break;
 		case UG_SKILL_INIT_REQ:
@@ -1346,13 +1360,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_HOIPOIMIX_JOB_SET_REQ:
 		{
 			printf("--- UG_HOIPOIMIX_JOB_SET_REQ --- \n");
-			CClientSession::SendHoiPoiJob(pPacket, app);
+			//CClientSession::SendHoiPoiJob(pPacket, app);
 		}
 			break;
 		case UG_HOIPOIMIX_JOB_RESET_REQ:
 		{
 			printf("--- UG_HOIPOIMIX_JOB_RESET_REQ --- \n");
-			CClientSession::SendHoiPoiJobReset(pPacket, app);
+			//CClientSession::SendHoiPoiJobReset(pPacket, app);
 		}
 			break;
 		case UG_VEHICLE_DIRECT_PLAY_CANCEL_NFY:
@@ -1453,13 +1467,14 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SHOP_NETPYITEM_START_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_START_REQ --- \n");
-			CClientSession::SendNetPyStart(pPacket, app);
+			//CClientSession::SendNetPyStart(pPacket, app);
+			//CClientSession::SendNetPyEnd(pPacket, app);//provisory
 		}
 			break;
 		case UG_SHOP_NETPYITEM_BUY_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_BUY_REQ --- \n");
-			CClientSession::SendNetPyBuy(pPacket, app);
+			//CClientSession::SendNetPyBuy(pPacket, app);
 		}
 			break;
 		case UG_SHOP_NETPYITEM_END_REQ:
@@ -1473,6 +1488,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			printf("--- UG_DOJO_NPC_INFO_REQ --- \n");
 			sUG_WORLD_MAP_STATUS * req = (sUG_WORLD_MAP_STATUS*)pPacket->GetPacketData();
 			req->bIsWorldMapOpen = true;
+
 		}
 			break;
 		case UG_DOJO_NPC_INFO_REQ:
@@ -1525,13 +1541,13 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CASHITEM_MOVE_REQ:
 		{
 			printf("--- UG_CASHITEM_MOVE_REQ --- \n");
-			CClientSession::SendCashItemMove(pPacket, app);
+			//CClientSession::SendCashItemMove(pPacket, app);
 		}
 			break;
 		case UG_CASHITEM_USE_REQ:
 		{
 			printf("--- UG_CASHITEM_USE_REQ --- \n");
-			CClientSession::SendCashItemUse(pPacket, app);
+			//CClientSession::SendCashItemUse(pPacket, app);
 		}
 			break;
 		case UG_CASHITEM_HLSHOP_START_REQ:
@@ -1555,7 +1571,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CASHITEM_BUY_REQ:
 		{
 			printf("--- UG_CASHITEM_BUY_REQ --- \n");
-			CClientSession::SendCashItemBuy(pPacket, app);
+			//CClientSession::SendCashItemBuy(pPacket, app);
 		}
 		break;
 		case UG_CASHITEM_SEND_GIFT_REQ:
@@ -1597,6 +1613,12 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			printf("--- UG_GIFT_SHOP_START_REQ --- \n");
 		}
 			break;
+		case UG_SCOUTER_ACTIVATION_REQ:
+		{
+				
+			
+		}
+			break;
 		case UG_PERFORMANCE_DATA_NFY:
 		case UG_PERFORMANCE_DATA_2_NFY:
 		case UG_CHAR_DEST_MOVE_SYNC:
@@ -1623,135 +1645,145 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	GsFunctionsClass *gs = new GsFunctionsClass();
 	gs->printOk("==== LOADING GAME TABLES ... ====");
 
-  CNtlBitFlagManager flagManager;
-    if (false == flagManager.Create(CTableContainer::TABLE_COUNT))
-    {
-        return false;
-    }
+	CNtlBitFlagManager flagManager;
+	if (false == flagManager.Create(CTableContainer::TABLE_COUNT))
+	{
+		return false;
+	}
 
-    CTableFileNameList fileNameList;
-    if (false == fileNameList.Create())
-    {
-        return false;
-    }
-   // flagManager.Set(CTableContainer::TABLE_WORLD);				
-    //flagManager.Set(CTableContainer::TABLE_PC);					
-    flagManager.Set(CTableContainer::TABLE_MOB);				
-    flagManager.Set(CTableContainer::TABLE_NPC);				
-    flagManager.Set(CTableContainer::TABLE_ITEM);				
-    flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);		
-    flagManager.Set(CTableContainer::TABLE_SKILL);				
-    flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
-    //flagManager.Set(CTableContainer::TABLE_NEWBIE);				
-    flagManager.Set(CTableContainer::TABLE_MERCHANT);			
-    flagManager.Set(CTableContainer::TABLE_HTB_SET);			
-    flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
-    flagManager.Set(CTableContainer::TABLE_SET_ITEM);			
-    flagManager.Set(CTableContainer::TABLE_CHARM);				
-    flagManager.Set(CTableContainer::TABLE_ACTION);				
-    flagManager.Set(CTableContainer::TABLE_CHAT_COMMAND);		
-    flagManager.Set(CTableContainer::TABLE_QUEST_ITEM);			
-    flagManager.Set(CTableContainer::TABLE_QUEST_TEXT_DATA);	
-    flagManager.Set(CTableContainer::TABLE_TEXT_ALL);			
-    //flagManager.Set(CTableContainer::TABLE_OBJECT);			
-    flagManager.Set(CTableContainer::TABLE_WORLD_MAP);			
-    flagManager.Set(CTableContainer::TABLE_LAND_MARK);			
-    flagManager.Set(CTableContainer::TABLE_HELP);				
-    flagManager.Set(CTableContainer::TABLE_GUIDE_HINT);			
-    flagManager.Set(CTableContainer::TABLE_DRAGONBALL);			
-    flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);	
-    flagManager.Set(CTableContainer::TABLE_TIMEQUEST);			
-    flagManager.Set(CTableContainer::TABLE_BUDOKAI);			
-    flagManager.Set(CTableContainer::TABLE_RANKBATTLE);			
-    flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);		
-    flagManager.Set(CTableContainer::TABLE_CHATTING_FILTER);	
-    flagManager.Set(CTableContainer::TABLE_PORTAL);				
-    flagManager.Set(CTableContainer::TABLE_SPEECH);				
-    flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);		
-    flagManager.Set(CTableContainer::TABLE_QUEST_NARRATION);	
-    flagManager.Set(CTableContainer::TABLE_VEHICLE);			
-    flagManager.Set(CTableContainer::TABLE_DUNGEON);			
-    flagManager.Set(CTableContainer::TABLE_MOB_MOVE_PATTERN);	
-    flagManager.Set(CTableContainer::TABLE_DYNAMIC_OBJECT);		
-    flagManager.Set(CTableContainer::TABLE_ITEM_RECIPE);		
-    flagManager.Set(CTableContainer::TABLE_ITEM_UPGRADE);		
-    flagManager.Set(CTableContainer::TABLE_MIX_MACHINE);		
-    flagManager.Set(CTableContainer::TABLE_DOJO);				
-    flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
-    flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
-	//flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
-	//flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
-	flagManager.Set(CTableContainer::TABLE_FORMULA);
-	flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	flagManager.Set(CTableContainer::TABLE_EACH_DROP);
-	flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
-	flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
-	flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
-	flagManager.Set(CTableContainer::TABLE_EXP);
+	CTableFileNameList fileNameList;
+	if (false == fileNameList.Create())
+	{
+		return false;
+	}
+	/*Loadable Tables*/
+	flagManager.Set(CTableContainer::TABLE_PC);
+	flagManager.Set(CTableContainer::TABLE_NEWBIE);
+	flagManager.Set(CTableContainer::TABLE_SKILL);
+	/*Tables in Progress*/
+	flagManager.Set(CTableContainer::TABLE_ITEM);	//Table loads. Data is incorrect after first 60 bytes			
+	flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);
 
-	
-	fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_PC,						"Table_PC_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");
+	/*Unloadable Tables*/
+	//	 flagManager.Set(CTableContainer::TABLE_WORLD);								
+	//   flagManager.Set(CTableContainer::TABLE_MOB);				
+	//   flagManager.Set(CTableContainer::TABLE_NPC);				
+	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
+	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
+	//   flagManager.Set(CTableContainer::TABLE_MERCHANT);			
+	//   flagManager.Set(CTableContainer::TABLE_HTB_SET);			
+	//   flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
+	//   flagManager.Set(CTableContainer::TABLE_SET_ITEM);			
+	//   flagManager.Set(CTableContainer::TABLE_CHARM);				
+	//   flagManager.Set(CTableContainer::TABLE_ACTION);				
+	//   flagManager.Set(CTableContainer::TABLE_CHAT_COMMAND);		
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_ITEM);			
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_TEXT_DATA);	
+	//   flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
+	//   flagManager.Set(CTableContainer::TABLE_OBJECT);			
+	//   flagManager.Set(CTableContainer::TABLE_WORLD_MAP);			
+	//   flagManager.Set(CTableContainer::TABLE_LAND_MARK);			
+	//   flagManager.Set(CTableContainer::TABLE_HELP);				
+	//   flagManager.Set(CTableContainer::TABLE_GUIDE_HINT);			
+	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL);			
+	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);	
+	//   flagManager.Set(CTableContainer::TABLE_TIMEQUEST);			
+	//   flagManager.Set(CTableContainer::TABLE_BUDOKAI);			
+	//   flagManager.Set(CTableContainer::TABLE_RANKBATTLE);			
+	//   flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);		
+	//   flagManager.Set(CTableContainer::TABLE_CHATTING_FILTER);	
+	//   flagManager.Set(CTableContainer::TABLE_PORTAL);				
+	//   flagManager.Set(CTableContainer::TABLE_SPEECH);				
+	//   flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);		
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_NARRATION);	
+	//   flagManager.Set(CTableContainer::TABLE_VEHICLE);			
+	//   flagManager.Set(CTableContainer::TABLE_DUNGEON);			
+	//   flagManager.Set(CTableContainer::TABLE_MOB_MOVE_PATTERN);	
+	//   flagManager.Set(CTableContainer::TABLE_DYNAMIC_OBJECT);		
+	//   flagManager.Set(CTableContainer::TABLE_ITEM_RECIPE);		
+	//   flagManager.Set(CTableContainer::TABLE_ITEM_UPGRADE);		
+	//   flagManager.Set(CTableContainer::TABLE_MIX_MACHINE);		
+	//   flagManager.Set(CTableContainer::TABLE_DOJO);				
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
+	//   flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
+	//   flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
+	//   flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
+	//   flagManager.Set(CTableContainer::TABLE_FORMULA);
+	//   flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
+	//   flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EACH_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
+	//   flagManager.Set(CTableContainer::TABLE_EXP);
+
+	/*Loadable Tables*/
+	fileNameList.SetFileName(CTableContainer::TABLE_PC, "Table_PC_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE, "Table_Newbie_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE,					"Table_Newbie_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_HTB_SET,				"Table_HTB_Set_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SET_ITEM,				"Table_Set_Item_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_CHARM,					"Table_Charm_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_ACTION,					"Table_Action_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_CHAT_COMMAND,			"Table_Chat_Command_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_ITEM,				"Table_Quest_Item_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_TEXT_DATA,		"Table_Quest_Text_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_TEXT_ALL,				"Table_Text_All_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_OBJECT,					"Table_Object");
-	fileNameList.SetFileName(CTableContainer::TABLE_WORLD_MAP,				"Table_Worldmap_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_LAND_MARK,				"Table_Landmark_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_HELP,					"Table_Help_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_GUIDE_HINT,				"Table_Guide_Hint_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL,				"Table_Dragon_Ball_Data");
+
+	/*Tables in progress*/
+	fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL_REWARD,		"Table_DB_Reward_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_TIMEQUEST,				"Table_TMQ_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_BUDOKAI,				"Table_Tenkaichibudokai_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_RANKBATTLE,				"Table_RankBattle_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK,			"Table_Direction_Link_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_CHATTING_FILTER,		"Table_Chatting_Filter_Data");
-    fileNameList.SetFileName(CTableContainer::TABLE_PORTAL,					"Table_Portal_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SPEECH,					"Table_NPC_Speech_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK,			"Table_Script_Link_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_NARRATION,		"Table_Quest_Narration_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_VEHICLE,				"Table_Vehicle_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_DUNGEON,				"Table_Dungeon_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_MOB_MOVE_PATTERN,		"Table_Mob_Move_Pattern_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_DYNAMIC_OBJECT,			"Table_Dynamic_Object_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_ITEM_RECIPE,			"Table_Item_Recipe_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_ITEM_UPGRADE,			"Table_Item_Upgrade_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_MIX_MACHINE,			"Table_Item_Mix_Machine_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_DOJO,					"Table_Dojo_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_REWARD,			"Table_Quest_Reward_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_WORLD_ZONE,				"Table_World_Zone_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_FORMULA,				"TD_Formula");
-	fileNameList.SetFileName(CTableContainer::TABLE_GAME_MANIA_TIME,		"Table_GameManiaTime_Data");
-	fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
-	fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
+
+	/*Unloadable Tables*/
+	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");	
+	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_HTB_SET,				"Table_HTB_Set_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_SET_ITEM,				"Table_Set_Item_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_CHARM,					"Table_Charm_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_ACTION,					"Table_Action_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_CHAT_COMMAND,			"Table_Chat_Command_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_ITEM,				"Table_Quest_Item_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_TEXT_DATA,		"Table_Quest_Text_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_TEXT_ALL, "Table_Text_All_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_OBJECT,					"Table_Object");
+	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD_MAP,				"Table_Worldmap_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_LAND_MARK,				"Table_Landmark_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_HELP,					"Table_Help_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_GUIDE_HINT,				"Table_Guide_Hint_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL,				"Table_Dragon_Ball_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL_REWARD,		"Table_DB_Reward_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_TIMEQUEST,				"Table_TMQ_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_BUDOKAI,				"Table_Tenkaichibudokai_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_RANKBATTLE,				"Table_RankBattle_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK,			"Table_Direction_Link_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_CHATTING_FILTER,		"Table_Chatting_Filter_Data");
+	//   fileNameList.SetFileName(CTableContainer::TABLE_PORTAL,					"Table_Portal_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_SPEECH,					"Table_NPC_Speech_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK,			"Table_Script_Link_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_NARRATION,		"Table_Quest_Narration_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_VEHICLE,				"Table_Vehicle_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DUNGEON,				"Table_Dungeon_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_MOB_MOVE_PATTERN,		"Table_Mob_Move_Pattern_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DYNAMIC_OBJECT,			"Table_Dynamic_Object_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_RECIPE,			"Table_Item_Recipe_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_UPGRADE,			"Table_Item_Upgrade_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_MIX_MACHINE,			"Table_Item_Mix_Machine_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DOJO,					"Table_Dojo_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_REWARD,			"Table_Quest_Reward_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD_ZONE,				"Table_World_Zone_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_FORMULA,				"TD_Formula");
+	//fileNameList.SetFileName(CTableContainer::TABLE_GAME_MANIA_TIME,		"Table_GameManiaTime_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
 
 
 	/*flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
@@ -1765,14 +1797,21 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	std::string str;
 	CTable::eLOADING_METHOD eLoadMethod = (CTable::eLOADING_METHOD)byLoadMethod;
 	str = "data";
-    bool bResult = FALSE;
-    bResult = g_pTableContainer->Create(flagManager, (char*)str.c_str(), &fileNameList, eLoadMethod, GetACP(), NULL);
-	g_pTableContainer->SaveToFile(flagManager, &fileNameList, false); 
-	gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
-	gs->printOk("==== LOADING MOBS / NPC ... ====");
-	//mob->Create();
-	delete gs;
-	gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
+	bool bResult = FALSE;
+	bResult = g_pTableContainer->Create(flagManager, (char*)str.c_str(), &fileNameList, eLoadMethod, GetACP(), NULL);
+	//g_pTableContainer->SaveToFile(flagManager, &fileNameList, false); 
+	if (bResult != false)
+	{
+
+		gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
+		gs->printOk("==== LOADING MOBS / NPC ... ====");
+		//mob->Create();
+		delete gs;
+		gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
+	}
+	else
+		gs->printError("Failed to load tables");
+
 	return bResult;
 }
 void	CleanDatabase()

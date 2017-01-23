@@ -115,15 +115,15 @@ void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 	memcpy(&res->sPcProfile, plr->GetPcProfile(), sizeof(sPC_PROFILE));
 	//memcpy(&res->sCharState, plr->GetCharState(), sizeof(sCHARSTATE));
 	//res->wCharStateSize = sizeof(sCHARSTATE_BASE);	
-	//res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	//res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
+	res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+	res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
 	//res->sCharState.sCharStateBase.bFightMode = false;
-	//res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
-	//res->sPcProfile.avatarAttribute.wLastMaxAp = 450000;
-	//res->sPcProfile.bIsGameMaster = true;
+	res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
+	res->sPcProfile.avatarAttribute.wLastMaxAp = 450000;
+	res->sPcProfile.bIsGameMaster = true;
 	//res->sPcProfile.bIsAdult = false;
 	//res->sPcProfile.byLevel = 1;
-	//res->sPcProfile.dwCurAp = 450000;
+	res->sPcProfile.dwCurAp = 450000;
 //	res->sPcProfile.dwCurExp = 0;
 	packet.SetPacketLen(sizeof(sGU_AVATAR_CHAR_INFO));
 	int rc = g_pApp->Send(this->GetHandle(), &packet);
@@ -235,10 +235,10 @@ void CClientSession::SendAvatarSkillInfo(CNtlPacket * pPacket, CGameServer * app
 		//res->aSkillInfo[i].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base
 	}
 	
-	/*memset(res, 0, sizeof(sGU_AVATAR_SKILL_INFO));
-	res->bySkillCount = 2;
-	res->aSkillInfo[0].tblidx = 0x51af;// this is Fly skyll, dont exist in tblx
-	res->aSkillInfo[1].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base */
+	
+	res->bySkillCount += 2;
+	res->aSkillInfo[res->bySkillCount -1].tblidx = 0x51af;// this is Fly skyll, dont exist in tblx
+	res->aSkillInfo[res->bySkillCount -2].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base 
 	
 	res->wOpCode = GU_AVATAR_SKILL_INFO;
 	packet.SetPacketLen(sizeof(sGU_AVATAR_SKILL_INFO));
@@ -1996,18 +1996,10 @@ void CClientSession::SendCharMove(CNtlPacket * pPacket, CGameServer * app)
 	packet.SetPacketLen(sizeof(sGU_CHAR_MOVE));
 	app->UserBroadcastothers(&packet, this);
 	
-	
-	CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res2 = (sGU_UPDATE_CHAR_STATE*)packet2.GetPacketData();
-	res2->handle = this->GetavatarHandle();
-	res2->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res2->wOpCode = GU_UPDATE_CHAR_STATE;
+	UpdateCharState(this->GetavatarHandle(), CHARSTATE_MOVING);
 	PACKET_TRACE(GU_CHAR_MOVE, packet);
 	
 
-	packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	PushHandshakePacket(&packet2);
-	PACKET_TRACE(GU_UPDATE_CHAR_STATE, packet2);
 	plr = NULL;
 	delete plr;
 }
@@ -2330,7 +2322,7 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 				lexer.PopToPeek();
 				strToken = lexer.PeekNextToken(NULL, &iLine);
 				unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
-				//	SendCharLearnSkillRes(uiTblId);
+					//SendCharLearnSkillRes(uiTblId);
 				return;
 			}
 			else if (strToken == "@learnhtb")
@@ -7630,8 +7622,8 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 		if ( level >= 30)
 		{
 		
-	//DST_CHAR_GROWN_DOWN = "PARABÉNS! Você é uma criança!"
-	//	DST_CHAR_GROWN_UP = "Você é um Adulto!"
+	//DST_CHAR_GROWN_DOWN = "PARABÉNS! Voc??uma criança!"
+	//	DST_CHAR_GROWN_UP = "Voc??um Adulto!"
 	//int CharID = plr->GetCharID();
 	
 	adult->bIsAdult = app->db->getBoolean("Adult");
@@ -9739,8 +9731,19 @@ void CClientSession::SenGiftShop(CNtlPacket * pPacket, CGameServer * app)
 	}
 	packet.SetPacketLen(sizeof(Drop));
 	g_pApp->Send(this->GetHandle(), &packet);
-	packet3.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(this->GetHandle(), &packet3);
+}
 
+//Helper Functions
+void CClientSession::UpdateCharState(HOBJECT avHandle, eCHARSTATE state)
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
 
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
+	sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
+	res->handle = avHandle;
+	res->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_DASH_ACCEL;
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+
+	app->UserBroadcast(&packet);
 }

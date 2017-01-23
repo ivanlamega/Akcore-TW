@@ -17,6 +17,7 @@ public:
 	DWORD		dwRewardZenny;
 	TBLIDX		rewardDialog1;
 	TBLIDX		rewardDialog2;
+	DWORD		unknown; //Unknown to make the datasizes full.
 
 protected:
 

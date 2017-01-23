@@ -120,7 +120,7 @@ bool CPCTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring* p
 {
 	sPC_TBLDAT* pPC = (sPC_TBLDAT*)pvTable;	
 
-	if (0 == wcscmp(pwszSheetName, L"Table_Data_TW"))
+	if (0 == wcscmp(pwszSheetName, L"Table_Data_KOR"))
 	{
 		if (0 == wcscmp(pstrDataName->c_str(), L"Tblidx"))
 		{
@@ -322,19 +322,19 @@ bool CPCTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring* p
 		{
 			pPC->fAdult_Run_Speed = READ_FLOAT( bstrData, pstrDataName->c_str() );
 		}
-		/*else if (0 == wcscmp(pstrDataName->c_str(), L"Radius"))
+		else if (0 == wcscmp(pstrDataName->c_str(), L"Radius"))
 		{
 			CheckNegativeInvalid( pstrDataName->c_str(), bstrData );
-			pPC->unknown1[0] = READ_FLOAT( bstrData, pstrDataName->c_str() );
-		}*/
-		else if (0 == wcsncmp(pstrDataName->c_str(), L"Radius_", wcslen(L"Radius_")))
+			pPC->fRadius = READ_FLOAT( bstrData, pstrDataName->c_str() );
+		}
+		else if (0 == wcsncmp(pstrDataName->c_str(), L"Unknown12_", wcslen(L"Unknown12_")))
 		{
 			bool bFound = false;
 
 			WCHAR szBuffer[1024] = { 0x00, };
 			for (int i = 0; i < 13; i++)
 			{
-				swprintf(szBuffer, 1024, L"Radius_%d", i + 1);
+				swprintf(szBuffer, 1024, L"Unknown12_%d", i + 1);
 
 				if (0 == wcscmp(pstrDataName->c_str(), szBuffer))
 				{
@@ -482,9 +482,8 @@ bool CPCTable::LoadFromBinary(CNtlSerializer& serializer, bool bReload)
 	{
 		Reset();
 	}
-	BYTE byMargin = 0;
-	serializer >> byMargin;
-	byMargin = 1;
+	
+	BYTE byMargin = 1;
 	serializer >> byMargin;
 
 	bool bLoop = true;
@@ -519,8 +518,6 @@ bool CPCTable::LoadFromBinary(CNtlSerializer& serializer, bool bReload)
 bool CPCTable::SaveToBinary(CNtlSerializer& serializer)
 {
 	serializer.Refresh();
-	BYTE byPadding = 0;
-	serializer << byPadding;
 	BYTE byMargin = 1;
 	serializer << byMargin;
 

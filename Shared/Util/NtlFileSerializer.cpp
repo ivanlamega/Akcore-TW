@@ -122,8 +122,9 @@ bool CNtlFileSerializer::LoadFile(char* pszFullPathFileName, bool bCrypt /* = FA
 	}
 
 	fseek(pFile, 0, SEEK_END);
-	long lSize = ftell(pFile);
-	fseek(pFile, 0, SEEK_SET);
+	long lSize = ftell(pFile);  //This gets the data size of teh entire file
+	fseek(pFile, 5, SEEK_SET);
+
 
 	if (0 == lSize)
 	{
@@ -156,6 +157,7 @@ bool CNtlFileSerializer::LoadFile(char* pszFullPathFileName, bool bCrypt /* = FA
 	}
 	else
 	{
+		
 		fread((void*)(GetData()), lSize, 1, pFile);
 		IncrementEndPointer(lSize);
 	}

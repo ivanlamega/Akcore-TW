@@ -343,14 +343,14 @@ void PlayersMain::FillProfileWithInfo()
 	db->fetch();
 	
 	//Getting right Table
-	/*CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
-	sPC_TBLDAT *pTblData = (sPC_TBLDAT*)pPcTable->GetPcTbldat(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));*/
-	dbo_data_table_pc *pc = new dbo_data_table_pc();
-	pc->load("data/table_pc_data.rdf");
-	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
+	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
+	sPC_TBLDAT *pTblData = (sPC_TBLDAT*)pPcTable->GetPcTbldat(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
+	//dbo_data_table_pc *pc = new dbo_data_table_pc();
+	//pc->load("data/table_pc_data.rdf");
+	//const dbo_data_table_pc_st *pcDat = pc->pc_data_get(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
 	this->sPlayerProfile->byMaxLevel = 70;
-	//this->sPlayerProfile->tblidx = pTblData->tblidx;
-	this->sPlayerProfile->tblidx = pcDat->id;
+	this->sPlayerProfile->tblidx = pTblData->tblidx;
+	//this->sPlayerProfile->tblidx = pcDat->id;
 	this->sPlayerProfile->bChangeClass = db->getBoolean("ChangeClass");
 	this->sPlayerProfile->bIsAdult = db->getBoolean("Adult");
 	this->sPlayerProfile->charId = db->getInt("CharID");
