@@ -77,6 +77,9 @@ public:
 	float			fUseLoc_Radius;
 	QUESTID			RequiredQuestID;
 
+	DWORD			dwUnknown[7];
+	BYTE			byUnknown;
+
 public:
 
 	virtual int GetDataSize()

@@ -106,7 +106,7 @@ public:
 	TBLIDX			contentsTblidx;
 	DWORD			dwDurationGroup;	// 같은 종류의 기간제 아이템인지를 나타내는 그룹
 
-	BYTE			unk5[32];
+	BYTE			unk5[32]; //This data still has to be inserted into the struct someplace. 
 
 public:
 

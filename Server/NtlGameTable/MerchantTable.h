@@ -14,6 +14,8 @@ public:
 	TBLIDX			Tab_Name;
 	DWORD			dwNeedMileage;
 	TBLIDX			aitem_Tblidx[NTL_MAX_MERCHANT_COUNT];
+	WCHAR			wUnknown[44]; //00008
+
 
 public:
 
