@@ -771,12 +771,11 @@ BEGIN_PROTOCOL(UG_CHAR_READY)
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_CHAR_MOVE)
-	//- yoshiki : Do we use dwTimeStamp or not?
-	DWORD				dwTimeStamp;
-	BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
-	sVECTOR3			vCurLoc;
-	sVECTOR2			vCurDir;
-	BYTE				byMoveDirection;
+//- yoshiki : Do we use dwTimeStamp or not?
+uint8_t avatar_type;
+sVECTOR3            vCurLoc;
+sVECTOR3            vCurDir;
+uint8_t move_type;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_CHAR_AIR_MOVE)

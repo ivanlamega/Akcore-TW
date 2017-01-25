@@ -889,13 +889,12 @@ BEGIN_PROTOCOL(GU_OBJECT_DESTROY)
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_MOVE)
-	HOBJECT			handle;
-	//- yoshiki : Do we use dwTimeStamp or not?
-	DWORD			dwTimeStamp;
-	sVECTOR3		vCurLoc;
-	sVECTOR3		vCurDir;
-	BYTE			byMoveDirection;
-	BYTE			byMoveFlag;		// ¶Ù±â È¤Àº °È±â(ENtlMovementFlag ÂüÁ¶)
+HOBJECT handle;
+sVECTOR3            vCurLoc;
+sVECTOR3            vCurDir;
+uint8_t move_type;
+uint32_t move_flag;
+uint8_t relleno[61];
 END_PROTOCOL()
 //-----------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_AIR_MOVE_SYNC)
