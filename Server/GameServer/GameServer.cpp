@@ -140,7 +140,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
 			
 			PushHandshakePacket(&packet);
-			//CClientSession::SendCharReadyReq(pPacket, app);
+			CClientSession::SendCharReadyReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_READY:

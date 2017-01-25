@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "NtlTokenizer.h"
 
 #include "PacketGameServer.h"
@@ -116,7 +116,7 @@ void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 	//memcpy(&res->sCharState, plr->GetCharState(), sizeof(sCHARSTATE));
 	//res->wCharStateSize = sizeof(sCHARSTATE_BASE);	
 	res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
+	//res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
 	//res->sCharState.sCharStateBase.bFightMode = false;
 	res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
 	res->sPcProfile.avatarAttribute.wLastMaxAp = 450000;
@@ -236,9 +236,9 @@ void CClientSession::SendAvatarSkillInfo(CNtlPacket * pPacket, CGameServer * app
 	}
 	
 	
-	res->bySkillCount += 2;
-	res->aSkillInfo[res->bySkillCount -1].tblidx = 0x51af;// this is Fly skyll, dont exist in tblx
-	res->aSkillInfo[res->bySkillCount -2].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base 
+	//res->bySkillCount += 2;
+	//res->aSkillInfo[res->bySkillCount -1].tblidx = 0x51af;// this is Fly skyll, dont exist in tblx
+	//res->aSkillInfo[res->bySkillCount -2].tblidx = 0x4ef3; // Dash skill but wonrk fine in data base 
 	
 	res->wOpCode = GU_AVATAR_SKILL_INFO;
 	packet.SetPacketLen(sizeof(sGU_AVATAR_SKILL_INFO));
@@ -640,10 +640,12 @@ void CClientSession::SendWorldEnterReq1(CNtlPacket * pPacket, CGameServer * app)
 //--------------------------------------------------------------------------------------//
 void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 {
-	//printf("--- sGU_OBJECT_CREATE --- \n");
+	printf("--- sGU_OBJECT_CREATE --- \n");
 	//SPAN PLAYERS
-	CNtlPacket packet1(sizeof(SpawnPlayer));
-	SpawnPlayer * res1 = (SpawnPlayer *)packet1.GetPacketData();
+	CNtlPacket packet(sizeof(SpawnPlayer));
+	SpawnPlayer * res = (SpawnPlayer *)packet.GetPacketData();
+	CNtlPacket packet1(sizeof(sGU_OBJECT_CREATE));
+	sGU_OBJECT_CREATE * res1 = (sGU_OBJECT_CREATE *)packet1.GetPacketData();
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
 	app->db->prepare("SELECT * FROM characters WHERE CharID = ?");
 	app->db->setInt(1, plr->GetCharID());
@@ -651,104 +653,78 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->fetch();
 
 	wcscpy_s(plr->GetPcProfile()->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(plr->GetPlayerName()).c_str());
-	memset(res1, 0, sizeof(SpawnPlayer));
-//	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
+
 	dbo_data_table_pc *pc = new dbo_data_table_pc();
-	//pc->load("data/table_pc_data.rdf");
+	pc->load("data/table_pc_data.rdf");
 	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
 
-	res1->wOpCode = GU_OBJECT_CREATE;
-	res1->Handle = 51;
-	res1->Type = OBJTYPE_PC;
-	res1->Tblidx = pcDat->id;
-	res1->Adult = plr->GetPcProfile()->bIsAdult;
-	wcscpy_s(res1->Name, NAME_LEN, s2ws(plr->GetPlayerName()).c_str());
-	wcscpy_s(res1->GuildName, GUILD_LEN, s2ws(plr->GetGuildName()).c_str());
-	res1->charID = plr->GetCharID();
-	//res1->sPcShape = plr->GetPcProfile()->sPcShape;
-	res1->curAP = 450;
-	//res1->maxAP = 450;
-	//res1->curLP = plr->GetPcProfile()->dwCurLP;
-	//res1->maxLP = plr->GetPcProfile()->avatarAttribute.wBaseMaxLP;
-	//res1->curEP = plr->GetPcProfile()->wCurEP;
-	//res1->maxEP = plr->GetPcProfile()->avatarAttribute.wBaseMaxEP;
-	//	res->sObjectInfo.pcBrief.sMarking.byCode = 0;
-	//res1->level =0;
-	//	res->sObjectInfo.pcBrief.fSpeed = plr->GetPcProfile()->avatarAttribute.fLastRunSpeed;
-	//	res->sObjectInfo.pcBrief.wAttackSpeedRate = plr->GetPcProfile()->avatarAttribute.wBaseAttackSpeedRate;
-	//	res->sObjectInfo.pcState.sCharStateBase = plr->GetCharState()->sCharStateBase;
-	res1->Size = 20;
-	//res1->StateID = 0;
-	res1->Loc[0] = 0;// curpos.x;
-	res1->Loc[1] = -0; //curpos.y;
-	res1->Loc[2] = 0;// curpos.z;
-	res1->Dir[0] = 0;// curpos.x;
-	res1->Dir[1] = -0; //curpos.y;
-	res1->Dir[2] = 0;// curpos.z;
-	res1->Unknown;
-	res1->Unknown2;
-	res1->Unknown3;
-	res1->Unknown4;
-	res1->AspectID = 1;
-	res1->mascotID = 1;
-	res1->appear.Face = 1;
-	res1->appear.Hair = 1;
-	res1->appear.HairColor = 1;
-	res1->appear.SkinColor = 1;
-	/*	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
-	{
-	if ((plr->cPlayerInventory->GetEquippedItems()[i].tblidx != 0) || (plr->cPlayerInventory->GetEquippedItems()[i].tblidx != INVALID_TBLIDX))
-	{
-	res->sObjectInfo.pcBrief.sItemBrief[i].tblidx = plr->cPlayerInventory->GetEquippedItems()[i].tblidx;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byGrade = plr->cPlayerInventory->GetEquippedItems()[i].byGrade;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byRank = plr->cPlayerInventory->GetEquippedItems()[i].byRank;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byBattleAttribute = plr->cPlayerInventory->GetEquippedItems()[i].byBattleAttribute;
-	res->sObjectInfo.pcBrief.sItemBrief[i].aOptionTblidx[0] = plr->cPlayerInventory->GetEquippedItems()[i].aOptionTblidx[0];
-	res->sObjectInfo.pcBrief.sItemBrief[i].aOptionTblidx[1] = plr->cPlayerInventory->GetEquippedItems()[i].aOptionTblidx[1];
-	}
-	else
-	{
-	res->sObjectInfo.pcBrief.sItemBrief[i].tblidx = INVALID_TBLIDX;
-	}
-	}*/
+	res->wOpCode = GU_OBJECT_CREATE;
+	res->Handle = this->GetavatarHandle();
+	res->Type = OBJTYPE_PC;
+	res->Tblidx = pcDat->id;
+	res->Adult = app->db->getBoolean("Adult");
+	wcscpy_s(res->Name, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(app->db->getString("CharName")).c_str());
+	wcscpy_s(res->GuildName, NTL_MAX_SIZE_GUILD_NAME_IN_UNICODE, s2ws(app->db->getString("GuildName")).c_str());
+	res->appear.Face = app->db->getInt("Face");
+	res->appear.Hair = app->db->getInt("Hair");
+	res->appear.HairColor = app->db->getInt("HairColor");
+	res->appear.SkinColor = app->db->getInt("SkinColor");
+	res->curLP = app->db->getInt("CurLP");
+	res->maxLP = app->db->getInt("BaseMaxLP");
+	res->curEP = app->db->getInt("CurEP");
+	res->maxEP = app->db->getInt("BaseMaxEP");
+	res->level = app->db->getInt("Level");
+	//res->Speed = (float)app->db->getDouble("LastRunSpeed");
+	//res->sObjectInfo.pcBrief.wAttackSpeedRate = app->db->getInt("BaseAttackSpeedRate");
+	res->Loc[0] = 0;
+	res->Loc[1] = 0;
+	res->Loc[2] = 0;
+	res->Dir[0] = 0;
+	res->Dir[1] = 0;
+	res->Dir[2] = 0;
+	res->Unknown2[0] = 0;
+	res->Unknown2[1] = 0;
+	res->Unknown2[2] = 0;
+	res->Unknown2[3] = 0;
+	res->Unknown2[4] = 0;
+	res->Unknown2[5] = 0;
+	res->StateID = 0;
+	res->AspectID = 255;
+	res->mascotID = INVALID_TBLIDX;
+	res->Size = 10;
+	res->sMarking.dwCode = 1;
 
-	//Lets update our Character Attributes with equiped scout values ^^
-	//Maybe this way is wrong
-	/*	for (int i = 0; i < plr->cPlayerInventory->GetTotalItemsCount(); i++)
-	{
-	//If is a Scout Chip then lets update our character attribute
-	if (plr->cPlayerInventory->GetInventory()[i].byPlace == CONTAINER_TYPE_SCOUT)
-	{
-	sITEM_TBLDAT* pItemDat = reinterpret_cast<sITEM_TBLDAT*>(app->g_pTableContainer->GetItemTable()->FindData(plr->cPlayerInventory->GetInventory()[i].tblidx));
-	plr->cPlayerAttribute->UpdateStatsUsingScouterChips(plr->GetAvatarHandle(), pItemDat->Item_Option_Tblidx);
-	//And attach in our EquippedChips Array
-	for (int i = 0; i < 4; i++)
-	{
-	if (plr->GetEquipedChips()[i] == INVALID_TBLIDX)
-	{
-	plr->GetEquipedChips()[i] = pItemDat->Item_Option_Tblidx;
-	break;
-	}
-	}
-	}
-	else if (plr->cPlayerInventory->GetInventory()[i].byPlace == CONTAINER_TYPE_EQUIP)
-	{
-	plr->UpdateBaseAttributeWithEquip(plr->cPlayerInventory->GetInventory()[i].tblidx, plr->cPlayerInventory->GetInventory()[i].byRank, plr->cPlayerInventory->GetInventory()[i].byGrade);
-	plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
-	}
-	}*/
+	//plr->SetGuildName(app->db->getString("GuildName"));
 
-	memcpy(&this->characterspawnInfo, res1, sizeof(SpawnPlayer));
-	packet1.SetPacketLen(sizeof(SpawnPlayer));
+	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
+	{
+		app->db->prepare("select * from items WHERE place=7 AND pos=? AND owner_id=?");
+		app->db->setInt(1, i);
+		app->db->setInt(2, plr->GetCharID());
+		app->db->execute();
+		app->db->fetch();
+		if (app->db->rowsCount() == 0)
+		{
+			res->sItemBrief[i].tblidx = INVALID_TBLIDX;
+		}
+		else
+		{
 
+			res->sItemBrief[i].tblidx = app->db->getInt("tblidx");
+		}
 
-	//	app->UserBroadcastothers(&packet, this);
-	//	app->UserBroadcasFromOthers(GU_OBJECT_CREATE, this);
-	//	app->AddUser(plr->GetPlayerName().c_str(), this);
+	}
 
-	plr = NULL;
-	delete plr;
+	memcpy(&this->characterspawnInfo, res, sizeof(SpawnPlayer));
+	packet.SetPacketLen(sizeof(SpawnPlayer));
+	memcpy(&this->characterspawnInfo, res1, sizeof(sGU_OBJECT_CREATE));
+	packet1.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
+
+	app->UserBroadcastothers(&packet, this);
+	app->UserBroadcasFromOthers(GU_OBJECT_CREATE, this);
+	app->AddUser(plr->GetPlayerName().c_str(), this);
 }
+
 
 //--------------------------------------------------------------------------------------//
 //		Auth community Server
@@ -1985,9 +1961,9 @@ void CClientSession::SendCharMove(CNtlPacket * pPacket, CGameServer * app)
 	res->vCurDir.x = req->vCurDir.x;
 	res->vCurDir.y = 0;
 	res->vCurDir.z = req->vCurDir.z;
-	res->byMoveDirection = req->byMoveDirection;
-	res->byMoveFlag = NTL_MOVE_FIRST;
-
+	res->move_type = req->move_type;
+	res->move_flag = NTL_MOVE_KEYBOARD_FIRST;
+	res->relleno[0] = 0;
 	plr->SetPlayerLastDirection(plr->GetPlayerDirection());
 	plr->SetPlayerLastPosition(plr->GetPlayerPosition());
 	plr->SetPlayerPosition(res->vCurLoc);
@@ -2033,16 +2009,7 @@ void CClientSession::SendCharDestMove(CNtlPacket * pPacket, CGameServer * app)
 	packet.SetPacketLen(sizeof(sGU_CHAR_DEST_MOVE));
 	app->UserBroadcastothers(&packet, this);
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
 
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 
 	PACKET_TRACE(GU_CHAR_DEST_MOVE, packet);
 	plr = NULL;
@@ -2082,16 +2049,7 @@ void CClientSession::SendCharMoveSync(CNtlPacket * pPacket, CGameServer * app)
 	plr->SetPlayerDirection(res->vCurDir);
 
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
 
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 
 	PACKET_TRACE(GU_CHAR_AIR_MOVE_SYNC, packet);
 
@@ -2122,16 +2080,7 @@ void CClientSession::SendCharChangeHeading(CNtlPacket * pPacket, CGameServer * a
 	packet.SetPacketLen(sizeof(sGU_CHAR_CHANGE_HEADING));
 	app->UserBroadcastothers(&packet, this);
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
-
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3); 
+	
 
 	PACKET_TRACE(GU_CHAR_CHANGE_HEADING, packet);
 }
@@ -2162,16 +2111,7 @@ void CClientSession::SendCharJump(CNtlPacket * pPacket, CGameServer * app)
 	packet.SetPacketLen(sizeof(sGU_CHAR_JUMP));
 	app->UserBroadcastothers(&packet, this);
 	PACKET_TRACE(GU_CHAR_JUMP, packet);
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
 
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 	plr = NULL;
 	delete plr;
 
@@ -2197,16 +2137,7 @@ void CClientSession::SendCharChangeDirOnFloating(CNtlPacket * pPacket, CGameServ
 	packet.SetPacketLen(sizeof(sGU_CHAR_CHANGE_DIRECTION_ON_FLOATING));
 	app->UserBroadcastothers(&packet, this);
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
-
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
+	
 }
 //--------------------------------------------------------------------------------------//
 //		Char falling
@@ -2226,16 +2157,7 @@ void CClientSession::SendCharFalling(CNtlPacket * pPacket, CGameServer * app)
 	req->vCurDir.z;
 	req->byMoveDirection;
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
-
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
+	
 
 }
 
@@ -4103,8 +4025,8 @@ void CClientSession::SendCharSkillAction(CNtlPacket * pPacket, CGameServer * app
 	res->aSkillResult[0].byBlockedAction = 255;
 	res->aSkillResult[1].hTarget = this->GetTargetSerialId() + 1;
 	res->aSkillResult[1].byAttackResult = this->gsf->GetBattleResultEffect(RpSelectedType);
-	res->aSkillResult[1].effectResult1.fResultValue = 200;//SkillNow->fSkill_Effect_Value[0];
-	res->aSkillResult[1].effectResult2.fResultValue = 200;//SkillNow->fSkill_Effect_Value[1];
+	res->aSkillResult[1].effectResult1.fResultValue = SkillNow->fSkill_Effect_Value[0];
+	res->aSkillResult[1].effectResult2.fResultValue = SkillNow->fSkill_Effect_Value[1];
 	res->aSkillResult[1].byBlockedAction = 255;
 
 	//Char update EP
@@ -5881,11 +5803,11 @@ void CClientSession::SendShopBuyReq(CNtlPacket * pPacket, CGameServer * app)
 					{
 						if (req->sBuyData[l].byItemPos == j)
 						{
-							/*sITEM_TBLDAT* pItemData = (sITEM_TBLDAT*) itemTbl->FindData( pMerchantData->aitem_Tblidx[j] );
+							sITEM_TBLDAT* pItemData = (sITEM_TBLDAT*) itemTbl->FindData( pMerchantData->aitem_Tblidx[j] );
 							int ItemPos = 0;
 
 							app->db->prepare("SELECT * FROM items WHERE owner_ID = ? AND place=1 ORDER BY pos ASC");
-							app->db->setInt(1, this->plr->pcProfile->charId);
+							app->db->setInt(1, plr->GetPcProfile()->charId);
 							app->db->execute();
 							int k = 0;
 							while(app->db->fetch())
@@ -5898,15 +5820,15 @@ void CClientSession::SendShopBuyReq(CNtlPacket * pPacket, CGameServer * app)
 							}
 							app->db->prepare("CALL BuyItemFromShop (?,?,?,?,?, @unique_iID)");
 							app->db->setInt(1, pMerchantData->aitem_Tblidx[j]);
-							app->db->setInt(2, this->plr->pcProfile->charId);
+							app->db->setInt(2, plr->GetPcProfile()->charId);
 							app->db->setInt(3, ItemPos);
 							app->db->setInt(4, pItemData->byRank);
 							app->db->setInt(5, pItemData->byDurability);
 							app->db->execute();
 							app->db->execute("SELECT @unique_iID");
-							app->db->fetch();*/
+							app->db->fetch();
 
-							/*CNtlPacket packet2(sizeof(sGU_ITEM_CREATE));
+							CNtlPacket packet2(sizeof(sGU_ITEM_CREATE));
 							sGU_ITEM_CREATE * res2 = (sGU_ITEM_CREATE *)packet2.GetPacketData();
 
 							res2->bIsNew = true;
@@ -5922,7 +5844,7 @@ void CClientSession::SendShopBuyReq(CNtlPacket * pPacket, CGameServer * app)
 							res2->sItemData.byRank = pItemData->byRank;
 
 							packet2.SetPacketLen( sizeof(sGU_ITEM_CREATE) );
-							g_pApp->Send( this->GetHandle(), &packet2 );*/
+							g_pApp->Send( this->GetHandle(), &packet2 );
 							this->gsf->CreateUpdateItem(plr, req->sBuyData[0].byStack, pMerchantData->aitem_Tblidx[j], false, this->GetHandle());
 							break;
 						}
@@ -6067,9 +5989,9 @@ void	CClientSession::SendDragonBallCheckReq(CNtlPacket * pPacket, CGameServer * 
 	sUG_DRAGONBALL_CHECK_REQ * req = (sUG_DRAGONBALL_CHECK_REQ *)pPacket->GetPacketData();
 	CNtlPacket packet(sizeof(sGU_DRAGONBALL_CHECK_RES));
 	sGU_DRAGONBALL_CHECK_RES * res = (sGU_DRAGONBALL_CHECK_RES *)packet.GetPacketData();
-
-	CNtlPacket packet2(sizeof(sGU_OBJECT_CREATE));
-	sGU_OBJECT_CREATE * obj = (sGU_OBJECT_CREATE *)packet2.GetPacketData();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	CNtlPacket packet2(sizeof(SpawnNPC));
+	SpawnNPC * obj = (SpawnNPC *)packet2.GetPacketData();
 
 	CNtlPacket packet3(sizeof(sGU_AVATAR_ZONE_INFO));
 	sGU_AVATAR_ZONE_INFO * zone = (sGU_AVATAR_ZONE_INFO *)packet3.GetPacketData();
@@ -6090,7 +6012,8 @@ void	CClientSession::SendDragonBallCheckReq(CNtlPacket * pPacket, CGameServer * 
 	while (i <= 6)
 	{
 		if (req->sData[i].byPos == i && dragonBall[i] == (200001 + i));
-		else
+		i++;
+		/*else
 		{
 			res->hObject = req->hObject;
 			res->wResultCode = GAME_DRAGONBALL_NOT_FOUND;
@@ -6099,10 +6022,10 @@ void	CClientSession::SendDragonBallCheckReq(CNtlPacket * pPacket, CGameServer * 
 			g_pApp->Send(this->GetHandle(), &packet);
 			this->gsf->printError("An error is occured in SendDragonBallReq: GAME_DRAGONBALL_NOT_FOUND");
 			i = 0;
-			break;
+			break;*/
 		}
-		i++;
-	}
+		
+	
 	if (i == 7)
 	{
 
@@ -6114,22 +6037,23 @@ void	CClientSession::SendDragonBallCheckReq(CNtlPacket * pPacket, CGameServer * 
 		g_pApp->Send(this->GetHandle(), &packet3);
 		app->UserBroadcastothers(&packet3, this);
 
-		//sSPAWN_TBLDAT* pMOBTblData = (sSPAWN_TBLDAT*)app->g_pTableContainer->GetMobSpawnTable(1)->FindData(6361105);
+//		sSPAWN_TBLDAT* pMOBTblData = (sSPAWN_TBLDAT*)app->g_pTableContainer->GetMobSpawnTable(1)->FindData(6361105);
 
-		obj->handle = 90000;//this->plr->GetAvatarandle(); // this is wrong
+		obj->Handle = 90000; // this is wrong
 		obj->wOpCode = GU_OBJECT_CREATE;
-		obj->sObjectInfo.objType = OBJTYPE_NPC; // this is wrong
-		obj->sObjectInfo.npcBrief.tblidx = 6361105; // this is wrong
-		obj->sObjectInfo.npcState.sCharStateBase.vCurLoc.x = 4708;
-		obj->sObjectInfo.npcState.sCharStateBase.vCurLoc.y = -52;
-		obj->sObjectInfo.npcState.sCharStateBase.vCurLoc.z = 4001;
-		obj->sObjectInfo.npcState.sCharStateBase.byStateID = CHARSTATE_SPAWNING;
-		obj->sObjectInfo.npcBrief.wCurEP = 100;
-		obj->sObjectInfo.npcBrief.wCurLP = 100;
-		obj->sObjectInfo.npcBrief.wMaxEP = 100;
-		obj->sObjectInfo.npcBrief.wMaxLP = 100;
+		obj->Type = OBJTYPE_NPC; // this is wrong
+		obj->Tblidx = 6361105; // this is wrong
+		obj->Loc[0] = 4708;
+		obj->Loc[1] = -52;
+		obj->Loc[2] = 4001;
+		obj->StateID = CHARSTATE_DIRECT_PLAY;
+		obj->curEP = 100;
+		obj->curLP = 100;
+		obj->maxEP = 100;
+		obj->maxLP = 100;
+		obj->Size = 10;
 
-		packet2.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
+		packet2.SetPacketLen(sizeof(SpawnNPC));
 		g_pApp->Send(this->GetHandle(), &packet2);
 		app->UserBroadcastothers(&packet2, this);
 
@@ -6187,10 +6111,10 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 		res4->wOpCode = GU_ITEM_PICK_RES;
 		res4->wResultCode = GAME_SUCCESS;
 		this->gsf->CreateUpdateItem(plr, pItemData->byMax_Stack, pItemData->tblidx, false, this->GetHandle());
-		/*int ItemPos = 0;
+		int ItemPos = 0;
 
 		app->db->prepare("SELECT * FROM items WHERE owner_ID = ? AND place=1 ORDER BY pos ASC");
-		app->db->setInt(1, this->plr->pcProfile->charId);
+		app->db->setInt(1, plr->GetPcProfile()->charId);
 		app->db->execute();
 		int k = 0;
 		//Need a right loop
@@ -6204,7 +6128,7 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 		}
 		app->db->prepare("CALL BuyItemFromShop (?,?,?,?,?, @unique_iID)");//this basicaly a insert into...
 		app->db->setInt(1, pItemData->tblidx);
-		app->db->setInt(2, this->plr->pcProfile->charId);
+		app->db->setInt(2, plr->GetPcProfile()->charId);
 		app->db->setInt(3, ItemPos);
 		app->db->setInt(4, pItemData->byRank);
 		app->db->setInt(5, pItemData->byDurability);
@@ -6218,18 +6142,18 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 		res2->bIsNew = true;
 		res2->wOpCode = GU_ITEM_CREATE;
 		res2->handle = app->db->getInt("@unique_iID");
-		res2->sItemData.charId = this->GetavatarHandle();
+		res2->sItemData.charId = plr->GetPcProfile()->charId;
 		res2->sItemData.itemNo = pItemData->tblidx;
 		res2->sItemData.byStackcount = pItemData->byMax_Stack;//1 is need to be default,you can use byMaxStack(but if you choose senzubeans the correct is receive 3(like dragon ball Saga) but give you 20
 		res2->sItemData.itemId = app->db->getInt("@unique_iID");
 		res2->sItemData.byPlace = 1;
 		res2->sItemData.byPosition = ItemPos;
 		res2->sItemData.byCurrentDurability = pItemData->byDurability;
-		res2->sItemData.byRank = pItemData->byRank;*/
+		res2->sItemData.byRank = pItemData->byRank;
 
-		//packet2.SetPacketLen(sizeof(sGU_ITEM_CREATE));
+		packet2.SetPacketLen(sizeof(sGU_ITEM_CREATE));
 		packet4.SetPacketLen(sizeof(sGU_ITEM_PICK_RES));
-		//g_pApp->Send(this->GetHandle(), &packet2);
+		g_pApp->Send(this->GetHandle(), &packet2);
 		g_pApp->Send(this->GetHandle(), &packet4);
 	}
 		break;
@@ -6269,7 +6193,7 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 	sGU_DRAGONBALL_SCHEDULE_INFO * res2 = (sGU_DRAGONBALL_SCHEDULE_INFO *)packet2.GetPacketData();
 	res2->bIsAlive = true;
 	res2->byEventType = SCHEDULE_EVENT_TYPE_NORMAL_DRAGONBALL;
-	res2->byTermType = 0;
+	res2->byTermType = 1;
 	res2->nStartTime = timeGetTime();
 	res2->nEndTime = timeGetTime() * 2;
 	res2->wOpCode = GU_DRAGONBALL_SCHEDULE_INFO;
@@ -7262,7 +7186,7 @@ void CClientSession::SendPlayerQuestReq(CNtlPacket * pPacket, CGameServer * app)
 				  }
 
 			  }
-			  // Começa entradas RP UD Dojos ETC
+			  // ComeÃ§a entradas RP UD Dojos ETC
 			  else if (req->byEventType == 255)//Is colision
 			  {
 				  printf("byEventType 2\n");
@@ -7461,12 +7385,12 @@ void	CClientSession::SendItemPickUpReq(CNtlPacket * pPacket, CGameServer * app)
 		res->itemTblidx = 11170019 + rand() % 261 + 1;
 		res->wOpCode = GU_ITEM_PICK_RES;
 		//printf(" Item %d\n"), res->itemTblidx;
-	// define posiçao do item
+	// define posiÃ§ao do item
 		int Place = 1;// Bag vai de 1 a 5
 		int Pos = rand()%14+1;	// slots livres bag 1 16 slots outras podem ir ate 32^^	
 		int CharID = plr->GetCharID(); // ID personagem
 		int count = 1; //numero de items
-		// verifica se a posiçao esta ocupada
+		// verifica se a posiÃ§ao esta ocupada
 		if (app->qry->CheckIfCanMoveItemThere(plr->GetCharID(), Place, Pos) == false)
 		{
 			
@@ -7604,7 +7528,7 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 	sGU_VEHICLE_START_NFY* pVehicleStart = (sGU_VEHICLE_START_NFY*)packet5.GetPacketData();
 
 	CNtlPacket packet6(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* pVehicleAspcStateUpd = (sGU_UPDATE_CHAR_STATE*)packet6.GetPacketData();	
+	sGU_UPDATE_CHAR_STATE* pVehicleAspcStateUpd = (sGU_UPDATE_CHAR_STATE*)packet6.GetPacketData();
 
 	CNtlPacket packet7(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
 	sGU_UPDATE_CHAR_LP_STATUS_NFY* pVehicleAspect = (sGU_UPDATE_CHAR_LP_STATUS_NFY*)packet7.GetPacketData();
@@ -7619,180 +7543,180 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 	int level = app->db->getInt("Level");
 	if (res->tblidxItem == 11120154)
 	{
-		if ( level >= 30)
+		if (level >= 30)
 		{
-		
-	//DST_CHAR_GROWN_DOWN = "PARABÉNS! Voc??uma criança!"
-	//	DST_CHAR_GROWN_UP = "Voc??um Adulto!"
-	//int CharID = plr->GetCharID();
-	
-	adult->bIsAdult = app->db->getBoolean("Adult");
 
-	printf("Adulto %d \n", adult->bIsAdult);
-	
-	//pVehicleAspect->handle = this->GetavatarHandle();
-	//pVehicleAspect->bEmergency = true;
-	//pVehicleAspect->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
-	//pVehicleAspect->wResultCode = 500;
-	if (adult->bIsAdult == 0) //se for criança converte em adulto
-	{
-		printf("Adulto %d \n", adult->bIsAdult);
-		adult->hSubject = this->GetavatarHandle();
-		adult->bIsAdult = 1;//transforma em adulto
-		printf("Adulto %d \n", adult->bIsAdult);
-		adult->wOpCode = GU_CHILD_ADULT_SWITCHED_NFY;//evnvia o packet
-		adult->wResultCode = 500;//envia resultado
-		//actualiza a base de dados
-		app->db->prepare("UPDATE characters SET Adult=?  WHERE CharID=?");
-		app->db->setInt(1, adult->bIsAdult);
-		app->db->setInt(2, plr->GetCharID());
-		app->db->execute();
+			//DST_CHAR_GROWN_DOWN = "PARABï¿½NS! Voc??uma crianï¿½a!"
+			//	DST_CHAR_GROWN_UP = "Voc??um Adulto!"
+			//int CharID = plr->GetCharID();
 
-		sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
+			adult->bIsAdult = app->db->getBoolean("Adult");
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->byPlace);
-		app->db->setInt(3, req->byPos);
-		app->db->execute();
-		app->db->fetch();
+			printf("Adulto %d \n", adult->bIsAdult);
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+			//pVehicleAspect->handle = this->GetavatarHandle();
+			//pVehicleAspect->bEmergency = true;
+			//pVehicleAspect->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+			//pVehicleAspect->wResultCode = 500;
+			if (adult->bIsAdult == 0) //se for crianï¿½a converte em adulto
+			{
+				printf("Adulto %d \n", adult->bIsAdult);
+				adult->hSubject = this->GetavatarHandle();
+				adult->bIsAdult = 1;//transforma em adulto
+				printf("Adulto %d \n", adult->bIsAdult);
+				adult->wOpCode = GU_CHILD_ADULT_SWITCHED_NFY;//evnvia o packet
+				adult->wResultCode = 500;//envia resultado
+				//actualiza a base de dados
+				app->db->prepare("UPDATE characters SET Adult=?  WHERE CharID=?");
+				app->db->setInt(1, adult->bIsAdult);
+				app->db->setInt(2, plr->GetCharID());
+				app->db->execute();
 
-		res1->wOpCode = GU_ITEM_DELETE_RES;
-		res1->wResultCode = GAME_SUCCESS;
-		res1->byPlace = req1->bySrcPlace;
-		res1->byPos = req1->bySrcPos;
+				sUG_ITEM_DELETE_REQ * req1 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet1(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res1 = (sGU_ITEM_DELETE_RES *)packet1.GetPacketData();
 
-		packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet1);
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->byPlace);
+				app->db->setInt(3, req->byPos);
+				app->db->execute();
+				app->db->fetch();
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
+				res1->wOpCode = GU_ITEM_DELETE_RES;
+				res1->wResultCode = GAME_SUCCESS;
+				res1->byPlace = req1->bySrcPlace;
+				res1->byPos = req1->bySrcPos;
 
-		res2->bySrcPlace = item_place;
-		res2->bySrcPos = item_pos;
-		res2->hSrcItem = u_itemid;
-		res2->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				packet1.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet1);
 
-		packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet2);
-		plr = NULL;
-		delete plr;
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
 
-	}
-	else if (adult->bIsAdult == 1)	//ser for adulto converte em criança
-	{
-		
-		adult->hSubject = this->GetavatarHandle();
-		adult->bIsAdult = 0;
-		printf("Criança %d \n", adult->bIsAdult);
-		adult->wOpCode = GU_CHILD_ADULT_SWITCHED_NFY;
-		adult->wResultCode = 500;
+				CNtlPacket packet2(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res2 = (sGU_ITEM_DELETE *)packet2.GetPacketData();
 
-		app->db->prepare("UPDATE characters SET Adult=?  WHERE CharID=?");
-		app->db->setInt(1, adult->bIsAdult);
-		app->db->setInt(2, plr->GetCharID());
-		app->db->execute();
+				res2->bySrcPlace = item_place;
+				res2->bySrcPos = item_pos;
+				res2->hSrcItem = u_itemid;
+				res2->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
 
-		sUG_ITEM_DELETE_REQ * req3 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
-		//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-		CNtlPacket packet3(sizeof(sGU_ITEM_DELETE_RES));
-		sGU_ITEM_DELETE_RES * res3 = (sGU_ITEM_DELETE_RES *)packet3.GetPacketData();
+				packet2.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet2);
+				plr = NULL;
+				delete plr;
 
-		app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
-		app->db->setInt(1, plr->GetCharID());
-		app->db->setInt(2, req->byPlace);
-		app->db->setInt(3, req->byPos);
-		app->db->execute();
-		app->db->fetch();
+			}
+			else if (adult->bIsAdult == 1)	//ser for adulto converte em crianï¿½a
+			{
 
-		RwUInt32 u_itemid = app->db->getInt("id");
-		RwUInt32 item_place = app->db->getInt("place");
-		RwUInt32 item_pos = app->db->getInt("pos");
+				adult->hSubject = this->GetavatarHandle();
+				adult->bIsAdult = 0;
+				printf("Crianï¿½a %d \n", adult->bIsAdult);
+				adult->wOpCode = GU_CHILD_ADULT_SWITCHED_NFY;
+				adult->wResultCode = 500;
 
-		res3->wOpCode = GU_ITEM_DELETE_RES;
-		res3->wResultCode = GAME_SUCCESS;
-		res3->byPlace = req3->bySrcPlace;
-		res3->byPos = req3->bySrcPos;
+				app->db->prepare("UPDATE characters SET Adult=?  WHERE CharID=?");
+				app->db->setInt(1, adult->bIsAdult);
+				app->db->setInt(2, plr->GetCharID());
+				app->db->execute();
 
-		packet3.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
-		g_pApp->Send(this->GetHandle(), &packet3);
+				sUG_ITEM_DELETE_REQ * req3 = (sUG_ITEM_DELETE_REQ*)pPacket->GetPacketData();
+				//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+				CNtlPacket packet3(sizeof(sGU_ITEM_DELETE_RES));
+				sGU_ITEM_DELETE_RES * res3 = (sGU_ITEM_DELETE_RES *)packet3.GetPacketData();
 
-		// DELETE ITEM
-		app->qry->DeleteItemById(u_itemid);
+				app->db->prepare("SELECT id,place,pos FROM items WHERE owner_id=? AND place=? AND pos=?");
+				app->db->setInt(1, plr->GetCharID());
+				app->db->setInt(2, req->byPlace);
+				app->db->setInt(3, req->byPos);
+				app->db->execute();
+				app->db->fetch();
 
-		CNtlPacket packet4(sizeof(sGU_ITEM_DELETE));
-		sGU_ITEM_DELETE * res4 = (sGU_ITEM_DELETE *)packet4.GetPacketData();
+				RwUInt32 u_itemid = app->db->getInt("id");
+				RwUInt32 item_place = app->db->getInt("place");
+				RwUInt32 item_pos = app->db->getInt("pos");
 
-		res4->bySrcPlace = item_place;
-		res4->bySrcPos = item_pos;
-		res4->hSrcItem = u_itemid;
-		res4->wOpCode = GU_ITEM_DELETE;
-		plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+				res3->wOpCode = GU_ITEM_DELETE_RES;
+				res3->wResultCode = GAME_SUCCESS;
+				res3->byPlace = req3->bySrcPlace;
+				res3->byPos = req3->bySrcPos;
 
-		packet4.SetPacketLen(sizeof(sGU_ITEM_DELETE));
-		g_pApp->Send(this->GetHandle(), &packet4);
-		plr = NULL;
-		delete plr;
-	}
-	
-	}
-		//verificaçao de lvl kid clock termina
+				packet3.SetPacketLen(sizeof(sGU_ITEM_DELETE_RES));
+				g_pApp->Send(this->GetHandle(), &packet3);
+
+				// DELETE ITEM
+				app->qry->DeleteItemById(u_itemid);
+
+				CNtlPacket packet4(sizeof(sGU_ITEM_DELETE));
+				sGU_ITEM_DELETE * res4 = (sGU_ITEM_DELETE *)packet4.GetPacketData();
+
+				res4->bySrcPlace = item_place;
+				res4->bySrcPos = item_pos;
+				res4->hSrcItem = u_itemid;
+				res4->wOpCode = GU_ITEM_DELETE;
+				plr->cPlayerInventory->RemoveItemFromInventory(u_itemid);
+
+				packet4.SetPacketLen(sizeof(sGU_ITEM_DELETE));
+				g_pApp->Send(this->GetHandle(), &packet4);
+				plr = NULL;
+				delete plr;
+			}
+
+		}
+		//verificaï¿½ao de lvl kid clock termina
 		else // se for menor que level 30 falha
 		{
 			res->wResultCode = GAME_ITEM_NEED_MORE_LEVEL;
 		}
-	}	
-	
+	}
+
 	else if (res->tblidxItem == 11120117)
 	{
 		if (level <= 29)
 		{
-		
-		CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_SP));
-		sGU_UPDATE_CHAR_SP * res2 = (sGU_UPDATE_CHAR_SP *)packet2.GetPacketData();
-		plr->GetPcProfile()->dwCurExp -= plr->GetPcProfile()->dwMaxExpInThisLevel;
-		plr->GetPcProfile()->dwMaxExpInThisLevel += (plr->GetPcProfile()->dwMaxExpInThisLevel * 1);
-		CNtlPacket packet1(sizeof(sGU_UPDATE_CHAR_LEVEL));
-		sGU_UPDATE_CHAR_LEVEL * response1 = (sGU_UPDATE_CHAR_LEVEL*)packet1.GetPacketData();
-		plr->GetPcProfile()->byLevel = 30;
-		response1->byCurLevel = plr->GetPcProfile()->byLevel;
-		response1->byPrevLevel = plr->GetPcProfile()->byLevel - 1;
-		response1->dwMaxExpInThisLevel = plr->GetPcProfile()->dwMaxExpInThisLevel;
-		response1->handle = plr->GetAvatarHandle();
-		response1->wOpCode = GU_UPDATE_CHAR_LEVEL;
-		packet1.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LEVEL));
-		g_pApp->Send(this->GetHandle(), &packet1);
-		plr->SetLevelUP();
-		//plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
-		plr->GetPcProfile()->dwSpPoint = 30;
-		app->qry->UpdateSPPoint(plr->GetCharID(), plr->GetPcProfile()->dwSpPoint);
-		app->qry->UpdatePlayerLevel(plr->GetPcProfile()->byLevel, plr->GetCharID(), plr->GetPcProfile()->dwCurExp, plr->GetPcProfile()->dwMaxExpInThisLevel);
-		//response->dwCurExp = plr->GetPcProfile()->dwCurExp;
-		plr->SetRPBall();
-		plr->SendRpBallInformation();
-		res2->wOpCode = GU_UPDATE_CHAR_SP;
-		res2->dwSpPoint = plr->GetPcProfile()->dwSpPoint;
-		packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SP));
-		g_pApp->Send(this->GetHandle(), &packet2);
 
-		CNtlPacket packet4(sizeof(sGU_UPDATE_CHAR_STATE));
-		sGU_UPDATE_CHAR_STATE* res4 = (sGU_UPDATE_CHAR_STATE*)packet4.GetPacketData();
-		res4->handle = this->GetavatarHandle();
-		res4->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-		res4->wOpCode = GU_UPDATE_CHAR_STATE;
-		packet4.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-		g_pApp->Send(this->GetHandle(), &packet4);
+			CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_SP));
+			sGU_UPDATE_CHAR_SP * res2 = (sGU_UPDATE_CHAR_SP *)packet2.GetPacketData();
+			plr->GetPcProfile()->dwCurExp -= plr->GetPcProfile()->dwMaxExpInThisLevel;
+			plr->GetPcProfile()->dwMaxExpInThisLevel += (plr->GetPcProfile()->dwMaxExpInThisLevel * 1);
+			CNtlPacket packet1(sizeof(sGU_UPDATE_CHAR_LEVEL));
+			sGU_UPDATE_CHAR_LEVEL * response1 = (sGU_UPDATE_CHAR_LEVEL*)packet1.GetPacketData();
+			plr->GetPcProfile()->byLevel = 30;
+			response1->byCurLevel = plr->GetPcProfile()->byLevel;
+			response1->byPrevLevel = plr->GetPcProfile()->byLevel - 1;
+			response1->dwMaxExpInThisLevel = plr->GetPcProfile()->dwMaxExpInThisLevel;
+			response1->handle = plr->GetAvatarHandle();
+			response1->wOpCode = GU_UPDATE_CHAR_LEVEL;
+			packet1.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LEVEL));
+			g_pApp->Send(this->GetHandle(), &packet1);
+			plr->SetLevelUP();
+			//plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
+			plr->GetPcProfile()->dwSpPoint = 30;
+			app->qry->UpdateSPPoint(plr->GetCharID(), plr->GetPcProfile()->dwSpPoint);
+			app->qry->UpdatePlayerLevel(plr->GetPcProfile()->byLevel, plr->GetCharID(), plr->GetPcProfile()->dwCurExp, plr->GetPcProfile()->dwMaxExpInThisLevel);
+			//response->dwCurExp = plr->GetPcProfile()->dwCurExp;
+			plr->SetRPBall();
+			plr->SendRpBallInformation();
+			res2->wOpCode = GU_UPDATE_CHAR_SP;
+			res2->dwSpPoint = plr->GetPcProfile()->dwSpPoint;
+			packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SP));
+			g_pApp->Send(this->GetHandle(), &packet2);
+
+			CNtlPacket packet4(sizeof(sGU_UPDATE_CHAR_STATE));
+			sGU_UPDATE_CHAR_STATE* res4 = (sGU_UPDATE_CHAR_STATE*)packet4.GetPacketData();
+			res4->handle = this->GetavatarHandle();
+			res4->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+			res4->wOpCode = GU_UPDATE_CHAR_STATE;
+			packet4.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+			g_pApp->Send(this->GetHandle(), &packet4);
 		}
 		else
 		{
@@ -7803,20 +7727,20 @@ void	CClientSession::SendItemUseReq(CNtlPacket * pPacket, CGameServer * app)
 	{
 		res->wResultCode = GAME_ITEM_NOT_READY_TO_BE_USED;
 	}
-		
-		packet.SetPacketLen(sizeof(sGU_ITEM_USE_RES));
-		packet5.SetPacketLen(sizeof(sGU_VEHICLE_START_NFY));
-		packet6.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-		packet7.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
-		packet8.SetPacketLen(sizeof(sGU_CHILD_ADULT_SWITCHED_NFY));
 
-		g_pApp->Send(this->GetHandle(), &packet);
-		app->UserBroadcastothers(&packet5, this);
-		g_pApp->Send(this->GetHandle(), &packet6);
-		g_pApp->Send(this->GetHandle(), &packet7);
-		g_pApp->Send(this->GetHandle(), &packet8);
-			
-		
+	packet.SetPacketLen(sizeof(sGU_ITEM_USE_RES));
+	packet5.SetPacketLen(sizeof(sGU_VEHICLE_START_NFY));
+	packet6.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+	packet7.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	packet8.SetPacketLen(sizeof(sGU_CHILD_ADULT_SWITCHED_NFY));
+
+	g_pApp->Send(this->GetHandle(), &packet);
+	app->UserBroadcastothers(&packet5, this);
+	g_pApp->Send(this->GetHandle(), &packet6);
+	g_pApp->Send(this->GetHandle(), &packet7);
+	g_pApp->Send(this->GetHandle(), &packet8);
+
+
 	plr = NULL;
 	delete plr;
 }
@@ -9741,7 +9665,7 @@ void CClientSession::UpdateCharState(HOBJECT avHandle, eCHARSTATE state)
 	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
 	sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
 	res->handle = avHandle;
-	res->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_DASH_ACCEL;
+	res->sCharState.sCharStateBase.byStateID = CHARSTATE_MOVING;
 	res->wOpCode = GU_UPDATE_CHAR_STATE;
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
 
