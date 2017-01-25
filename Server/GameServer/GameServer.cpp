@@ -1664,21 +1664,27 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	flagManager.Set(CTableContainer::TABLE_PC);
 	flagManager.Set(CTableContainer::TABLE_NEWBIE);
 	flagManager.Set(CTableContainer::TABLE_SKILL);
+	flagManager.Set(CTableContainer::TABLE_NPC_SPAWN); //Have to have working world data first;
+	flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);//And for these to be any use. We have to load NPC_TABLE and MOB_TABLEs 
+
+
+
 	/*Tables in Progress*/
 	flagManager.Set(CTableContainer::TABLE_ITEM);	//Table loads. Data is incorrect after first 60 bytes			
 	flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);
 	flagManager.Set(CTableContainer::TABLE_EXP);
 	flagManager.Set(CTableContainer::TABLE_PORTAL);	
     flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
-	
+	flagManager.Set(CTableContainer::TABLE_WORLD);								
+	flagManager.Set(CTableContainer::TABLE_MOB);				
+	flagManager.Set(CTableContainer::TABLE_NPC);
+
+
 	//flagManager.Set(CTableContainer::TABLE_MERCHANT);			
 
 
 	/*Unloadable Tables*/
-	//	 flagManager.Set(CTableContainer::TABLE_WORLD);								
-	//   flagManager.Set(CTableContainer::TABLE_MOB);				
-	//   flagManager.Set(CTableContainer::TABLE_NPC);				
-	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
+	//   	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
 	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
 	//   flagManager.Set(CTableContainer::TABLE_HTB_SET);			
 	//   flagManager.Set(CTableContainer::TABLE_SET_ITEM);			
@@ -1713,8 +1719,7 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_DOJO);				
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
-	//   flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
-	//   flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
+	//   
 	//   flagManager.Set(CTableContainer::TABLE_FORMULA);
 	//   flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
 	//   flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
@@ -1741,14 +1746,17 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
 	fileNameList.SetFileName(CTableContainer::TABLE_PORTAL,					"Table_Portal_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
-	
+	fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
+
+	fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
+
+
 	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
 
 
 	/*Unloadable Tables*/
-	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
+	//
 	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");	
 	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_HTB_SET,				"Table_HTB_Set_Data");

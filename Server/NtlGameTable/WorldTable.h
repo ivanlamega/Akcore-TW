@@ -34,9 +34,9 @@ public:
 	WCHAR			wszName[ DBO_MAX_LENGTH_WORLD_NAME_IN_UNICODE + 1 ];
 	bool			bDynamic;
 	DWORD			nCreateCount;
-	TBLIDX			unknown1;
 	BYTE			byDoorType;
-
+	WORD			wUnknown1;
+	BYTE			byUnknown1; 
 	DWORD			dwDestroyTimeInMilliSec;
 
 //	std::wstring	wstrMobSpawn_Table_Name;
@@ -60,6 +60,9 @@ public:
 	CNtlVector		vSpectatorStartLoc;
 	CNtlVector		vSpectatorEndLoc;
 
+	CNtlVector		UnknownLoc;
+	CNtlVector		UnknownDir;
+	
 	CNtlVector		vDefaultLoc;
 	CNtlVector		vDefaultDir;
 
@@ -68,12 +71,15 @@ public:
 
 	CNtlVector		vStart2Loc;
 	CNtlVector		vStart2Dir;
-	
-	CNtlVector     unknownVectors[6];
+
+	CNtlVector		UnknownVec[4];
+
 
 	float			fSplitSize;
 	bool			bNight_Able;
 	BYTE			byStatic_Time;
+
+	
 	WORD			wFuncFlag;
 
 	BYTE			byWorldRuleType;	// eGAMERULE_TYPE
@@ -84,7 +90,7 @@ public:
 	CNtlVector		outWorldDir;
 	WCHAR			wszResourceFolder[ DBO_MAX_LENGTH_WORLD_RESOURCE_FOLDER_NAME + 1];
 	float			fBGMRestTime;
-	DWORD			dwWorldResourceID;
+	uint32_t		dwWorldResourceID;
 	float			fFreeCamera_Height;
 
 	WCHAR			wszEnterResourceFlash[ DBO_MAX_LENGTH_WORLD_RESOURCE_FLASH_NAME + 1];
@@ -92,9 +98,8 @@ public:
 
 	TBLIDX			wpsLinkIndex;
 
-	uint8_t			unknown3[11];
-	DWORD			unknown4;
-
+	uint8_t unknown3[11];
+	uint32_t unknown4;
 protected:
 
 	virtual int GetDataSize()

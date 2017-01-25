@@ -659,7 +659,7 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	res->wOpCode = GU_OBJECT_CREATE;
 	res->Handle = this->GetavatarHandle();
 	res->Type = OBJTYPE_PC;
-	res->Tblidx = pcDat->id;
+	res->Tblidx = pcDat->tblidx;
 	res->Adult = app->db->getBoolean("Adult");
 	wcscpy_s(res->Name, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(app->db->getString("CharName")).c_str());
 	wcscpy_s(res->GuildName, NTL_MAX_SIZE_GUILD_NAME_IN_UNICODE, s2ws(app->db->getString("GuildName")).c_str());
@@ -686,15 +686,15 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	res->Unknown2[3] = 0;
 	res->Unknown2[4] = 0;
 	res->Unknown2[5] = 0;
-	res->StateID = 0;
-	res->AspectID = 255;
+	res->StateID = CHARSTATE_SPAWNING;
+	res->AspectID = 0xFF;
 	res->mascotID = INVALID_TBLIDX;
 	res->Size = 10;
-	res->sMarking.dwCode = 1;
+	//res->sMarking.dwCode = 1;
 
 	//plr->SetGuildName(app->db->getString("GuildName"));
 
-	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
+	/*for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
 	{
 		app->db->prepare("select * from items WHERE place=7 AND pos=? AND owner_id=?");
 		app->db->setInt(1, i);
@@ -711,7 +711,7 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 			res->sItemBrief[i].tblidx = app->db->getInt("tblidx");
 		}
 
-	}
+	}*/
 
 	memcpy(&this->characterspawnInfo, res, sizeof(SpawnPlayer));
 	packet.SetPacketLen(sizeof(SpawnPlayer));
@@ -2117,12 +2117,6 @@ void CClientSession::SendCharJump(CNtlPacket * pPacket, CGameServer * app)
 	PACKET_TRACE(GU_CHAR_JUMP, packet);
 
 
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_JUMP;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 	plr = NULL;
 	delete plr;
 
@@ -2171,12 +2165,6 @@ void CClientSession::SendCharFalling(CNtlPacket * pPacket, CGameServer * app)
 	
 
 
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_FALLING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 
 }
 

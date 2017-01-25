@@ -179,12 +179,7 @@ bool CWorldTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Dynamic_Create_Count"))
 		{
-			pWorld->nCreateCount = READ_DWORD( bstrData );
-		}
-		else if (0 == wcscmp(pstrDataName->c_str(), L"unknown1"))
-		{
-			CheckNegativeInvalid(pstrDataName->c_str(), bstrData);
-			pWorld->unknown1 = READ_DWORD(bstrData);
+			pWorld->nCreateCount = READ_DWORD(bstrData);
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Field_Door_Type"))
 		{
@@ -470,9 +465,6 @@ bool CWorldTable::LoadFromBinary(CNtlSerializer& serializer, bool bReload)
 		Reset();
 	}
 	unsigned char dataSize = sizeof(sWORLD_TBLDAT);
-
-	BYTE byPadding = 0;
-	serializer >> byPadding;
 
 	BYTE byMargin = 1;
 	serializer >> byMargin;

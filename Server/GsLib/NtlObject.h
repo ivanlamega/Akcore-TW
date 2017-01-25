@@ -343,7 +343,7 @@ struct SpawnPlayer
 	uint8_t level;
 
 	uint8_t Unknown[179]; // 179 bytes who know's what they do, just try to get what they do
-	uint32_t mascotID; // This should be UINT32_INVALID or 0xFF.... etc, because if use 1 o 2, the mascot is wrong and client crash.
+	uint32_t mascotID; // This should be UINT32_INVALID or 0xFF.... etc, because if use 1 o 2, the mascot is wrong and client crash. //mascotID is a tblidx for a mascot is why -sangawku
 	uint8_t Size; // This should be 10, is the size of the object, if u use more, it wil be more great, like Giant Namek. Like the object grown up. 10 is the default.
 	uint8_t Unknown2[5]; // 5 more bytes
 	uint8_t StateID; // The current state of the player, moving, etc, etc.
