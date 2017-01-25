@@ -53,6 +53,7 @@ void CPlayerManager::Run()
 						{
 							plr->SetPlayerFight(false);
 							dwTickOld = dwTickCur;
+
 						}
 					}
 					else if (plr->GetPlayerFight() == false)
@@ -90,6 +91,7 @@ void CPlayerManager::Run()
 					}
 					if ((timeGetTime() - ServerTick) >= MINUTE)
 					{
+
 						printf("\n\r");
 						printf("%d Players Online\n\r", GetTotalPlayers());
 						printf("DBO> ");
@@ -176,4 +178,19 @@ void CPlayerManager::RemovePlayer(RwUInt32 playerHandle)
 int CPlayerManager::GetTotalPlayers()
 {
 	return this->PlayerCounter;
+}
+
+//Send teh movement sync packet and set all player states to standing;
+void	CPlayerManager::SendSyncPacket(RwUInt32 PlayerHandle, sVECTOR3 loc, sVECTOR3 dir, BYTE byMovFlag)
+{
+	CNtlPacket packet2(sizeof(sGU_CHAR_AIR_MOVE_SYNC));
+	sGU_CHAR_AIR_MOVE_SYNC * res = (sGU_CHAR_AIR_MOVE_SYNC*)packet2.GetPacketData();
+	res->handle = PlayerHandle;
+		res->wOpCode = GU_CHAR_AIR_MOVE_SYNC;
+	
+	packet2.SetPacketLen(sizeof(sGU_CHAR_FIGHTMODE));
+	//g_pApp->(this->GetHandle(), &packet2);
+
+
+
 }

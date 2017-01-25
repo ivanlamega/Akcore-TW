@@ -43,7 +43,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 	if (pHeader->wOpCode != 1)
 	//printf("~~~ opcode %i received ~~~ \n", pHeader->wOpCode);
 	if (pHeader->wOpCode > 16)
-	NTL_PRINT(PRINT_SYSTEM, "%s [%u] Size[%u]", NtlGetPacketName_UG(pHeader->wOpCode), pHeader->wOpCode, sizeof(pPacket));
+	NTL_PRINT(PRINT_SYSTEM, "%s [%u] Length[%u] DataSize[%u]", NtlGetPacketName_UG(pHeader->wOpCode), pHeader->wOpCode, pPacket->GetPacketLen(), pPacket->GetUsedSize());
 
 	switch( pHeader->wOpCode )
 	{
@@ -179,7 +179,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_AIR_MOVE:
 		{
-			//CClientSession::SendCharMove(pPacket, app);
+			CClientSession::SendCharMove(pPacket, app);
 		}
 			break;
 		case UG_CHAR_DEST_MOVE:	
@@ -195,6 +195,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_AIR_MOVE_SYNC:
 		{
 			CClientSession::SendCharMoveSync(pPacket, app);
+			
 		}
 			break;
 		case UG_CHAR_CHANGE_DIRECTION_ON_FLOATING:
@@ -1632,7 +1633,10 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 
 		default:
-			return CNtlSession::OnDispatch( pPacket );
+		{
+
+			return CNtlSession::OnDispatch(pPacket);
+		}
 	}
 	return NTL_SUCCESS;
 }

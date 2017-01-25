@@ -640,10 +640,12 @@ void CClientSession::SendWorldEnterReq1(CNtlPacket * pPacket, CGameServer * app)
 //--------------------------------------------------------------------------------------//
 void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 {
-	//printf("--- sGU_OBJECT_CREATE --- \n");
+	printf("--- sGU_OBJECT_CREATE --- \n");
 	//SPAN PLAYERS
-	CNtlPacket packet1(sizeof(SpawnPlayer));
-	SpawnPlayer * res1 = (SpawnPlayer *)packet1.GetPacketData();
+	CNtlPacket packet(sizeof(SpawnPlayer));
+	SpawnPlayer * res = (SpawnPlayer *)packet.GetPacketData();
+	CNtlPacket packet1(sizeof(sGU_OBJECT_CREATE));
+	sGU_OBJECT_CREATE * res1 = (sGU_OBJECT_CREATE *)packet1.GetPacketData();
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
 	app->db->prepare("SELECT * FROM characters WHERE CharID = ?");
 	app->db->setInt(1, plr->GetCharID());
@@ -651,98 +653,139 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->fetch();
 
 	wcscpy_s(plr->GetPcProfile()->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(plr->GetPlayerName()).c_str());
-	memset(res1, 0, sizeof(SpawnPlayer));
-//	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
-	dbo_data_table_pc *pc = new dbo_data_table_pc();
-	//pc->load("data/table_pc_data.rdf");
-	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
+	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
+	sPC_TBLDAT* pcDat = (sPC_TBLDAT*)pPcTable->GetPcTbldat(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
 
-	res1->wOpCode = GU_OBJECT_CREATE;
-	res1->Handle = 51;
-	res1->Type = OBJTYPE_PC;
-	res1->Tblidx = pcDat->id;
-	res1->Adult = plr->GetPcProfile()->bIsAdult;
-	wcscpy_s(res1->Name, NAME_LEN, s2ws(plr->GetPlayerName()).c_str());
-	wcscpy_s(res1->GuildName, GUILD_LEN, s2ws(plr->GetGuildName()).c_str());
-	res1->charID = plr->GetCharID();
-	//res1->sPcShape = plr->GetPcProfile()->sPcShape;
-	res1->curAP = 450;
-	//res1->maxAP = 450;
-	//res1->curLP = plr->GetPcProfile()->dwCurLP;
-	//res1->maxLP = plr->GetPcProfile()->avatarAttribute.wBaseMaxLP;
-	//res1->curEP = plr->GetPcProfile()->wCurEP;
-	//res1->maxEP = plr->GetPcProfile()->avatarAttribute.wBaseMaxEP;
-	//	res->sObjectInfo.pcBrief.sMarking.byCode = 0;
-	//res1->level =0;
-	//	res->sObjectInfo.pcBrief.fSpeed = plr->GetPcProfile()->avatarAttribute.fLastRunSpeed;
-	//	res->sObjectInfo.pcBrief.wAttackSpeedRate = plr->GetPcProfile()->avatarAttribute.wBaseAttackSpeedRate;
-	//	res->sObjectInfo.pcState.sCharStateBase = plr->GetCharState()->sCharStateBase;
-	res1->Size = 20;
-	//res1->StateID = 0;
-	res1->Loc[0] = 0;// curpos.x;
-	res1->Loc[1] = -0; //curpos.y;
-	res1->Loc[2] = 0;// curpos.z;
-	res1->Dir[0] = 0;// curpos.x;
-	res1->Dir[1] = -0; //curpos.y;
-	res1->Dir[2] = 0;// curpos.z;
-	res1->Unknown;
-	res1->Unknown2;
-	res1->Unknown3;
-	res1->Unknown4;
-	res1->AspectID = 1;
-	res1->mascotID = 1;
-	res1->appear.Face = 1;
-	res1->appear.Hair = 1;
-	res1->appear.HairColor = 1;
-	res1->appear.SkinColor = 1;
-	/*	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
-	{
-	if ((plr->cPlayerInventory->GetEquippedItems()[i].tblidx != 0) || (plr->cPlayerInventory->GetEquippedItems()[i].tblidx != INVALID_TBLIDX))
-	{
-	res->sObjectInfo.pcBrief.sItemBrief[i].tblidx = plr->cPlayerInventory->GetEquippedItems()[i].tblidx;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byGrade = plr->cPlayerInventory->GetEquippedItems()[i].byGrade;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byRank = plr->cPlayerInventory->GetEquippedItems()[i].byRank;
-	res->sObjectInfo.pcBrief.sItemBrief[i].byBattleAttribute = plr->cPlayerInventory->GetEquippedItems()[i].byBattleAttribute;
-	res->sObjectInfo.pcBrief.sItemBrief[i].aOptionTblidx[0] = plr->cPlayerInventory->GetEquippedItems()[i].aOptionTblidx[0];
-	res->sObjectInfo.pcBrief.sItemBrief[i].aOptionTblidx[1] = plr->cPlayerInventory->GetEquippedItems()[i].aOptionTblidx[1];
-	}
-	else
-	{
-	res->sObjectInfo.pcBrief.sItemBrief[i].tblidx = INVALID_TBLIDX;
-	}
-	}*/
+	
 
-	//Lets update our Character Attributes with equiped scout values ^^
-	//Maybe this way is wrong
-	/*	for (int i = 0; i < plr->cPlayerInventory->GetTotalItemsCount(); i++)
-	{
-	//If is a Scout Chip then lets update our character attribute
-	if (plr->cPlayerInventory->GetInventory()[i].byPlace == CONTAINER_TYPE_SCOUT)
-	{
-	sITEM_TBLDAT* pItemDat = reinterpret_cast<sITEM_TBLDAT*>(app->g_pTableContainer->GetItemTable()->FindData(plr->cPlayerInventory->GetInventory()[i].tblidx));
-	plr->cPlayerAttribute->UpdateStatsUsingScouterChips(plr->GetAvatarHandle(), pItemDat->Item_Option_Tblidx);
-	//And attach in our EquippedChips Array
-	for (int i = 0; i < 4; i++)
-	{
-	if (plr->GetEquipedChips()[i] == INVALID_TBLIDX)
-	{
-	plr->GetEquipedChips()[i] = pItemDat->Item_Option_Tblidx;
-	break;
-	}
-	}
-	}
-	else if (plr->cPlayerInventory->GetInventory()[i].byPlace == CONTAINER_TYPE_EQUIP)
-	{
-	plr->UpdateBaseAttributeWithEquip(plr->cPlayerInventory->GetInventory()[i].tblidx, plr->cPlayerInventory->GetInventory()[i].byRank, plr->cPlayerInventory->GetInventory()[i].byGrade);
-	plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
-	}
-	}*/
+	res->wOpCode = GU_OBJECT_CREATE;
+	res->Handle = this->GetavatarHandle();
+	res->Type = OBJTYPE_PC;
+	res->Tblidx = pcDat->tblidx;
+	res->Adult = app->db->getBoolean("Adult");
+	wcscpy_s(res->Name, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(app->db->getString("CharName")).c_str());
+	wcscpy_s(res->GuildName, NTL_MAX_SIZE_GUILD_NAME_IN_UNICODE, s2ws(app->db->getString("GuildName")).c_str());
+	res->appear.Face = app->db->getInt("Face");
+	res->appear.Hair = app->db->getInt("Hair");
+	res->appear.HairColor = app->db->getInt("HairColor");
+	res->appear.SkinColor = app->db->getInt("SkinColor");
+	res->curLP = app->db->getInt("CurLP");
+	res->maxLP = app->db->getInt("BaseMaxLP");
+	res->curEP = app->db->getInt("CurEP");
+	res->maxEP = app->db->getInt("BaseMaxEP");
+	res->level = app->db->getInt("Level");
+	res->curAP = 450;
+	//res->Speed = (float)app->db->getDouble("LastRunSpeed");
+	//res->sObjectInfo.pcBrief.wAttackSpeedRate = app->db->getInt("BaseAttackSpeedRate");
+	res->Loc[0] = app->db->getDouble("CurLocX");
+	res->Loc[1] = app->db->getDouble("CurLocY");
+	res->Loc[2] = app->db->getDouble("CurLocZ");
+	res->Dir[0] = app->db->getDouble("CurDirX");
+	res->Dir[1] = app->db->getDouble("CurDirX");
+	res->Dir[2] = app->db->getDouble("CurDirX");
+	res->Unknown2[0] = 0;
+	res->Unknown2[1] = 0;
+	res->Unknown2[2] = 0;
+	res->Unknown2[3] = 0;
+	res->Unknown2[4] = 0;
+	res->Unknown2[5] = 0;
+	res->StateID = CHARSTATE_SPAWNING;
+	res->AspectID = 0xFF;
+	res->mascotID = 0xFF;
+	res->Size = 10;
 
-	memcpy(&this->characterspawnInfo, res1, sizeof(SpawnPlayer));
-	packet1.SetPacketLen(sizeof(SpawnPlayer));
+	//plr->SetGuildName(app->db->getString("GuildName"));
+
+	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
+	{
+		app->db->prepare("select * from items WHERE place=7 AND pos=? AND owner_id=?");
+		app->db->setInt(1, i);
+		app->db->setInt(2, plr->GetCharID());
+		app->db->execute();
+		app->db->fetch();
+		if (app->db->rowsCount() == 0)
+		{
+			res1->sObjectInfo.pcBrief.sItemBrief[i].tblidx = INVALID_TBLIDX;
+		}
+		else
+		{
+
+			res1->sObjectInfo.pcBrief.sItemBrief[i].tblidx = app->db->getInt("tblidx");
+		}
+
+	}
+
+	memcpy(&this->characterspawnInfo, res, sizeof(SpawnPlayer));
+	packet.SetPacketLen(sizeof(SpawnPlayer));
+	memcpy(&this->characterspawnInfo, res1, sizeof(sGU_OBJECT_CREATE));
+	packet1.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
+
+	app->UserBroadcastothers(&packet, this);
+	app->UserBroadcasFromOthers(GU_OBJECT_CREATE, this);
+	app->AddUser(plr->GetPlayerName().c_str(), this);
+
+	////printf("--- sGU_OBJECT_CREATE --- \n");
+	////SPAN PLAYERS
+	//CNtlPacket packet1(sizeof(SpawnPlayer));
+	//SpawnPlayer * res1 = (SpawnPlayer *)packet1.GetPacketData();
+	//PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	//app->db->prepare("SELECT * FROM characters WHERE CharID = ?");
+	//app->db->setInt(1, plr->GetCharID());
+	//app->db->execute();
+	//app->db->fetch();
+
+	//wcscpy_s(plr->GetPcProfile()->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(plr->GetPlayerName()).c_str());
+	//memset(res1, 0, sizeof(SpawnPlayer));
+	//CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
+	////dbo_data_table_pc *pc = new dbo_data_table_pc();
+	////pc->load("data/table_pc_data.rdf");
+	////const dbo_data_table_pc_st *pcDat = pc->pc_data_get(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
+	//sPC_TBLDAT* pcDat = (sPC_TBLDAT*)pPcTable->GetPcTbldat(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
+	//res1->wOpCode = GU_OBJECT_CREATE;
+	//res1->Handle = AcquireSerialId();
+	//res1->Type = OBJTYPE_PC;
+	//res1->Tblidx = pcDat->tblidx;
+	//res1->Adult = plr->GetPcProfile()->bIsAdult;
+	//wcscpy_s(res1->Name, NAME_LEN, s2ws(plr->GetPlayerName()).c_str());
+	//wcscpy_s(res1->GuildName, GUILD_LEN, s2ws(plr->GetGuildName()).c_str());
+	//res1->charID = plr->GetCharID();
+	////res1->sPcShape = plr->GetPcProfile()->sPcShape;
+	//res1->curAP = 450;
+	////res1->maxAP = 450;
+	////res1->curLP = plr->GetPcProfile()->dwCurLP;
+	////res1->maxLP = plr->GetPcProfile()->avatarAttribute.wBaseMaxLP;
+	////res1->curEP = plr->GetPcProfile()->wCurEP;
+	////res1->maxEP = plr->GetPcProfile()->avatarAttribute.wBaseMaxEP;
+	////	res->sObjectInfo.pcBrief.sMarking.byCode = 0;
+	////res1->level =0;
+	////	res->sObjectInfo.pcBrief.fSpeed = plr->GetPcProfile()->avatarAttribute.fLastRunSpeed;
+	////	res->sObjectInfo.pcBrief.wAttackSpeedRate = plr->GetPcProfile()->avatarAttribute.wBaseAttackSpeedRate;
+	////	res->sObjectInfo.pcState.sCharStateBase = plr->GetCharState()->sCharStateBase;
+	//res1->Size = 20;
+	////res1->StateID = 0;
+	//res1->Loc[0] = 0;// curpos.x;
+	//res1->Loc[1] = -0; //curpos.y;
+	//res1->Loc[2] = 0;// curpos.z;
+	//res1->Dir[0] = 0;// curpos.x;
+	//res1->Dir[1] = -0; //curpos.y;
+	//res1->Dir[2] = 0;// curpos.z;
+	//res1->Unknown;
+	//res1->Unknown2;
+	//res1->Unknown3;
+	//res1->Unknown4;
+	//res1->AspectID = 0xFF;
+	//res1->mascotID = 0xFF;
+	//res1->appear.Face = 1;
+	//res1->appear.Hair = 1;
+	//res1->appear.HairColor = 1;
+	//res1->appear.SkinColor = 1;
 
 
-	//	app->UserBroadcastothers(&packet, this);
+	//memcpy(&this->characterspawnInfo, res1, sizeof(SpawnPlayer));
+	//packet1.SetPacketLen(sizeof(SpawnPlayer));
+
+
+	//	app->UserBroadcastothers(&packet1, this);
 	//	app->UserBroadcasFromOthers(GU_OBJECT_CREATE, this);
 	//	app->AddUser(plr->GetPlayerName().c_str(), this);
 
@@ -2025,24 +2068,18 @@ void CClientSession::SendCharDestMove(CNtlPacket * pPacket, CGameServer * app)
 	res->vCurLoc.z = req->vCurLoc.z;
 	res->byMoveFlag = NTL_MOVE_MOUSE_MOVEMENT;
 	res->bHaveSecondDestLoc = false;
-	res->byDestLocCount = 1;
-	res->avDestLoc[0].x = req->vDestLoc.x;
-	res->avDestLoc[0].y = req->vDestLoc.y;
-	res->avDestLoc[0].z = req->vDestLoc.z;
-
+	res->byDestLocCount = 10;
+	for (int i = 0; i < res->byDestLocCount; i++)
+	{
+		res->avDestLoc[i].x = req->vDestLoc.x;
+		res->avDestLoc[i].y = req->vDestLoc.y;
+		res->avDestLoc[i].z = req->vDestLoc.z;
+	}
+	
 	packet.SetPacketLen(sizeof(sGU_CHAR_DEST_MOVE));
 	app->UserBroadcastothers(&packet, this);
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
-
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
+	UpdateCharState(this->GetavatarHandle(), CHARSTATE_MOVING);
 
 	PACKET_TRACE(GU_CHAR_DEST_MOVE, packet);
 	plr = NULL;
@@ -2082,16 +2119,8 @@ void CClientSession::SendCharMoveSync(CNtlPacket * pPacket, CGameServer * app)
 	plr->SetPlayerDirection(res->vCurDir);
 
 
-	CNtlPacket packet3(sizeof(sGU_UPDATE_CHAR_STATE));
-	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
+	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 
-
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3);
 
 	PACKET_TRACE(GU_CHAR_AIR_MOVE_SYNC, packet);
 
@@ -2126,13 +2155,7 @@ void CClientSession::SendCharChangeHeading(CNtlPacket * pPacket, CGameServer * a
 	sGU_UPDATE_CHAR_STATE* res3 = (sGU_UPDATE_CHAR_STATE*)packet3.GetPacketData();
 
 
-	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-	res3->wOpCode = GU_UPDATE_CHAR_STATE;
-
-	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-	g_pApp->Send(this->GetHandle(), &packet3); 
-
+	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 	PACKET_TRACE(GU_CHAR_CHANGE_HEADING, packet);
 }
 //--------------------------------------------------------------------------------------//
@@ -2152,9 +2175,9 @@ void CClientSession::SendCharJump(CNtlPacket * pPacket, CGameServer * app)
 	res->vCurrentHeading.y = req->vCurrentHeading.y;
 	res->vCurrentHeading.z = req->vCurrentHeading.z;
 
-	res->vJumpDir.x = 0;
-	res->vJumpDir.y = 0;
-	res->vJumpDir.z = 0;
+	res->vJumpDir.x = req->vCurrentPosition.x;
+	res->vJumpDir.y = req->vCurrentPosition.y;
+	res->vJumpDir.z = req->vCurrentPosition.z;
 
 	res->byMoveDirection = 1;
 	plr->SetPlayerFight(false);
@@ -2167,7 +2190,7 @@ void CClientSession::SendCharJump(CNtlPacket * pPacket, CGameServer * app)
 
 
 	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_JUMP;
 	res3->wOpCode = GU_UPDATE_CHAR_STATE;
 
 	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
@@ -2231,7 +2254,7 @@ void CClientSession::SendCharFalling(CNtlPacket * pPacket, CGameServer * app)
 
 
 	res3->handle = this->GetavatarHandle();
-	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_FALLING;
 	res3->wOpCode = GU_UPDATE_CHAR_STATE;
 
 	packet3.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
@@ -4252,6 +4275,7 @@ void CGameServer::UpdateClient(CNtlPacket * pPacket, CClientSession * pSession)
 			pBattleData->dwCurrTime = timeGetTime();
 		}
 	}
+	
 }
 
 //--------------------------------------------------------------------------------------//
@@ -9496,12 +9520,13 @@ void	CClientSession::SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync
 //Air Jump - Luiz45
 void CClientSession::SendAirJump(CNtlPacket* pPacket, CGameServer* app)
 {
-	sUG_CHAR_AIR_JUMP* req = (sUG_CHAR_AIR_JUMP*)pPacket->GetPacketData();
+	//sUG_CHAR_AIR_JUMP* req = (sUG_CHAR_AIR_JUMP*)pPacket->GetPacketData();
+
 }
 //Air Dash - Luiz45
 void CClientSession::SendAirDash(CNtlPacket* pPacket, CGameServer* app)
 {
-	sUG_CHAR_AIR_DASH* req = (sUG_CHAR_AIR_DASH*)pPacket->GetPacketData();	
+	//sUG_CHAR_AIR_DASH* req = (sUG_CHAR_AIR_DASH*)pPacket->GetPacketData();	
 }
 //--Cash ShopItem Method Marco
 void CClientSession::SendCashItemStart(CNtlPacket * pPacket, CGameServer * app)
@@ -9741,9 +9766,9 @@ void CClientSession::UpdateCharState(HOBJECT avHandle, eCHARSTATE state)
 	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
 	sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
 	res->handle = avHandle;
-	res->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_DASH_ACCEL;
+	res->sCharState.sCharStateBase.byStateID = state;
 	res->wOpCode = GU_UPDATE_CHAR_STATE;
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-
-	app->UserBroadcast(&packet);
+	app->Send(this->GetHandle(), &packet);
+	app->UserBroadcastothers(&packet, this);
 }

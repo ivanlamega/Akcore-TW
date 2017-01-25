@@ -809,6 +809,10 @@ union sCHARSTATE_DETAIL
 	sCHARSTATE_OPERATING			sCharStateOperating;
 	sCHARSTATE_RIDEON				sCharStateRideOn;
 	sCHARSTATE_TURNING				sCharStateTurning;
+
+	sCHARSTATE_AIR_JUMP				sCHarStateAirJump;
+	sCHARSTATE_AIR_DASH_ACCEL		sCharStateAirDashAccel; 
+	
 };
 
 

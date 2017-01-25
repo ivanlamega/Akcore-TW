@@ -26,7 +26,8 @@ public:
 	void            RemovePlayer(RwUInt32 playerHandle);
 	void			CreatePlayerThread();
 	void			Run();
-	int			GetTotalPlayers();
+	int				GetTotalPlayers();
+	void			SendSyncPacket(RwUInt32 PlayerHandle, sVECTOR3 loc, sVECTOR3 dir, BYTE byMovFlag);
 private:
 	CNtlThread * pThread;
 	PlayersMain* cPlayersMain;

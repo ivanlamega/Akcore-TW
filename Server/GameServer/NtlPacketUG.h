@@ -811,7 +811,7 @@ BEGIN_PROTOCOL(UG_CHAR_CHANGE_HEADING)
 END_PROTOCOL()
 //------------------------------------------------------------------
 //BEGIN_PROTOCOL(UG_CHAR_MOVE_SYNC)
-//	//- yoshiki : Do we use dwTimeStamp or not?
+////	//- yoshiki : Do we use dwTimeStamp or not?
 //	DWORD				dwTimeStamp;
 //	BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
 //	sVECTOR3			vCurLoc;
@@ -2041,6 +2041,17 @@ BYTE				byBuyCount;
 DWORD				adwIdxHlsTable[NTL_MAX_BUY_HLSSHOP_CART];
 END_PROTOCOL()
 //------------------------------------------------------------------
+
+/*
+,
+UG_CHAR_AIR_JUMP,
+UG_CHAR_AIR_DASH,
+UG_CHAR_AIR_FALLING,
+UG_CHAR_AIR_END,
+UG_CHAR_AIR_FOLLOW_MOVE,
+UG_CHAR_AIR_ACCEL,
+UG_CHAR_AIR_POSE_REQ,
+*/
 #pragma pack()
 
 

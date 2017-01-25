@@ -769,6 +769,8 @@ public:
 	CTableContainer	*			g_pTableContainer;
 	bool						CreateTableContainer(int byLoadMethod);
 
+
+
 	void						Run()
 	{
 		DWORD dwTickCur, dwTickOld = ::GetTickCount();
@@ -781,7 +783,8 @@ public:
 				UpdateClient(pPacket,pSession);
 				dwTickOld = dwTickCur;
 			}
-		Sleep(100);
+			this->Wait(1);
+		//Sleep(100);
 		}
 	}
 

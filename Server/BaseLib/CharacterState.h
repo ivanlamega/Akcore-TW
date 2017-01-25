@@ -209,6 +209,7 @@ enum eCHARCONDITION
 	CHARCOND_BLEEDING,				// 출혈
 	CHARCOND_POISON,				// 독
 	CHARCOND_STOMACHACHE,			// 복통
+	CHARCOND_BURN,					//Added for TW
 	CHARCOND_CONFUSED,				// 혼란
 	CHARCOND_TERROR,				// 공포
 	CHARCOND_BARRIER,				// 데미지 무력화
@@ -220,13 +221,24 @@ enum eCHARCONDITION
 	CHARCOND_FAKE_DEATH,			// 죽은 척하기
 	CHARCOND_NULLIFIED_DAMAGE,		// 데미지를 무효화시키기
 
-	CHARCOND_MOB_ROLE,				// Mob 역할 중인 NPC
-
 	CHARCOND_CLICK_DISABLE,			// 캐릭터 클릭 금지
 	CHARCOND_CLIENT_UI_DISABLE,		// 클라이언트측의 캐릭터 관련 ui 출력 금지 ( 메뉴 등 )
 
+	//TW added effects
+	CHARCOND_TAIYOU_KEN,
+	CHARCOND_BATTLE_INABILITY,
+	CHARCOND_SKILL_INABILITY,
+	CHARCOND_REVIVAL_AFTEREFFECT,
+	CHARCOND_LP_AUTO_RECOVER,
+	CHARCOND_EP_AUTO_RECOVER,
+	CHARCOND_RABIES,
+	CHARCOND_DRUNK,
+	CHARCOND_EXCITATION_MALE,
+	CHARCOND_EXCITATION_FEMALE,
+
 	CHARCONDITION_COUNT,
 	INVALID_CHARCONDITION = 0xFF,
+
 
 	CHARCOND_FIRST = CHARCOND_INVISIBLE,
 	CHARCOND_LAST = CHARCONDITION_COUNT - 1,
@@ -261,10 +273,10 @@ enum eCHARCONDITION_FLAG
 	CHARCOND_FLAG_FAKE_DEATH			= MAKE_BIT_FLAG( CHARCOND_FAKE_DEATH ),				// 죽은 척하기
 	CHARCOND_FLAG_NULLIFIED_DAMAGE		= MAKE_BIT_FLAG( CHARCOND_NULLIFIED_DAMAGE ),		// 데미지를 무효화시키기
 
-	CHARCOND_FLAG_MOB_ROLE				= MAKE_BIT_FLAG( CHARCOND_MOB_ROLE ),				// Mob 역할 중인 NPC
-
 	CHARCOND_FLAG_CLICK_DISABLE			= MAKE_BIT_FLAG( CHARCOND_CLICK_DISABLE ),			// 이 플래그가 켜진 객체 선택 금지
 	CHARCOND_FLAG_CLIENT_UI_DISABLE		= MAKE_BIT_FLAG( CHARCOND_CLIENT_UI_DISABLE ),		// 이 플래그가 켜진 객체 UI 출력 금지
+
+
 };
 
 
@@ -481,7 +493,16 @@ struct sCHARSTATE_TURNING
 	sVECTOR3			vDestDir;
 };
 //-----------------------------------------------------------------------------------
+struct sCHARSTATE_AIR_JUMP
+{
 
+};
+//-----------------------------------------------------------------------------------
+
+struct sCHARSTATE_AIR_DASH_ACCEL
+{
+
+};
 //-----------------------------------------------------------------------------------
 struct sASPECTSTATE_SUPER_SAIYAN
 {
@@ -515,4 +536,5 @@ struct sASPECTSTATE_VEHICLE
 	bool		bIsEngineOn;
 };
 //-----------------------------------------------------------------------------------
+
 #pragma pack()
