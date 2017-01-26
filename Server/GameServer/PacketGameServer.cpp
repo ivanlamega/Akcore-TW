@@ -2258,10 +2258,10 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 			}
 			else if (strToken == "@learnskill")
 			{
-				lexer.PopToPeek();
+					lexer.PopToPeek();
 				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
-					//SendCharLearnSkillRes(uiTblId);
+				unsigned int tblidx = (unsigned int)atof(strToken.c_str());
+				AddSkillById(tblidx);
 				return;
 			}
 			else if (strToken == "@learnhtb")
