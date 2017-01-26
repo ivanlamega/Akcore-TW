@@ -112,6 +112,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			CClientSession::SendWorldEnterReq(pPacket, app);
 			CClientSession::SendEnterWorldComplete(pPacket);
 			CClientSession::SendBudokaiState(pPacket, app);
+			//CClientSession::SendNpcCreate(pPacket, app);
+			//CClientSession::SendMonsterCreate(pPacket, app);
 		}
 			break;
 		case UG_SERVER_COMMAND:
@@ -236,7 +238,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TOGG_FIGHTING:
 		{
 			CClientSession::SendCharToggleFighting(pPacket, app);
-			CClientSession::SendNetPyStart(pPacket, app);
+			//CClientSession::SendNetPyStart(pPacket, app);
 			
 		}
 			break;
@@ -304,10 +306,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		{
 			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");//
 			//CClientSession::SendServerChangeReq(pPacket, app);
-			CClientSession::SendWorldEnterReq1(pPacket, app);
-			CClientSession::SendEnterWorldComplete(pPacket);
-			//CClientSession::SendNpcCreate(pPacket, app);
-			//CClientSession::SendMonsterCreate(pPacket, app);
+		
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:
@@ -461,12 +460,12 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			CClientSession::SendShopEndReq(pPacket, app);
 		}
 			break;
-		case UG_SKILL_LEARN_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
+		case UG_SKILL_LEARN_REQ://fix by Marco changed for old  UG_BUY_SKILL_REQ
 		{
 			CClientSession::SendCharLearnSkillReq(pPacket, app);
 		}
 			break;
-		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
+		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco 
 		{
 			CClientSession::SendCharSkillByItemRes(pPacket, app); 
 		}
@@ -1455,7 +1454,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SHOP_NETPYITEM_START_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_START_REQ --- \n");
-			//CClientSession::SendNetPyStart(pPacket, app);
+			CClientSession::SendNetPyStart(pPacket, app);
 			//CClientSession::SendNetPyEnd(pPacket, app);//provisory
 		}
 			break;
@@ -1597,7 +1596,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_GIFT_SHOP_START_REQ:
 		{
 			CClientSession::SenGiftShop(pPacket, app);
-			CClientSession::SendCharReadyReq(pPacket, app);
+			
 			printf("--- UG_GIFT_SHOP_START_REQ --- \n");
 		}
 			break;

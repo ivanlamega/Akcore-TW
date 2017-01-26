@@ -354,6 +354,7 @@ struct SpawnPlayer
 	bool IsFighting;
 	float Loc[3]; // X Y Z
 	float Dir[3]; // X Y Z
+	sITEM_BRIEF		sItemBrief[EQUIP_SLOT_TYPE_COUNT]; // dont work 
 };
 struct Drop
 {
