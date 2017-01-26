@@ -34,7 +34,7 @@ void CPlayerManager::Release()
 void CPlayerManager::Run()
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	DWORD dwTickCur, dwTickOld = ::GetTickCount();
+	DWORD dwTickCur, dwTickOld, lpTick = ::GetTickCount();
 	while (m_bRun)
 	{
 		for (itterType it = m_map_Player.begin(); it != m_map_Player.end(); it++)
@@ -58,12 +58,16 @@ void CPlayerManager::Run()
 					}
 					else if (plr->GetPlayerFight() == false)
 					{
-					/*	if (plr->GetPcProfile()->dwCurLP <= 0)
-							plr->SendThreadUpdateDeathStatus();
-						else if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
-							plr->SendThreadUpdateOnlyLP();
-						if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
-							plr->SendThreadUpdateOnlyEP();*/
+						//if (plr->GetPcProfile()->dwCurLP <= 0)
+						//	plr->SendThreadUpdateDeathStatus();
+						//if (dwTickCur - lpTick >= 1500)
+						//{
+						//	if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
+						//		plr->SendThreadUpdateOnlyLP();
+						//	if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
+						//		plr->SendThreadUpdateOnlyEP();
+						//	lpTick = dwTickCur;
+						//}
 					}
 					/*if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 					{

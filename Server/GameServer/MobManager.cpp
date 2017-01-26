@@ -26,9 +26,9 @@ CMobManager::~CMobManager()
 
 void CMobManager::Init()
 {
-	//CreateMobThread();
-	//CreateNpcList();
-	//CreateMonsterList();
+	CreateMobThread();
+	CreateNpcList();
+	CreateMonsterList();
 	
 }
 
@@ -97,6 +97,7 @@ void CMobManager::CreateNpcList()
 			m_map_Npc.insert(std::make_pair(cr->UniqueID, cr));
 		}
 	}
+	printf("%u NPCs loaded to list\n", m_map_Npc._Mysize);
 }
 
 void CMobManager::CreateMonsterList()
@@ -143,6 +144,8 @@ void CMobManager::CreateMonsterList()
 			m_map_Monster.insert(std::make_pair(cr->UniqueID, cr));
 		}
 	}
+	printf("%u MOBs loaded to list\n", m_map_Monster._Mysize);
+
 }
 
 bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSession * pSession)
@@ -150,75 +153,75 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
 #pragma region monstercheck
 	CMonster::MonsterData* creaturelist;
-	
-	for (IterType it = m_map_Monster.begin(); it != m_map_Monster.end(); it++)
-	{
-		creaturelist = it->second;
-		std::vector<RwUInt32>::iterator handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), pSession->GetavatarHandle());
-
-		if (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true)
-		{
-			if (creaturelist->IsDead == false && creaturelist->isSpawned == false)
-			{
-				if (handleSearch != creaturelist->spawnedForHandle.end())
-				{
-					//Your handle was found so dont spawn it.
-				}
-				else
-				{
-					CNtlPacket packet(sizeof(sGU_OBJECT_CREATE));
-					sGU_OBJECT_CREATE * res = (sGU_OBJECT_CREATE *)packet.GetPacketData();
-					creaturelist->isSpawned = true;
-					res->wOpCode = GU_OBJECT_CREATE;
-					res->sObjectInfo.objType = OBJTYPE_MOB;
-					res->handle = creaturelist->UniqueID;
-					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.x = 0;// creaturelist->curPos.x;
-					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.y = 0;// creaturelist->curPos.y;
-					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.z = 0;// creaturelist->curPos.z;
-					res->sObjectInfo.mobState.sCharStateBase.vCurDir.x = 0;// creaturelist->Spawn_Dir.x;
-					res->sObjectInfo.mobState.sCharStateBase.vCurDir.y = 0;// creaturelist->Spawn_Dir.y;
-					res->sObjectInfo.mobState.sCharStateBase.vCurDir.z = 0;//creaturelist->Spawn_Dir.z;
-					res->sObjectInfo.mobState.sCharStateBase.byStateID = CHARSTATE_SPAWNING;
-					res->sObjectInfo.mobState.sCharStateBase.bFightMode = creaturelist->FightMode;
-					res->sObjectInfo.mobBrief.tblidx = 1581102;
-					res->sObjectInfo.mobBrief.wCurEP = 0;
-					res->sObjectInfo.mobBrief.wMaxEP = 0;
-					res->sObjectInfo.mobBrief.wCurLP = 0;
-					res->sObjectInfo.mobBrief.wMaxLP = 0;
-					res->sObjectInfo.mobBrief.fLastRunningSpeed = 0;
-					res->sObjectInfo.mobBrief.fLastWalkingSpeed = 0;
-					creaturelist->spawnedForHandle.push_back(pSession->GetavatarHandle());
-					packet.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
-					g_pApp->Send(pSession->GetHandle(), &packet);
-				}
-			}
-		}
-		
-		else if ((creaturelist->isSpawned == true && CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false && handleSearch != creaturelist->spawnedForHandle.end()))
-		{	
-			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
-			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
-			res->wOpCode = GU_OBJECT_DESTROY;
-			res->handle = creaturelist->UniqueID;
-			creaturelist->target = 0;
-			creaturelist->spawnedForHandle.erase(handleSearch);
-		/*	if (handleSearch == creaturelist->spawnedForHandle.end())
-			{
-				creaturelist->isSpawned = false;
-				creaturelist->target = 0;
-			}*/
-			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-			g_pApp->Send(pSession->GetHandle(), &packet);
-		}
-		else if (handleSearch == creaturelist->spawnedForHandle.end())
-		{
-			creaturelist->isSpawned = false;
-			creaturelist->target = 0;
-		}
-
-	}
-
-
+//	
+//	for (IterType it = m_map_Monster.begin(); it != m_map_Monster.end(); it++)
+//	{
+//		creaturelist = it->second;
+//		std::vector<RwUInt32>::iterator handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), pSession->GetavatarHandle());
+//
+//		if (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true)
+//		{
+//			if (creaturelist->IsDead == false && creaturelist->isSpawned == false)
+//			{
+//				if (handleSearch != creaturelist->spawnedForHandle.end())
+//				{
+//					//Your handle was found so dont spawn it.
+//				}
+//				else
+//				{
+//					CNtlPacket packet(sizeof(sGU_OBJECT_CREATE));
+//					sGU_OBJECT_CREATE * res = (sGU_OBJECT_CREATE *)packet.GetPacketData();
+//					creaturelist->isSpawned = true;
+//					res->wOpCode = GU_OBJECT_CREATE;
+//					res->sObjectInfo.objType = OBJTYPE_MOB;
+//					res->handle = creaturelist->UniqueID;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.x = 0;// creaturelist->curPos.x;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.y = 0;// creaturelist->curPos.y;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.z = 0;// creaturelist->curPos.z;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.x = 0;// creaturelist->Spawn_Dir.x;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.y = 0;// creaturelist->Spawn_Dir.y;
+//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.z = 0;//creaturelist->Spawn_Dir.z;
+//					res->sObjectInfo.mobState.sCharStateBase.byStateID = CHARSTATE_SPAWNING;
+//					res->sObjectInfo.mobState.sCharStateBase.bFightMode = creaturelist->FightMode;
+//					res->sObjectInfo.mobBrief.tblidx = 1581102;
+//					res->sObjectInfo.mobBrief.wCurEP = 0;
+//					res->sObjectInfo.mobBrief.wMaxEP = 0;
+//					res->sObjectInfo.mobBrief.wCurLP = 0;
+//					res->sObjectInfo.mobBrief.wMaxLP = 0;
+//					res->sObjectInfo.mobBrief.fLastRunningSpeed = 0;
+//					res->sObjectInfo.mobBrief.fLastWalkingSpeed = 0;
+//					creaturelist->spawnedForHandle.push_back(pSession->GetavatarHandle());
+//					packet.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
+//					g_pApp->Send(pSession->GetHandle(), &packet);
+//				}
+//			}
+//		}
+//		
+//		else if ((creaturelist->isSpawned == true && CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false && handleSearch != creaturelist->spawnedForHandle.end()))
+//		{	
+//			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+//			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+//			res->wOpCode = GU_OBJECT_DESTROY;
+//			res->handle = creaturelist->UniqueID;
+//			creaturelist->target = 0;
+//			creaturelist->spawnedForHandle.erase(handleSearch);
+//		/*	if (handleSearch == creaturelist->spawnedForHandle.end())
+//			{
+//				creaturelist->isSpawned = false;
+//				creaturelist->target = 0;
+//			}*/
+//			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+//			g_pApp->Send(pSession->GetHandle(), &packet);
+//		}
+//		else if (handleSearch == creaturelist->spawnedForHandle.end())
+//		{
+//			creaturelist->isSpawned = false;
+//			creaturelist->target = 0;
+//		}
+//
+//	}
+//
+//
 #pragma endregion Monstercheckend
 #pragma region npccheck
 
@@ -227,8 +230,7 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 		creaturelist = it->second;
 		std::vector<RwUInt32>::iterator handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), pSession->GetavatarHandle());
 		sNPC_TBLDAT* pNPCTblData = (sNPC_TBLDAT*)app->g_pTableContainer->GetNpcTable()->FindData(creaturelist->MonsterID);
-
-		if (pNPCTblData && app->mob->CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true)
+		if (pNPCTblData )//&& (app->mob->CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true))
 		{
 			if (handleSearch != creaturelist->spawnedForHandle.end())
 			{
@@ -254,7 +256,7 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 				sPacket->Unknown4[0] = 0;
 				creaturelist->isSpawned = true;
 				creaturelist->spawnedForHandle.push_back(pSession->GetavatarHandle());
-				packet.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
+				packet.SetPacketLen(sizeof(SpawnNPC));
 				g_pApp->Send(pSession->GetHandle(), &packet);
 
 			}
@@ -287,7 +289,7 @@ bool CMobManager::CreatureRangeCheck(sVECTOR3 mycurPos, CNtlVector othercurPos)
 void CMobManager::SpawnNpcAtLogin(CNtlPacket * pPacket, CClientSession * pSession)
 {
 	CGameServer * app = (CGameServer*) NtlSfxGetApp();
-
+	
 	sVECTOR3 curpos = pSession->cPlayersMain->GetPlayerPosition();
 	CMonster::MonsterData* creaturelist;
 	CSpawnTable* pNPCSpawnTbl;
@@ -300,18 +302,43 @@ void CMobManager::SpawnNpcAtLogin(CNtlPacket * pPacket, CClientSession * pSessio
 			if ((CreatureRangeCheck(curpos, creaturelist->Spawn_Loc) == true && creaturelist->isSpawned == false))
 			{
 
+				//CNtlPacket packet(sizeof(SpawnNPC));
+				//SpawnNPC * res = (SpawnNPC *)packet.GetPacketData();
+
+				//res->wOpCode = GU_OBJECT_CREATE;
+				//res->Type = OBJTYPE_NPC;
+				//res->Handle = 1000;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
+				//res->Tblidx = 1654103;
+				//res->Loc[0] = 2066.959961;// curpos.x;
+				//res->Loc[1] = 18.590000; //curpos.y;
+				//res->Loc[2] = 5787.549805;// curpos.z;
+				//res->Dir[0] = -0.328135;// curpos.x;
+				//res->Dir[1] = -0.0; //curpos.y;
+				//res->Dir[2] = -0.944631;// curpos.z;
+				//res->Size = 10;
+				//res->Unknown3[0] = 0;
+				//res->Unknown4[0] = 0;
+				//packet.SetPacketLen(sizeof(SpawnNPC));
+				//g_pApp->Send(pSession->GetHandle(), &packet);
+
 				CNtlPacket packet(sizeof(SpawnNPC));
 				SpawnNPC * sPacket = (SpawnNPC *)packet.GetPacketData();
 				sPacket->wOpCode = GU_OBJECT_CREATE;
 				sPacket->Type = OBJTYPE_NPC;
 				sPacket->Handle = creaturelist->UniqueID;
+				sPacket->Tblidx = creaturelist->MonsterID;
+				sPacket->curLP = 1000;
+				sPacket->maxLP = 1000;
+				sPacket->curEP = 1000;
+				sPacket->maxEP = 1000;
 				sPacket->Loc[0] = creaturelist->Spawn_Loc.x;
 				sPacket->Loc[1] = creaturelist->Spawn_Loc.y;
 				sPacket->Loc[2] = creaturelist->Spawn_Loc.z;
 				sPacket->Dir[0] = creaturelist->Spawn_Dir.x;
 				sPacket->Dir[0] = creaturelist->Spawn_Dir.y;
 				sPacket->Dir[0] = creaturelist->Spawn_Dir.z;
-				sPacket->Size = 10.0;
+				sPacket->Size = 10;
+				sPacket->StateID = CHARSTATE_SPAWNING;
 				sPacket->Unknown3[0]=0;
 				sPacket->Unknown4[0]=0;
 				packet.SetPacketLen(sizeof(SpawnNPC));
@@ -324,25 +351,7 @@ void CMobManager::SpawnNpcAtLogin(CNtlPacket * pPacket, CClientSession * pSessio
 	/*
 	//NPC 879
 
-	CNtlPacket packet(sizeof(SpawnNPC));
-	SpawnNPC * res = (SpawnNPC *)packet.GetPacketData();
-
-	res->wOpCode = GU_OBJECT_CREATE;
-	res->Type = OBJTYPE_NPC;
-	res->Handle = 1000;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res->Tblidx = 1654103;
-	res->Loc[0] = 2066.959961;// curpos.x;
-	res->Loc[1] = 18.590000; //curpos.y;
-	res->Loc[2] = 5787.549805;// curpos.z;
-	res->Dir[0] = -0.328135;// curpos.x;
-	res->Dir[1] = -0.0; //curpos.y;
-	res->Dir[2] = -0.944631;// curpos.z;
-	res->Size = 10;
-	//res9->Unknown[0] = 10.0;
-	res->Unknown3[0] = 0;
-	res->Unknown4[0] = 0;
-	packet.SetPacketLen(sizeof(SpawnNPC));
-	g_pApp->Send(pSession->GetHandle(), &packet);
+	
 	*/
 
 	
@@ -808,30 +817,30 @@ void CMobManager::SpawnMonsterAtLogin(CNtlPacket * pPacket, CClientSession * pSe
 //Searches through mobMap to see if handle exists.
 bool CMobManager::FindCreature(RwUInt32 handle)
 {
-//	IterType handleSearch = m_map_Monster.find(handle);
-//	if (handleSearch != m_map_Monster.end())
-//		return true;
-//	else
+	IterType handleSearch = m_map_Monster.find(handle);
+	if (handleSearch != m_map_Monster.end())
+		return true;
+	else
 		return false;
 }
 //Search the NPC by Handle
 TBLIDX CMobManager::FindNpc(RwUInt32 handle)
 {
-//	IterType handleSearch = m_map_Npc.find(handle);
-//	if (handleSearch != m_map_Npc.end())
-//		return handleSearch->second->MonsterID;
-//	else
+	IterType handleSearch = m_map_Npc.find(handle);
+	if (handleSearch != m_map_Npc.end())
+		return handleSearch->second->MonsterID;
+	else
 		return 0;
 }
 //Simple function to return MonsterData
 CMonster::MonsterData*	CMobManager::GetMobByHandle(RwUInt32 Target)
 {
 	
-//	IterType handleSearch = m_map_Monster.find(Target);
-//	if (handleSearch != m_map_Monster.end())
+	IterType handleSearch = m_map_Monster.find(Target);
+	if (handleSearch != m_map_Monster.end())
 	{
-//		CMonster::MonsterData * creaturelist = handleSearch->second;
-//		return creaturelist;
+		CMonster::MonsterData * creaturelist = handleSearch->second;
+		return creaturelist;
 	}
 	return NULL;
 }

@@ -27,7 +27,7 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	db->execute();
 	db->fetch();
 	int level = db->getInt("Level");
-//	sPC_TBLDAT *pTblData;
+	sPC_TBLDAT *pTblData;
 	//Load All Attributes One time only - Luiz  IN ORDER --Kalisto
 	//STR 
 	this->sPlayerAttribute.byBaseStr = 0;// db->getInt("BaseStr") + db->getInt("Level")*0.2;

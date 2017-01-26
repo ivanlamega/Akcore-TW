@@ -31,7 +31,13 @@ int CClientSession::OnAccept()
 
 void CClientSession::OnClose()
 {
-	//NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
+	NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
+	CGameServer * app = (CGameServer*) NtlSfxGetApp();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+
+	plr->SavePlayerData(app);
+	app->RemoveUser(plr->GetPlayerName().c_str());
+
 
 }
 
@@ -105,8 +111,6 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			CClientSession::SendServerContents(pPacket, app);
 			CClientSession::SendWorldEnterReq(pPacket, app);
 			CClientSession::SendEnterWorldComplete(pPacket);
-			CClientSession::SendNpcCreate(pPacket, app);
-			CClientSession::SendMonsterCreate(pPacket, app);
 			CClientSession::SendBudokaiState(pPacket, app);
 		}
 			break;
@@ -129,35 +133,18 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_READY_TO_SPAWN:
 		{
-			PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-			plr->SetCharState(3);
-			CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
-			sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
-			res->handle = this->GetavatarHandle();
-			res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-			res->wOpCode = GU_UPDATE_CHAR_STATE;
-
-			packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-			
-			PushHandshakePacket(&packet);
 			CClientSession::SendCharReadyReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_READY:
 		{
+
 			CClientSession::SendCharReady(pPacket);
 		}
 			break;
 		case UG_CHAR_AIR_DASH:
 		{
-			CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
-			sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
-			res->handle = this->GetavatarHandle();
-			res->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_DASH_ACCEL;
-			res->wOpCode = GU_UPDATE_CHAR_STATE;
-			packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
 
-			PushHandshakePacket(&packet);
 			CClientSession::SendAirDash(pPacket,app);
 			//CClientSession::SendCharMove(pPacket, app);
 		}
@@ -261,7 +248,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_SELECT:
 		{
 			CClientSession::SendCharTargetSelect(pPacket);
-			//CClientSession::SendScouterIndicatorReq(pPacket, app);
+			CClientSession::SendScouterIndicatorReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TARGET_INFO:

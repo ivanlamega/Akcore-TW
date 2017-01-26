@@ -300,7 +300,7 @@ void PlayersMain::FillCharState()
 	db->switchDb(app->GetConfigFileDatabase());
 
 	//Makesure this sets everything to 0 before assigning things
-	//memset(this->sPlayerState, 0, sizeof(this->sPlayerState));
+	memset(this->sPlayerState, 0, sizeof(this->sPlayerState));
 
 	db->prepare("SELECT * FROM characters WHERE CharID = ?");
 	db->setInt(1, this->GetCharID());
@@ -312,8 +312,8 @@ void PlayersMain::FillCharState()
 	this->sPlayerState->sCharStateBase.vCurDir.x = (float)db->getDouble("CurDirX");
 	this->sPlayerState->sCharStateBase.vCurDir.y = (float)db->getDouble("CurDirY");
 	this->sPlayerState->sCharStateBase.vCurDir.z = (float)db->getDouble("CurDirZ");
-	this->sPlayerState->sCharStateBase.dwConditionFlag = 0xff;
-	this->sPlayerState->sCharStateBase.byStateID = CHARSTATE_STANDING;
+	this->sPlayerState->sCharStateBase.dwConditionFlag = 0;
+	this->sPlayerState->sCharStateBase.byStateID = CHARSTATE_SPAWNING;
 	this->sPlayerState->sCharStateBase.bFightMode = false;
 	this->sPlayerState->sCharStateBase.dwStateTime = 0;
 	this->sPlayerState->sCharStateBase.unknow1 = 0;
@@ -321,12 +321,12 @@ void PlayersMain::FillCharState()
 	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.unknown[i] = 0;*/
 
 	
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sGreatNamek.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sPureMajin.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sSuperSaiyan.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sVehicle.idVehicleTblidx = 0xff;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 255;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sGreatNamek.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sPureMajin.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sSuperSaiyan.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sVehicle.idVehicleTblidx = 0;
 }
 //This will fill our sPC_Profile with Other Infos(PC Shape,Level,Name,blabla)
 void PlayersMain::FillProfileWithInfo()
@@ -345,35 +345,33 @@ void PlayersMain::FillProfileWithInfo()
 	//Getting right Table
 	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
 	sPC_TBLDAT *pTblData = (sPC_TBLDAT*)pPcTable->GetPcTbldat(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
-	//dbo_data_table_pc *pc = new dbo_data_table_pc();
-	//pc->load("data/table_pc_data.rdf");
-	//const dbo_data_table_pc_st *pcDat = pc->pc_data_get(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
 	this->sPlayerProfile->byMaxLevel = 70;
 	this->sPlayerProfile->tblidx = pTblData->tblidx;
-	//this->sPlayerProfile->tblidx = pcDat->id;
 	this->sPlayerProfile->bChangeClass = db->getBoolean("ChangeClass");
 	this->sPlayerProfile->bIsAdult = db->getBoolean("Adult");
 	this->sPlayerProfile->charId = db->getInt("CharID");
 	wcscpy_s(this->sPlayerProfile->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(db->getString("CharName")).c_str());
+
 	//PC Shape
 	this->sPlayerProfile->sPcShape.byFace = db->getInt("Face");
 	this->sPlayerProfile->sPcShape.byHair = db->getInt("Hair");
 	this->sPlayerProfile->sPcShape.byHairColor = db->getInt("HairColor");
 	this->sPlayerProfile->sPcShape.bySkinColor = db->getInt("SkinColor");
+
 	//Other Infos
 	this->sPlayerProfile->byLevel = db->getInt("Level");
 	this->sPlayerProfile->dwCurExp = db->getInt("Exp");
 	this->sPlayerProfile->dwMaxExpInThisLevel = db->getInt("MaxExpInThisLevel");
 	this->sPlayerProfile->dwZenny = db->getInt("Money");
 	this->sPlayerProfile->dwTutorialHint = -1;
-	this->sPlayerProfile->byBindType = 0;
-	this->sPlayerProfile->bindObjectTblidx = -1;
+	this->sPlayerProfile->byBindType = DBO_BIND_TYPE_INITIAL_LOCATION;
+	//this->sPlayerProfile->bindObjectTblidx = -1;
 
 	this->sPlayerProfile->dwReputation = db->getInt("Reputation");
 	this->sPlayerProfile->dwMudosaPoint = db->getInt("MudosaPoint");
 	this->sPlayerProfile->dwSpPoint = db->getInt("SpPoint");
-	this->sPlayerProfile->bIsGameMaster = db->getBoolean("GameMaster");
-	this->sPlayerProfile->sMarking.dwCode = db->getInt("titulo");
+	this->sPlayerProfile->bIsGameMaster = 1;//db->getBoolean("GameMaster");
+	this->sPlayerProfile->sMarking.dwCode = INVALID_TBLIDX;//db->getInt("titulo");
 	this->sPlayerProfile->sMixData.bNormalStart = 0;
 	this->sPlayerProfile->sMixData.bSpecialStart = 0;
 	this->sPlayerProfile->sMixData.byMixLevel = db->getInt("MixLevel");
@@ -400,7 +398,7 @@ void PlayersMain::FillProfileWithInfo()
 	vLastDir.y = (float)db->getDouble("CurDirY");
 	vLastDir.z = (float)db->getDouble("CurDirZ");
 
-	//this->sPcData = pTblData;
+	this->sPcData = pTblData;
 	this->SetPlayerName(db->getString("CharName"));
 	this->SetGuildName(db->getString("GuildName"));
 	this->SetWorldID(db->getInt("WorldID"));
@@ -967,7 +965,7 @@ void PlayersMain::SendThreadRevivalStatus()
 //Update For Player Thread maybe this is the Real Player Thread
 DWORD WINAPI Update(LPVOID arg)
 {
-	DWORD dwTickCur, dwTickOld = ::GetTickCount();
+	DWORD dwTickCur, dwTickOld, lpTick = ::GetTickCount();
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
 	PlayersMain* plr = (PlayersMain*)arg;
 	if (plr)
@@ -991,12 +989,17 @@ DWORD WINAPI Update(LPVOID arg)
 				{
 					if (plr->GetPcProfile()->dwCurLP <= 0)
 						plr->SendThreadUpdateDeathStatus();
-					else if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
-						plr->SendThreadUpdateOnlyLP();
-					if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
-						plr->SendThreadUpdateOnlyEP();
+					if (dwTickCur - lpTick >= 1500)
+					{
+						if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
+							plr->SendThreadUpdateOnlyLP();
+						if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
+							plr->SendThreadUpdateOnlyEP();
+							
+						lpTick = dwTickCur;
+					}
 				}
-				if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
+		/*		if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 				{
 					if (plr->GetPcProfile()->wCurRP <= 0)
 						if (plr->GetRpBallFull() > 0)
@@ -1008,7 +1011,7 @@ DWORD WINAPI Update(LPVOID arg)
 					else
 						plr->GetPcProfile()->wCurRP -= 1;
 					plr->SendThreadUpdateRP();
-				}
+				}*/
 				/*if (plr->isKaioken == true) /* TEST */
 				/*{
 					plr->GetPcProfile()->wCurLP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
@@ -1017,12 +1020,12 @@ DWORD WINAPI Update(LPVOID arg)
 				//plr->SendThreadUpdateEPLP();
 				if ((timeGetTime() - plr->GetMob_SpawnTime()) >= MONSTER_SPAWN_UPDATE_TICK)
 				{
-					//app->mob->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
-					//plr->SetMob_SpawnTime(timeGetTime());
+					app->mob->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
+					plr->SetMob_SpawnTime(timeGetTime());
 				}
 			}
 			plr = plr->GetRefreshPointer();
-			Sleep(1000);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
+			Sleep(1);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
 		}
 	}
 	return 0;

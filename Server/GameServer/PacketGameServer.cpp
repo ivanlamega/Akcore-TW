@@ -113,9 +113,9 @@ void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 	plr->CreatePlayerProfile();
 
 	memcpy(&res->sPcProfile, plr->GetPcProfile(), sizeof(sPC_PROFILE));
-	//memcpy(&res->sCharState, plr->GetCharState(), sizeof(sCHARSTATE));
-	//res->wCharStateSize = sizeof(sCHARSTATE_BASE);	
-	res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+	memcpy(&res->sCharState, plr->GetCharState(), sizeof(sCHARSTATE));
+	res->wCharStateSize = sizeof(sCHARSTATE_BASE);	
+	//res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
 	//res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
 	//res->sCharState.sCharStateBase.bFightMode = false;
 	res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
@@ -176,12 +176,6 @@ void CClientSession::SendAvatarItemInfo(CNtlPacket * pPacket, CGameServer * app)
 		asItemProfile[0].aitemExtraEffect[i].wType = i + 1;
 		asItemProfile[0].aitemExtraEffect[i].dwValue = 8;
 	}
-
-		
-
-
-
-
 			
 	packet.AdjustPacketLen(sizeof(sNTLPACKETHEADER) + (2 * sizeof(BYTE)) + (res->byItemCount * sizeof(sITEM_PROFILE)));
 	g_pApp->Send(this->GetHandle(), &packet);
@@ -674,12 +668,12 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	res->level = app->db->getInt("Level");
 	//res->Speed = (float)app->db->getDouble("LastRunSpeed");
 	//res->sObjectInfo.pcBrief.wAttackSpeedRate = app->db->getInt("BaseAttackSpeedRate");
-	res->Loc[0] = 0;
-	res->Loc[1] = 0;
-	res->Loc[2] = 0;
-	res->Dir[0] = 0;
-	res->Dir[1] = 0;
-	res->Dir[2] = 0;
+	res->Loc[0] = app->db->getDouble("CurLocX");
+	res->Loc[1] = app->db->getDouble("CurLocY");;
+	res->Loc[2] = app->db->getDouble("CurLocZ");;
+	res->Dir[0] = app->db->getDouble("CurDirX");;
+	res->Dir[1] = app->db->getDouble("CurDirY");;
+	res->Dir[2] = app->db->getDouble("CurDirZ");;
 	res->Unknown2[0] = 0;
 	res->Unknown2[1] = 0;
 	res->Unknown2[2] = 0;
@@ -2050,7 +2044,7 @@ void CClientSession::SendCharMoveSync(CNtlPacket * pPacket, CGameServer * app)
 	plr->SetPlayerDirection(res->vCurDir);
 
 
-	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
+	//UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 
 
 	PACKET_TRACE(GU_CHAR_AIR_MOVE_SYNC, packet);
@@ -2085,7 +2079,7 @@ void CClientSession::SendCharChangeHeading(CNtlPacket * pPacket, CGameServer * a
 	
 
 
-	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
+	//UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 	PACKET_TRACE(GU_CHAR_CHANGE_HEADING, packet);
 }
 //--------------------------------------------------------------------------------------//
@@ -2173,12 +2167,14 @@ void CClientSession::SendCharFalling(CNtlPacket * pPacket, CGameServer * app)
 //--------------------------------------------------------------------------------------//
 void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 {
-	sUG_SERVER_COMMAND * pServerCmd = (sUG_SERVER_COMMAND*)pPacket;
+	sUG_SERVER_COMMAND * pServerCmd = (sUG_SERVER_COMMAND*)pPacket->GetPacketData();
 
 	char chBuffer[1024];
 	wcout << pServerCmd->awchCommand << endl;
 	cout << pServerCmd->awchCommand << endl;
-	::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL);
+	::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL); 
+
+
 
 	CNtlTokenizer lexer(chBuffer);
 
@@ -2216,6 +2212,18 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 				CClientSession::SendUpdateCharSpeed(fSpeed, app);
 				return;
 			}
+
+			else if (strToken == "@checkspawn")
+			{
+				printf("Spawning Check\n");
+				PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+
+				sVECTOR3 curpos = plr->GetPlayerPosition();
+				printf("CurPos x[%u] y[%u] z[%u]\n", curpos.x, curpos.y, curpos.z);
+				g_pMobManager->RunSpawnCheck(pPacket, curpos, plr->myCCSession);
+				return;
+			}
+			
 			else if (strToken == "@addmob")
 			{
 				lexer.PopToPeek();
@@ -2325,16 +2333,16 @@ void CClientSession::SendUpdateCharSpeed(float fSpeed, CGameServer * app)
 {
 	printf("Update char speed \n");
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LEVEL));
-	sGU_UPDATE_CHAR_LEVEL * res = (sGU_UPDATE_CHAR_LEVEL *)packet.GetPacketData();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_SPEED));
+	sGU_UPDATE_CHAR_SPEED * res = (sGU_UPDATE_CHAR_SPEED *)packet.GetPacketData();
 
-	res->wOpCode = GU_UPDATE_CHAR_LEVEL;
+	res->wOpCode = GU_UPDATE_CHAR_SPEED;
 	res->handle = this->GetavatarHandle();
-	res->byPrevLevel = 50;
-	res->byCurLevel = 50;
+	res->fLastWalkingSpeed = fSpeed * .60;
+	res->fLastRunningSpeed = fSpeed;
 	
-	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LEVEL));
-	app->UserBroadcastothers(&packet, this);
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SPEED));
+	app->UserBroadcast(&packet);
 	plr = NULL;
 	delete plr;
 }
@@ -2378,8 +2386,6 @@ void CClientSession::SendGameLeaveReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->setInt(1, plr->GetCharID());
 	app->db->execute();
 
-//	plr->SavePlayerData(app);
-	app->RemoveUser(plr->GetPlayerName().c_str());
 	CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
 	sGU_OBJECT_DESTROY * sPacket = (sGU_OBJECT_DESTROY *)packet.GetPacketData();
 
@@ -5984,7 +5990,7 @@ void	CClientSession::SendScouterIndicatorReq(CNtlPacket * pPacket, CGameServer *
 	CNtlPacket packet(sizeof(sGU_SCOUTER_INDICATOR_RES));
 	sGU_SCOUTER_INDICATOR_RES * res = (sGU_SCOUTER_INDICATOR_RES *)packet.GetPacketData();
 
-	res->hTarget = 1;// req->hTarget;
+	res->hTarget = req->hTarget;
 	res->dwRetValue = 1;
 	res->wOpCode = GU_SCOUTER_PREDICT_RES;
 	
@@ -6045,9 +6051,9 @@ void	CClientSession::SendDragonBallCheckReq(CNtlPacket * pPacket, CGameServer * 
 		g_pApp->Send(this->GetHandle(), &packet3);
 		app->UserBroadcastothers(&packet3, this);
 
-//		sSPAWN_TBLDAT* pMOBTblData = (sSPAWN_TBLDAT*)app->g_pTableContainer->GetMobSpawnTable(1)->FindData(6361105);
+		sSPAWN_TBLDAT* pMOBTblData = (sSPAWN_TBLDAT*)app->g_pTableContainer->GetMobSpawnTable(1)->FindData(6361105);
 
-		obj->Handle = 90000; // this is wrong
+		obj->Handle = INVALID_TBLIDX - 10; // this is wrong
 		obj->wOpCode = GU_OBJECT_CREATE;
 		obj->Type = OBJTYPE_NPC; // this is wrong
 		obj->Tblidx = 6361105; // this is wrong
@@ -6213,7 +6219,7 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 	CNtlPacket packet5(sizeof(sGU_UPDATE_CHAR_STATE));
 	sGU_UPDATE_CHAR_STATE * res3 = (sGU_UPDATE_CHAR_STATE *)packet5.GetPacketData();
 
-	res3->handle = 90000;
+	res3->handle = INVALID_TBLIDX - 10;
 	res3->sCharState.sCharStateBase.byStateID = CHARSTATE_DESPAWNING;
 	res3->wOpCode = GU_UPDATE_CHAR_STATE;
 	packet5.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
@@ -6225,7 +6231,7 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 	Sleep(10000);
 	CNtlPacket packet4(sizeof(sGU_OBJECT_DESTROY));
 	sGU_OBJECT_DESTROY * res4 = (sGU_OBJECT_DESTROY *)packet4.GetPacketData();
-	res4->handle = 90000;
+	res4->handle = INVALID_TBLIDX - 10;
 	res4->wOpCode = GU_OBJECT_DESTROY;
 	packet4.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
 	g_pApp->Send(this->GetHandle(), &packet4);
@@ -8887,7 +8893,7 @@ void  CClientSession::CreateNPCById(unsigned int uiNpcId, int playerId)
 
 		res->wOpCode = GU_OBJECT_CREATE;
 		res->Type = OBJTYPE_NPC;
-		res->Handle = AcquireSerialId(); app->mob->AcquireMOBSerialId(); //this will get your Player Handle, need change "AcquireSerialId" because here is used to generate a Handler for the players!#Issue 6 Luiz45
+		res->Handle = AcquireSerialId(); //app->mob->AcquireMOBSerialId(); //this will get your Player Handle, need change "AcquireSerialId" because here is used to generate a Handler for the players!#Issue 6 Luiz45
 		res->Loc[0] = 4780 + rand() % 85 + 3;
 		res->Loc[1] = 0;
 		res->Loc[2] = 4100 + rand() % 85 + 3;
@@ -9428,13 +9434,15 @@ void	CClientSession::SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync
 //Air Jump - Luiz45
 void CClientSession::SendAirJump(CNtlPacket* pPacket, CGameServer* app)
 {
-	//sUG_CHAR_AIR_JUMP* req = (sUG_CHAR_AIR_JUMP*)pPacket->GetPacketData();
+	sUG_CHAR_AIR_JUMP* req = (sUG_CHAR_AIR_JUMP*)pPacket->GetPacketData();
+	UpdateCharState(this->GetHandle(), CHARSTATE_AIR_JUMP);
 
 }
 //Air Dash - Luiz45
 void CClientSession::SendAirDash(CNtlPacket* pPacket, CGameServer* app)
 {
-	//sUG_CHAR_AIR_DASH* req = (sUG_CHAR_AIR_DASH*)pPacket->GetPacketData();	
+	sUG_CHAR_AIR_DASH* req = (sUG_CHAR_AIR_DASH*)pPacket->GetPacketData();	
+	UpdateCharState(this->GetHandle(), CHARSTATE_AIR_DASH_ACCEL);
 }
 //--Cash ShopItem Method Marco
 void CClientSession::SendCashItemStart(CNtlPacket * pPacket, CGameServer * app)

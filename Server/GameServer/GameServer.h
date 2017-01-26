@@ -739,9 +739,9 @@ public:
 			g_pPlayerManager = new CPlayerManager;
 			g_pPlayerManager->Init();
 			NTL_PRINT(PRINT_APP, "Player Manager Initalzed\n\r");
-			/*g_pMobManager = new CMobManager;
+			g_pMobManager = new CMobManager;
 			g_pMobManager->Init();
-			NTL_PRINT(PRINT_APP, "Mob Manager Initalzed\n\r");*/
+			NTL_PRINT(PRINT_APP, "Mob Manager Initalzed\n\r");
 			return NTL_SUCCESS;
 		}else{
 		printf("FAILED LOADING TABLES !!! \n");

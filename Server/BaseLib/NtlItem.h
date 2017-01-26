@@ -971,7 +971,7 @@ struct sITEM_BRIEF
 	BYTE			byRank;
 	BYTE            byGrade; // item effect
 	BYTE			byBattleAttribute;
-	TBLIDX			aOptionTblidx[NTL_MAX_OPTION_IN_ITEM];
+	//TBLIDX			aOptionTblidx[NTL_MAX_OPTION_IN_ITEM];
 };
 
 struct sITEM_SUMMARY
