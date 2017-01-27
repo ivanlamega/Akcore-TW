@@ -2204,8 +2204,8 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 	wcout << pServerCmd->awchCommand << endl;
 	cout << pServerCmd->awchCommand << endl;
 	::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL); 
-
-
+	wchar_t wstr[1024];
+	std::string str ="";
 
 	CNtlTokenizer lexer(chBuffer);
 
@@ -2350,7 +2350,38 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 				g_pApp->Send(this->GetHandle(), &packet);
 				return;
 			}
+			else if (strToken == "@announce")
+			{
+				const char* sMsg = NULL;
+				while (42)
+				{
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					str += strToken;
+					if (strToken == "")
+					{
+						break;
+					}
+						
+				}
+				std::wstring widestr = std::wstring(str.begin(), str.end());
+				SendServerAnnouncement(widestr.c_str(), app);
+			}
+			else if (strToken == "@broadcast")
+			{
+				const char* sMsg = NULL;
+				while (42)
+				{
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					str += strToken;
+					if (strToken == "")
+					{
+						break;
+					}
 
+				}
+				std::wstring widestr = std::wstring(str.begin(), str.end());
+				SendServerBroadcast(widestr.c_str(), app);
+			}
 			break;
 		}
 
@@ -2369,9 +2400,10 @@ void CClientSession::SendUpdateCharSpeed(float fSpeed, CGameServer * app)
 
 	res->wOpCode = GU_UPDATE_CHAR_SPEED;
 	res->handle = this->GetavatarHandle();
-	res->fLastWalkingSpeed = fSpeed * .60;
+	res->fLastWalkingSpeed = fSpeed * .50;
 	res->fLastRunningSpeed = fSpeed;
-	
+	res->fLastFlySpeed = fSpeed * .50;
+	res->fLastFlyBoostSpeed = fSpeed;
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SPEED));
 	app->UserBroadcast(&packet);
 	plr = NULL;

@@ -1803,9 +1803,9 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	{
 		//Print size of structs
 		gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
-		//gs->printOk("==== LOADING MOBS / NPC ... ====");
+		gs->printOk("==== LOADING MOBS / NPC ... ====");
 		//mob->Create();
-		//gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
+		gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
 	}
 	else
 		gs->printError("Failed to load tables");
