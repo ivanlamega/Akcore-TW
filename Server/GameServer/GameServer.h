@@ -380,9 +380,9 @@ public:
 	void						SendServerAnnouncement(wstring sMsg, CGameServer * app);
 	void						SendServerBroadcast(wstring wsMsg, CGameServer * app);
 	void						CreateItemById(uint32_t tblidx, int playerId);
-	void						AddSkillById(uint32_t tblidx, int playerId);
-	void						CreateMonsterById(unsigned int uiMobId, int PlayerId);
-	void						CreateNPCById(unsigned int uiNpcId, int PlayerId);
+	void						AddSkillById(uint32_t tblidx);
+	void						CreateMonsterById(unsigned int uiMobId);
+	void						CreateNPCById(unsigned int uiNpcId);
 	void						SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync);
 	//Helper Functions
 	void						UpdateCharState(HOBJECT avHandle, eCHARSTATE state);
