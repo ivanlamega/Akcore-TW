@@ -151,86 +151,99 @@ void CMobManager::CreateMonsterList()
 bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSession * pSession)
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	std::vector<RwUInt32>::iterator handleSearch;
+	RwUInt32 avHandle = NULL;
+	if (pSession->cPlayersMain)
+		avHandle = pSession->cPlayersMain->GetAvatarHandle();
+	else
+		return false;
 #pragma region monstercheck
 	CMonster::MonsterData* creaturelist;
-//	
-//	for (IterType it = m_map_Monster.begin(); it != m_map_Monster.end(); it++)
-//	{
-//		creaturelist = it->second;
-//		std::vector<RwUInt32>::iterator handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), pSession->GetavatarHandle());
-//
-//		if (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true)
-//		{
-//			if (creaturelist->IsDead == false && creaturelist->isSpawned == false)
-//			{
-//				if (handleSearch != creaturelist->spawnedForHandle.end())
-//				{
-//					//Your handle was found so dont spawn it.
-//				}
-//				else
-//				{
-//					CNtlPacket packet(sizeof(sGU_OBJECT_CREATE));
-//					sGU_OBJECT_CREATE * res = (sGU_OBJECT_CREATE *)packet.GetPacketData();
-//					creaturelist->isSpawned = true;
-//					res->wOpCode = GU_OBJECT_CREATE;
-//					res->sObjectInfo.objType = OBJTYPE_MOB;
-//					res->handle = creaturelist->UniqueID;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.x = 0;// creaturelist->curPos.x;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.y = 0;// creaturelist->curPos.y;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurLoc.z = 0;// creaturelist->curPos.z;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.x = 0;// creaturelist->Spawn_Dir.x;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.y = 0;// creaturelist->Spawn_Dir.y;
-//					res->sObjectInfo.mobState.sCharStateBase.vCurDir.z = 0;//creaturelist->Spawn_Dir.z;
-//					res->sObjectInfo.mobState.sCharStateBase.byStateID = CHARSTATE_SPAWNING;
-//					res->sObjectInfo.mobState.sCharStateBase.bFightMode = creaturelist->FightMode;
-//					res->sObjectInfo.mobBrief.tblidx = 1581102;
-//					res->sObjectInfo.mobBrief.wCurEP = 0;
-//					res->sObjectInfo.mobBrief.wMaxEP = 0;
-//					res->sObjectInfo.mobBrief.wCurLP = 0;
-//					res->sObjectInfo.mobBrief.wMaxLP = 0;
-//					res->sObjectInfo.mobBrief.fLastRunningSpeed = 0;
-//					res->sObjectInfo.mobBrief.fLastWalkingSpeed = 0;
-//					creaturelist->spawnedForHandle.push_back(pSession->GetavatarHandle());
-//					packet.SetPacketLen(sizeof(sGU_OBJECT_CREATE));
-//					g_pApp->Send(pSession->GetHandle(), &packet);
-//				}
-//			}
-//		}
-//		
-//		else if ((creaturelist->isSpawned == true && CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false && handleSearch != creaturelist->spawnedForHandle.end()))
-//		{	
-//			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
-//			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
-//			res->wOpCode = GU_OBJECT_DESTROY;
-//			res->handle = creaturelist->UniqueID;
-//			creaturelist->target = 0;
-//			creaturelist->spawnedForHandle.erase(handleSearch);
-//		/*	if (handleSearch == creaturelist->spawnedForHandle.end())
-//			{
-//				creaturelist->isSpawned = false;
-//				creaturelist->target = 0;
-//			}*/
-//			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-//			g_pApp->Send(pSession->GetHandle(), &packet);
-//		}
-//		else if (handleSearch == creaturelist->spawnedForHandle.end())
-//		{
-//			creaturelist->isSpawned = false;
-//			creaturelist->target = 0;
-//		}
-//
-//	}
-//
-//
+	
+	for (IterType it = m_map_Monster.begin(); it != m_map_Monster.end(); it++)
+	{
+		creaturelist = it->second;
+		handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), avHandle);
+
+		if (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true)
+		{
+			if ((creaturelist->IsDead == true) || (handleSearch != creaturelist->spawnedForHandle.end()))
+				{
+					//Your handle was found so dont spawn it.
+					//Or Creature is dead, or There is more 
+				}
+				else
+				{
+					if (std::count(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), avHandle) <= MAX_MOB_ANOUNT)
+					{
+						CNtlPacket packet(sizeof(SpawnMOB));
+						SpawnMOB* res = (SpawnMOB*)packet.GetPacketData();
+						creaturelist->isSpawned = true;
+						res->wOpCode = GU_OBJECT_CREATE;
+						res->Type = OBJTYPE_MOB;
+						res->Handle = creaturelist->UniqueID;
+						res->Loc[0] = creaturelist->curPos.x;
+						res->Loc[1] = creaturelist->curPos.y;
+						res->Loc[2] = creaturelist->curPos.z;
+						res->Dir[0] = creaturelist->Spawn_Dir.x;
+						res->Dir[1] = creaturelist->Spawn_Dir.y;
+						res->Dir[2] = creaturelist->Spawn_Dir.z;
+						res->StateID = CHARSTATE_SPAWNING;
+						res->IsFighting = creaturelist->FightMode;
+						res->Tblidx = creaturelist->MonsterID;
+						res->curEP = creaturelist->CurEP;
+						res->maxEP = creaturelist->MaxEP;
+						res->curLP = creaturelist->CurLP;
+						res->maxLP = creaturelist->MaxLP;
+						res->Size = 10;
+						res->Unknown3[0] = 0;
+						res->Unknown4[0] = 0;
+
+						creaturelist->spawnedForHandle.push_back(avHandle);
+						packet.SetPacketLen(sizeof(SpawnMOB));
+						g_pApp->Send(pSession->GetHandle(), &packet);
+						printf("Monster %u Spawned \n", creaturelist->MonsterID);
+					}
+					else
+						printf("Maximum amount of mobs reached for your handle\n ");
+				}
+		}
+		
+		else if ((creaturelist->isSpawned == true) && (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false) && (handleSearch != creaturelist->spawnedForHandle.end()))
+		{	
+			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+			res->wOpCode = GU_OBJECT_DESTROY;
+			res->handle = creaturelist->UniqueID;
+			creaturelist->target = 0;
+			creaturelist->spawnedForHandle.erase(handleSearch);
+		/*	if (handleSearch == creaturelist->spawnedForHandle.end())
+			{
+				creaturelist->isSpawned = false;
+				creaturelist->target = 0;
+			}*/
+			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+			g_pApp->Send(pSession->GetHandle(), &packet);
+		}
+		else if (handleSearch == creaturelist->spawnedForHandle.end())
+		{
+			creaturelist->isSpawned = false;
+			creaturelist->target = 0;
+		}
+
+	}
+
+
 #pragma endregion Monstercheckend
 #pragma region npccheck
 
 	for (IterType it = m_map_Npc.begin(); it != m_map_Npc.end(); it++)
 	{
 		creaturelist = it->second;
-		std::vector<RwUInt32>::iterator handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), pSession->GetavatarHandle());
+		handleSearch = std::find(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), avHandle);
+
 		sNPC_TBLDAT* pNPCTblData = (sNPC_TBLDAT*)app->g_pTableContainer->GetNpcTable()->FindData(creaturelist->MonsterID);
-		if (pNPCTblData )//&& (app->mob->CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true))
+		if (pNPCTblData && (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == true))
 		{
 			if (handleSearch != creaturelist->spawnedForHandle.end())
 			{
@@ -238,32 +251,59 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 			}
 			else
 			{
-				CNtlPacket packet(sizeof(SpawnNPC));
-				SpawnNPC * sPacket = (SpawnNPC *)packet.GetPacketData();
+				if (std::count(creaturelist->spawnedForHandle.begin(), creaturelist->spawnedForHandle.end(), avHandle) <= MAX_MOB_ANOUNT)
+				{
 
-				sPacket->wOpCode = GU_OBJECT_CREATE;
-				sPacket->Type = OBJTYPE_NPC;
-				sPacket->Handle = creaturelist->UniqueID;
-				sPacket->Tblidx = creaturelist->MonsterID;
-				sPacket->Loc[0] = creaturelist->Spawn_Loc.x;// curpos.x;
-				sPacket->Loc[1] = creaturelist->Spawn_Loc.y;; //curpos.y;
-				sPacket->Loc[2] = -creaturelist->Spawn_Loc.z;;// curpos.z;
-				sPacket->Dir[0] = creaturelist->Spawn_Dir.x;// curpos.x;
-				sPacket->Dir[1] = creaturelist->Spawn_Dir.y; //curpos.y;
-				sPacket->Dir[2] = creaturelist->Spawn_Dir.z;// curpos.z;
-				sPacket->Size = 10;
-				sPacket->Unknown3[0] = 0;
-				sPacket->Unknown4[0] = 0;
-				creaturelist->isSpawned = true;
-				creaturelist->spawnedForHandle.push_back(pSession->GetavatarHandle());
-				packet.SetPacketLen(sizeof(SpawnNPC));
-				g_pApp->Send(pSession->GetHandle(), &packet);
+					CNtlPacket packet(sizeof(SpawnNPC));
+					SpawnNPC * sPacket = (SpawnNPC *)packet.GetPacketData();
+					sPacket->wOpCode = GU_OBJECT_CREATE;
+					sPacket->Type = OBJTYPE_NPC;
+					sPacket->Handle = creaturelist->UniqueID;
+					sPacket->Tblidx = creaturelist->MonsterID;
+					sPacket->Loc[0] = creaturelist->Spawn_Loc.x;
+					sPacket->Loc[1] = creaturelist->Spawn_Loc.y;
+					sPacket->Loc[2] = creaturelist->Spawn_Loc.z;
+					sPacket->Dir[0] = creaturelist->Spawn_Dir.x;
+					sPacket->Dir[1] = creaturelist->Spawn_Dir.y;
+					sPacket->Dir[2] = creaturelist->Spawn_Dir.z;
+					sPacket->Size = 10;
+					sPacket->StateID = CHARSTATE_SPAWNING;
+					sPacket->Unknown3[0] = 0;
+					sPacket->Unknown4[0] = 0;
+					creaturelist->isSpawned = true;
+					creaturelist->spawnedForHandle.push_back(avHandle);
 
+					packet.SetPacketLen(sizeof(SpawnNPC));
+					g_pApp->Send(pSession->GetHandle(), &packet);
+					printf("NPC %u Spawned \n", creaturelist->MonsterID);
+
+				}
 			}
 		}
+		else if ((creaturelist->isSpawned == true) && (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false) && (handleSearch != creaturelist->spawnedForHandle.end()))
+		{
+			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+			res->wOpCode = GU_OBJECT_DESTROY;
+			res->handle = creaturelist->UniqueID;
+			creaturelist->target = 0;
+			creaturelist->spawnedForHandle.erase(handleSearch);
+			/*	if (handleSearch == creaturelist->spawnedForHandle.end())
+			{
+			creaturelist->isSpawned = false;
+			creaturelist->target = 0;
+			}*/
+			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+			g_pApp->Send(pSession->GetHandle(), &packet);
+		}
+		else if (handleSearch == creaturelist->spawnedForHandle.end())
+		{
+			creaturelist->isSpawned = false;
+			creaturelist->target = 0;
+		}
 	}
+
 	return true;
-return false;
 #pragma endregion Npccheckend
 }
 
@@ -291,527 +331,93 @@ void CMobManager::SpawnNpcAtLogin(CNtlPacket * pPacket, CClientSession * pSessio
 	CGameServer * app = (CGameServer*) NtlSfxGetApp();
 	
 	sVECTOR3 curpos = pSession->cPlayersMain->GetPlayerPosition();
+	RwUInt32 avHandle = pSession->cPlayersMain->GetAvatarHandle();
 	CMonster::MonsterData* creaturelist;
-	CSpawnTable* pNPCSpawnTbl;
 	for (IterType it = m_map_Npc.begin(); it != m_map_Npc.end(); it++)
 	{
 		creaturelist = (it->second);
+		
 		sNPC_TBLDAT* pNPCTblData = (sNPC_TBLDAT*)app->g_pTableContainer->GetNpcTable()->FindData(creaturelist->MonsterID);
 		if (pNPCTblData)
 		{
-			if ((CreatureRangeCheck(curpos, creaturelist->Spawn_Loc) == true && creaturelist->isSpawned == false))
-			{
+			if ((CreatureRangeCheck(curpos, creaturelist->Spawn_Loc) == true) && (creaturelist->isSpawned == false))
+			{	
 
-				//CNtlPacket packet(sizeof(SpawnNPC));
-				//SpawnNPC * res = (SpawnNPC *)packet.GetPacketData();
+					CNtlPacket packet(sizeof(SpawnNPC));
+					SpawnNPC * sPacket = (SpawnNPC *)packet.GetPacketData();
+					sPacket->wOpCode = GU_OBJECT_CREATE;
+					sPacket->Type = OBJTYPE_NPC;
+					sPacket->Handle = creaturelist->UniqueID;
+					sPacket->Tblidx = creaturelist->MonsterID;
+					sPacket->Loc[0] = creaturelist->Spawn_Loc.x;
+					sPacket->Loc[1] = creaturelist->Spawn_Loc.y;
+					sPacket->Loc[2] = creaturelist->Spawn_Loc.z;
+					sPacket->Dir[0] = creaturelist->Spawn_Dir.x;
+					sPacket->Dir[1] = creaturelist->Spawn_Dir.y;
+					sPacket->Dir[2] = creaturelist->Spawn_Dir.z;
+					sPacket->Size = 10;
+					sPacket->StateID = CHARSTATE_SPAWNING;
+					sPacket->Unknown3[0] = 0;
+					sPacket->Unknown4[0] = 0;
+					creaturelist->isSpawned = true;
+					creaturelist->spawnedForHandle.push_back(avHandle);
 
-				//res->wOpCode = GU_OBJECT_CREATE;
-				//res->Type = OBJTYPE_NPC;
-				//res->Handle = 1000;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-				//res->Tblidx = 1654103;
-				//res->Loc[0] = 2066.959961;// curpos.x;
-				//res->Loc[1] = 18.590000; //curpos.y;
-				//res->Loc[2] = 5787.549805;// curpos.z;
-				//res->Dir[0] = -0.328135;// curpos.x;
-				//res->Dir[1] = -0.0; //curpos.y;
-				//res->Dir[2] = -0.944631;// curpos.z;
-				//res->Size = 10;
-				//res->Unknown3[0] = 0;
-				//res->Unknown4[0] = 0;
-				//packet.SetPacketLen(sizeof(SpawnNPC));
-				//g_pApp->Send(pSession->GetHandle(), &packet);
-
-				CNtlPacket packet(sizeof(SpawnNPC));
-				SpawnNPC * sPacket = (SpawnNPC *)packet.GetPacketData();
-				sPacket->wOpCode = GU_OBJECT_CREATE;
-				sPacket->Type = OBJTYPE_NPC;
-				sPacket->Handle = creaturelist->UniqueID;
-				sPacket->Tblidx = creaturelist->MonsterID;
-				sPacket->curLP = 1000;
-				sPacket->maxLP = 1000;
-				sPacket->curEP = 1000;
-				sPacket->maxEP = 1000;
-				sPacket->Loc[0] = creaturelist->Spawn_Loc.x;
-				sPacket->Loc[1] = creaturelist->Spawn_Loc.y;
-				sPacket->Loc[2] = creaturelist->Spawn_Loc.z;
-				sPacket->Dir[0] = creaturelist->Spawn_Dir.x;
-				sPacket->Dir[0] = creaturelist->Spawn_Dir.y;
-				sPacket->Dir[0] = creaturelist->Spawn_Dir.z;
-				sPacket->Size = 10;
-				sPacket->StateID = CHARSTATE_SPAWNING;
-				sPacket->Unknown3[0]=0;
-				sPacket->Unknown4[0]=0;
-				packet.SetPacketLen(sizeof(SpawnNPC));
-				g_pApp->Send(pSession->GetHandle(), &packet);
-
+					packet.SetPacketLen(sizeof(SpawnNPC));
+					g_pApp->Send(pSession->GetHandle(), &packet);
 			}
 		}
 	}
-
-	/*
-	//NPC 879
-
-	
-	*/
-
-	
 }
 void CMobManager::SpawnMonsterAtLogin(CNtlPacket * pPacket, CClientSession * pSession)
 {
-
-	//Mob 27325
-	CNtlPacket packet(sizeof(SpawnMOB));
-	SpawnMOB * res = (SpawnMOB *)packet.GetPacketData();
-
-	res->wOpCode = GU_OBJECT_CREATE;
-	res->Type = OBJTYPE_MOB;
-	res->Handle = 10;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res->Tblidx = 11111101;
-	res->Loc[0] = 4745.970215;// curpos.x;
-	res->Loc[1] = -61.810001; //curpos.y;
-	res->Loc[2] = 4070.149902;// curpos.z;
-	res->Dir[0] = 0.000000;
-	res->Dir[1] = -0.0;
-	res->Dir[2] = 1.000000;
-	res->Size = 10;
-	res->curEP = 500;
-	res->maxEP = 500;
-	res->curLP = 50000;
-	res->maxLP = 50000;
-	res->Level = 70;
-	res->StateID = 35;
-
-	packet.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet);
-
-	//Mob 27326
-	CNtlPacket packet1(sizeof(SpawnMOB));
-	SpawnMOB * res1 = (SpawnMOB *)packet1.GetPacketData();
-
-	res1->wOpCode = GU_OBJECT_CREATE;
-	res1->Type = OBJTYPE_MOB;
-	res1->Handle = 11;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res1->Tblidx = 11151101;
-	res1->Loc[0] = 4717.310059;// curpos.x;
-	res1->Loc[1] = -62.299999; //curpos.y;
-	res1->Loc[2] = 4068.080078;// curpos.z;
-	res1->Dir[0] = 0.000000;
-	res1->Dir[1] = -0.0;
-	res1->Dir[2] = 1.000000;
-	res1->Size = 10;
-	res1->curEP = 500;
-	res1->maxEP = 500;
-	res1->curLP = 60000000000000;
-	res1->maxLP = 60000000000000;
-	res1->Level = 70;
-	res1->StateID = 35;
-
-	packet1.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet1);
-
-	//Mob 27327
-	CNtlPacket packet2(sizeof(SpawnMOB));
-	SpawnMOB * res2 = (SpawnMOB *)packet2.GetPacketData();
-
-	res2->wOpCode = GU_OBJECT_CREATE;
-	res2->Type = OBJTYPE_MOB;
-	res2->Handle = 12;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res2->Tblidx = 11211101;
-	res2->Loc[0] = 4680.009766;// curpos.x;
-	res2->Loc[1] = -62.630001; //curpos.y;
-	res2->Loc[2] = 4078.719971;// curpos.z;
-	res2->Dir[0] = 0.000000;
-	res2->Dir[1] = -0.0;
-	res2->Dir[2] = 1.000000;
-	res2->Size = 10;
-	res2->curEP = 500;
-	res2->maxEP = 500;
-	res2->curLP = 600;
-	res2->maxLP = 600;
-	res2->Level = 2;
-	res2->StateID = 35;
-
-	packet2.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet2);
-
-	//Mob 27328
-	CNtlPacket packet3(sizeof(SpawnMOB));
-	SpawnMOB * res3 = (SpawnMOB *)packet3.GetPacketData();
-
-	res3->wOpCode = GU_OBJECT_CREATE;
-	res3->Type = OBJTYPE_MOB;
-	res3->Handle = 13;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res3->Tblidx = 11213101;
-	res3->Loc[0] = 4767.720215;// curpos.x;
-	res3->Loc[1] = -57.910000; //curpos.y;
-	res3->Loc[2] = 4039.780029;// curpos.z;
-	res3->Dir[0] = 0.000000;
-	res3->Dir[1] = -0.0;
-	res3->Dir[2] = 1.000000;
-	res3->Size = 10;
-	res3->curEP = 500;
-	res3->maxEP = 500;
-	res3->curLP = 600;
-	res3->maxLP = 600;
-	res3->Level = 2;
-	res3->StateID = 35;
-
-	packet3.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet3);
-
-	//Mob 27329
-	CNtlPacket packet4(sizeof(SpawnMOB));
-	SpawnMOB * res4 = (SpawnMOB *)packet4.GetPacketData();
-
-	res4->wOpCode = GU_OBJECT_CREATE;
-	res4->Type = OBJTYPE_MOB;
-	res4->Handle = 14;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res4->Tblidx = 12251101;
-	res4->Loc[0] = 4796.229980;// curpos.x;
-	res4->Loc[1] = -58.000000; //curpos.y;
-	res4->Loc[2] = 4038.610107;// curpos.z;
-	res4->Dir[0] = 0.000000;
-	res4->Dir[1] = -0.0;
-	res4->Dir[2] = 1.000000;
-	res4->Size = 10;
-	res4->curEP = 500;
-	res4->maxEP = 500;
-	res4->curLP = 600;
-	res4->maxLP = 600;
-	res4->Level = 2;
-	res4->StateID = 35;
-
-	packet4.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet4);
-
-	//Mob 27330
-	CNtlPacket packet5(sizeof(SpawnMOB));
-	SpawnMOB * res5 = (SpawnMOB *)packet5.GetPacketData();
-
-	res5->wOpCode = GU_OBJECT_CREATE;
-	res5->Type = OBJTYPE_MOB;
-	res5->Handle = 15;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res5->Tblidx = 12351201;
-	res5->Loc[0] = 4827.600098;// curpos.x;
-	res5->Loc[1] = -57.610001; //curpos.y;
-	res5->Loc[2] = 4051.560059;// curpos.z;
-	res5->Dir[0] = 0.000000;
-	res5->Dir[1] = -0.0;
-	res5->Dir[2] = 1.000000;
-	res5->Size = 10;
-	res5->curEP = 500;
-	res5->maxEP = 500;
-	res5->curLP = 600;
-	res5->maxLP = 600;
-	res5->Level = 2;
-	res5->StateID = 35;
-
-	packet5.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet5);
-
-	//Mob 27331
-	CNtlPacket packet6(sizeof(SpawnMOB));
-	SpawnMOB * res6 = (SpawnMOB *)packet6.GetPacketData();
-
-	res6->wOpCode = GU_OBJECT_CREATE;
-	res6->Type = OBJTYPE_MOB;
-	res6->Handle = 16;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res6->Tblidx = 1411101;
-	res6->Loc[0] = 4829.810059;// curpos.x;
-	res6->Loc[1] = -57.930000; //curpos.y;
-	res6->Loc[2] = 4039.189941;// curpos.z;
-	res6->Dir[0] = 0.000000;
-	res6->Dir[1] = -0.0;
-	res6->Dir[2] = 1.000000;
-	res6->Size = 10;
-	res6->curEP = 500;
-	res6->maxEP = 500;
-	res6->curLP = 600;
-	res6->maxLP = 600;
-	res6->Level = 2;
-	res6->StateID = 35;
-
-	packet6.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet6);
-
-	//Mob 27332
-	CNtlPacket packet7(sizeof(SpawnMOB));
-	SpawnMOB * res7 = (SpawnMOB *)packet7.GetPacketData();
-
-	res7->wOpCode = GU_OBJECT_CREATE;
-	res7->Type = OBJTYPE_MOB;
-	res7->Handle = 17;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res7->Tblidx = 1411102;
-	res7->Loc[0] = 4790.100098;// curpos.x;
-	res7->Loc[1] = -57.070000; //curpos.y;
-	res7->Loc[2] = 4019.909912;// curpos.z;
-	res7->Dir[0] = 0.000000;
-	res7->Dir[1] = -0.0;
-	res7->Dir[2] = 1.000000;
-	res7->Size = 10;
-	res7->curEP = 500;
-	res7->maxEP = 500;
-	res7->curLP = 600;
-	res7->maxLP = 600;
-	res7->Level = 2;
-	res7->StateID = 35;
-
-	packet7.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet7);
-
-	//Mob 27333
-	CNtlPacket packet8(sizeof(SpawnMOB));
-	SpawnMOB * res8 = (SpawnMOB *)packet8.GetPacketData();
-
-	res8->wOpCode = GU_OBJECT_CREATE;
-	res8->Type = OBJTYPE_MOB;
-	res8->Handle = 18;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res8->Tblidx = 1411102;
-	res8->Loc[0] = 4833.790039;// curpos.x;
-	res8->Loc[1] = -66.349998; //curpos.y;
-	res8->Loc[2] = 4084.409912;// curpos.z;
-	res8->Dir[0] = 0.000000;
-	res8->Dir[1] = -0.0;
-	res8->Dir[2] = 1.000000;
-	res8->Size = 10;
-	res8->curEP = 500;
-	res8->maxEP = 500;
-	res8->curLP = 600;
-	res8->maxLP = 600;
-	res8->Level = 2;
-	res8->StateID = 35;
-
-	packet8.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet8);
-
-	//Mob 27334
-	CNtlPacket packet9(sizeof(SpawnMOB));
-	SpawnMOB * res9 = (SpawnMOB *)packet9.GetPacketData();
-
-	res9->wOpCode = GU_OBJECT_CREATE;
-	res9->Type = OBJTYPE_MOB;
-	res9->Handle = 19;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res9->Tblidx = 1411101;
-	res9->Loc[0] = 4846.910156;// curpos.x;
-	res9->Loc[1] = -66.389999; //curpos.y;
-	res9->Loc[2] = 4065.129883;// curpos.z;
-	res9->Dir[0] = 0.000000;
-	res9->Dir[1] = -0.0;
-	res9->Dir[2] = 1.000000;
-	res9->Size = 10;
-	res9->curEP = 500;
-	res9->maxEP = 500;
-	res9->curLP = 600;
-	res9->maxLP = 600;
-	res9->Level = 2;
-	res9->StateID = 35;
-
-	packet9.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet9);
-
-	//Mob 27335
-	CNtlPacket packet10(sizeof(SpawnMOB));
-	SpawnMOB * res10 = (SpawnMOB *)packet10.GetPacketData();
-
-	res10->wOpCode = GU_OBJECT_CREATE;
-	res10->Type = OBJTYPE_MOB;
-	res10->Handle = 20;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res10->Tblidx = 1411103;
-	res10->Loc[0] = 4746.560059;// curpos.x;
-	res10->Loc[1] = -54.240002; //curpos.y;
-	res10->Loc[2] = 3948.580078;// curpos.z;
-	res10->Dir[0] = 0.000000;
-	res10->Dir[1] = -0.0;
-	res10->Dir[2] = 1.000000;
-	res10->Size = 10;
-	res10->curEP = 500;
-	res10->maxEP = 500;
-	res10->curLP = 600;
-	res10->maxLP = 600;
-	res10->Level = 2;
-	res10->StateID = 35;
-
-	packet10.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet10);
-
-	//Mob 27336
-	CNtlPacket packet11(sizeof(SpawnMOB));
-	SpawnMOB * res11 = (SpawnMOB *)packet11.GetPacketData();
-
-	res11->wOpCode = GU_OBJECT_CREATE;
-	res11->Type = OBJTYPE_MOB;
-	res11->Handle = 21;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res11->Tblidx = 1411103;
-	res11->Loc[0] = 4771.689941;// curpos.x;
-	res11->Loc[1] = -51.380001; //curpos.y;
-	res11->Loc[2] = 3957.850098;// curpos.z;
-	res11->Dir[0] = 0.000000;
-	res11->Dir[1] = -0.0;
-	res11->Dir[2] = 1.000000;
-	res11->Size = 10;
-	res11->curEP = 500;
-	res11->maxEP = 500;
-	res11->curLP = 600;
-	res11->maxLP = 600;
-	res11->Level = 2;
-	res11->StateID = 35;
-
-	packet11.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet11);
-
-	//Mob 27337
-	CNtlPacket packet12(sizeof(SpawnMOB));
-	SpawnMOB * res12 = (SpawnMOB *)packet12.GetPacketData();
-
-	res12->wOpCode = GU_OBJECT_CREATE;
-	res12->Type = OBJTYPE_MOB;
-	res12->Handle = 22;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res12->Tblidx = 1411103;
-	res12->Loc[0] = 4827.259766;// curpos.x;
-	res12->Loc[1] = -47.250000; //curpos.y;
-	res12->Loc[2] = 3921.860107;// curpos.z;
-	res12->Dir[0] = 0.000000;
-	res12->Dir[1] = -0.0;
-	res12->Dir[2] = 1.000000;
-	res12->Size = 10;
-	res12->curEP = 500;
-	res12->maxEP = 500;
-	res12->curLP = 600;
-	res12->maxLP = 600;
-	res12->Level = 2;
-	res12->StateID = 35;
-
-	packet12.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet12);
-
-	//Mob 27338
-	CNtlPacket packet13(sizeof(SpawnMOB));
-	SpawnMOB * res13 = (SpawnMOB *)packet13.GetPacketData();
-
-	res13->wOpCode = GU_OBJECT_CREATE;
-	res13->Type = OBJTYPE_MOB;
-	res13->Handle = 23;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res13->Tblidx = 1411101;
-	res13->Loc[0] = 4783.500000;// curpos.x;
-	res13->Loc[1] = -60.910000; //curpos.y;
-	res13->Loc[2] = 4073.489990;// curpos.z;
-	res13->Dir[0] = 0.000000;
-	res13->Dir[1] = -0.0;
-	res13->Dir[2] = 1.000000;
-	res13->Size = 10;
-	res13->curEP = 500;
-	res13->maxEP = 500;
-	res13->curLP = 600;
-	res13->maxLP = 600;
-	res13->Level = 2;
-	res13->StateID = 35;
-
-	packet13.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet13);
-
-	//Mob 27339
-	CNtlPacket packet14(sizeof(SpawnMOB));
-	SpawnMOB * res14 = (SpawnMOB *)packet14.GetPacketData();
-
-	res14->wOpCode = GU_OBJECT_CREATE;
-	res14->Type = OBJTYPE_MOB;
-	res14->Handle = 24;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res14->Tblidx = 1411102;
-	res14->Loc[0] = 4853.220215;// curpos.x;
-	res14->Loc[1] = -59.180000; //curpos.y;
-	res14->Loc[2] = 3958.370117;// curpos.z;
-	res14->Dir[0] = 0.000000;
-	res14->Dir[1] = -0.0;
-	res14->Dir[2] = 1.000000;
-	res14->Size = 10;
-	res14->curEP = 500;
-	res14->maxEP = 500;
-	res14->curLP = 600;
-	res14->maxLP = 600;
-	res14->Level = 2;
-	res14->StateID = 35;
-
-	packet14.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet14);
-
-	//Mob 27340
-	CNtlPacket packet15(sizeof(SpawnMOB));
-	SpawnMOB * res15 = (SpawnMOB *)packet15.GetPacketData();
-
-	res15->wOpCode = GU_OBJECT_CREATE;
-	res15->Type = OBJTYPE_MOB;
-	res15->Handle = 25;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res15->Tblidx = 1411102;
-	res15->Loc[0] = 4775.839844;// curpos.x;
-	res15->Loc[1] = -56.160000; //curpos.y;
-	res15->Loc[2] = 4012.959961;// curpos.z;
-	res15->Dir[0] = 0.000000;
-	res15->Dir[1] = -0.0;
-	res15->Dir[2] = 1.000000;
-	res15->Size = 10;
-	res15->curEP = 500;
-	res15->maxEP = 500;
-	res15->curLP = 600;
-	res15->maxLP = 600;
-	res15->Level = 2;
-	res15->StateID = 35;
-
-	packet15.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet15);
-
-	//Mob 27341
-	CNtlPacket packet16(sizeof(SpawnMOB));
-	SpawnMOB * res16 = (SpawnMOB *)packet6.GetPacketData();
-
-	res16->wOpCode = GU_OBJECT_CREATE;
-	res16->Type = OBJTYPE_MOB;
-	res16->Handle = 26;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res16->Tblidx = 1411102;
-	res16->Loc[0] = 4807.060059;// curpos.x;
-	res16->Loc[1] = -56.360001; //curpos.y;
-	res16->Loc[2] = 3992.080078;// curpos.z;
-	res16->Dir[0] = 0.000000;
-	res16->Dir[1] = -0.0;
-	res16->Dir[2] = 1.000000;
-	res16->Size = 10;
-	res16->curEP = 500;
-	res16->maxEP = 500;
-	res16->curLP = 600;
-	res16->maxLP = 600;
-	res16->Level = 2;
-	res16->StateID = 35;
-
-	packet16.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet16);
-
-	//Mob 27342
-	CNtlPacket packet17(sizeof(SpawnMOB));
-	SpawnMOB * res17 = (SpawnMOB *)packet17.GetPacketData();
-
-	res17->wOpCode = GU_OBJECT_CREATE;
-	res17->Type = OBJTYPE_MOB;
-	res17->Handle = 27;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res17->Tblidx = 1411101;
-	res17->Loc[0] = 815.180176;// curpos.x;
-	res17->Loc[1] = -58.439999; //curpos.y;
-	res17->Loc[2] = 4027.770020;// curpos.z;
-	res17->Dir[0] = 0.000000;
-	res17->Dir[1] = -0.0;
-	res17->Dir[2] = 1.000000;
-	res17->Size = 10;
-	res17->curEP = 500;
-	res17->maxEP = 500;
-	res17->curLP = 600;
-	res17->maxLP = 600;
-	res17->Level = 2;
-	res17->StateID = 35;
-
-	packet17.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetHandle(), &packet17);
-
 	
-	
-	
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+
+	sVECTOR3 curpos = pSession->cPlayersMain->GetPlayerPosition();
+	RwUInt32 avHandle = pSession->cPlayersMain->GetAvatarHandle();
+
+	CMonster::MonsterData* creaturelist;
+	std::vector<RwUInt32>::iterator handleSearch;
+
+	for (IterType it = m_map_Monster.begin(); it != m_map_Monster.end(); it++)
+	{
+		creaturelist = (it->second);
+		sMOB_TBLDAT* pMobTblData = (sMOB_TBLDAT*)app->g_pTableContainer->GetMobTable()->FindData(creaturelist->MonsterID);
+		if (pMobTblData)
+		{
+			if ((CreatureRangeCheck(curpos, creaturelist->Spawn_Loc) == true) && (creaturelist->isSpawned == false))
+			{
+
+					CNtlPacket packet(sizeof(SpawnMOB));
+					SpawnMOB* res = (SpawnMOB*)packet.GetPacketData();
+					creaturelist->isSpawned = true;
+					res->wOpCode = GU_OBJECT_CREATE;
+					res->Type = OBJTYPE_MOB;
+					res->Handle = creaturelist->UniqueID;
+					res->Loc[0] = creaturelist->curPos.x;
+					res->Loc[1] = creaturelist->curPos.y;
+					res->Loc[2] = creaturelist->curPos.z;
+					res->Dir[0] = creaturelist->Spawn_Dir.x;
+					res->Dir[1] = creaturelist->Spawn_Dir.y;
+					res->Dir[2] = creaturelist->Spawn_Dir.z;
+					res->StateID = CHARSTATE_SPAWNING;
+					res->IsFighting = creaturelist->FightMode;
+					res->Tblidx = creaturelist->MonsterID;
+					res->curEP = creaturelist->CurEP;
+					res->maxEP = creaturelist->MaxEP;
+					res->curLP = creaturelist->CurLP;
+					res->maxLP = creaturelist->MaxLP;
+					res->Size = 10;
+					res->Unknown3[0] = 0;
+					res->Unknown4[0] = 0;
+
+					creaturelist->spawnedForHandle.push_back(avHandle);
+					packet.SetPacketLen(sizeof(SpawnMOB));
+					g_pApp->Send(pSession->GetHandle(), &packet);
+			
+			}
+		}
+	}	
 }
 
 //Searches through mobMap to see if handle exists.

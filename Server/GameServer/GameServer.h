@@ -130,7 +130,7 @@ public:
 	CClientSession(bool bAliveCheck = false, bool bOpcodeCheck = false)
 		:CNtlSession( SESSION_CLIENT )
 	{
-		SetControlFlag( CONTROL_FLAG_USE_SEND_QUEUE );
+		SetControlFlag(CONTROL_FLAG_USE_SEND_QUEUE & CONTROL_FLAG_USE_RECV_QUEUE);
 
 		if( bAliveCheck )
 		{
@@ -390,8 +390,8 @@ public:
 	//Game Server functions
 	sGU_OBJECT_CREATE			characterspawnInfo;
 	//Other Classes
-	PlayersMain					*cPlayersMain;
-	GsFunctionsClass			*gsf;
+	PlayersMain					*cPlayersMain = NULL;
+	GsFunctionsClass			*gsf = NULL;
 	TLQHandler					*tlqManager = NULL;
 private:
 	CNtlPacketEncoder_RandKey	m_packetEncoder;

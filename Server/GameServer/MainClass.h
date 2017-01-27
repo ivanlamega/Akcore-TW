@@ -62,7 +62,7 @@ class PlayersMain{
 		PlayersSkills* cPlayerSkills;
 		PlayerAttributes* cPlayerAttribute;
 		PlayersMain* GetRefreshPointer(){ return this; };
-		CClientSession* myCCSession;
+		CClientSession* myCCSession = NULL;
 		void CreatePlayerProfile();
 		void SavePlayerData(CGameServer* app);
 		void SetChainAttack(int number);

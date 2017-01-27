@@ -32,12 +32,7 @@ int CClientSession::OnAccept()
 void CClientSession::OnClose()
 {
 	NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
-	CGameServer * app = (CGameServer*) NtlSfxGetApp();
-	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-
-	plr->SavePlayerData(app);
-	app->RemoveUser(plr->GetPlayerName().c_str());
-
+	this->cPlayersMain = NULL;
 
 }
 
@@ -236,7 +231,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TOGG_FIGHTING:
 		{
 			CClientSession::SendCharToggleFighting(pPacket, app);
-			CClientSession::SendNetPyStart(pPacket, app);
+			//CClientSession::SendNetPyStart(pPacket, app);
 			
 		}
 			break;
@@ -306,8 +301,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			//CClientSession::SendServerChangeReq(pPacket, app);
 			CClientSession::SendWorldEnterReq1(pPacket, app);
 			CClientSession::SendEnterWorldComplete(pPacket);
-			//CClientSession::SendNpcCreate(pPacket, app);
-			//CClientSession::SendMonsterCreate(pPacket, app);
+			
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:

@@ -34,17 +34,24 @@ void CPlayerManager::Release()
 void CPlayerManager::Run()
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	DWORD dwTickCur, dwTickOld, lpTick = ::GetTickCount();
+	DWORD dwTickCur, dwTickOld, lpTick, mobTick;
+	
+	
+	dwTickCur = ::timeGetTime();
+	dwTickOld = ::timeGetTime();
+	lpTick = ::timeGetTime();
+	mobTick = ::timeGetTime();
 	while (m_bRun)
 	{
+		if (m_map_Player.size() != 0)
 		for (itterType it = m_map_Player.begin(); it != m_map_Player.end(); it++)
 		{
 			PlayersMain* plr = it->second;
-			if (plr)
+			if ((plr) && (plr->myCCSession))
 			{
 				if (plr->GetPlayerDead() == false)
 				{
-					dwTickCur = ::GetTickCount();
+					dwTickCur = ::timeGetTime();
 					if (plr->GetPlayerFight() == true)
 					{
 
@@ -58,16 +65,17 @@ void CPlayerManager::Run()
 					}
 					else if (plr->GetPlayerFight() == false)
 					{
-						//if (plr->GetPcProfile()->dwCurLP <= 0)
-						//	plr->SendThreadUpdateDeathStatus();
-						//if (dwTickCur - lpTick >= 1500)
-						//{
-						//	if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
-						//		plr->SendThreadUpdateOnlyLP();
-						//	if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
-						//		plr->SendThreadUpdateOnlyEP();
-						//	lpTick = dwTickCur;
-						//}
+						if (plr->GetPcProfile()->dwCurLP <= 0)
+							plr->SendThreadUpdateDeathStatus();
+						if (dwTickCur - lpTick >= 3000)
+						{
+							if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
+								plr->SendThreadUpdateOnlyLP();
+							if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
+								plr->SendThreadUpdateOnlyEP();
+
+							lpTick = dwTickCur;
+						}
 					}
 					/*if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 					{
@@ -88,10 +96,15 @@ void CPlayerManager::Run()
 					plr->GetPcProfile()->wCurEP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
 					}*/
 					//plr->SendThreadUpdateEPLP();
-					if (plr->GetMob_SpawnTime() - timeGetTime() >= 0)
+					if (dwTickCur - mobTick >= 5000)
 					{
-						//g_pMobManager->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
-						//plr->SetMob_SpawnTime(timeGetTime());
+						mobTick = ::timeGetTime();
+						if (plr->myCCSession)
+						{
+							//printf("RunSpawnCheck Fired\n");
+							g_pMobManager->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
+							plr->SetMob_SpawnTime(timeGetTime());
+						}
 					}
 					if ((timeGetTime() - ServerTick) >= MINUTE)
 					{
@@ -100,7 +113,8 @@ void CPlayerManager::Run()
 						printf("%d Players Online\n\r", GetTotalPlayers());
 						printf("DBO> ");
 						ServerTick = timeGetTime();
-						//plr->SavePlayerData(app);
+						if (plr->myCCSession)
+						plr->SavePlayerData(app);
 					}
 					//if ((timeGetTime() - DuelTime) >= (MINUTE * 3) && plr->IsDueling)
 					//{
@@ -112,7 +126,7 @@ void CPlayerManager::Run()
 				}
 			}
 		}
-		Sleep(1000);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
+		Wait(1);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
 
 
 
@@ -176,6 +190,7 @@ PlayersMain* CPlayerManager::GetPlayerByID(RwUInt32 playerID)
 //Remove the player from our map
 void CPlayerManager::RemovePlayer(RwUInt32 playerHandle)
 {
+	this->m_map_Player.erase(playerHandle);
 	this->PlayerCounter--;
 }
 //Get Total of Player in Manager
