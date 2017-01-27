@@ -8,8 +8,9 @@
 
 #include <list>
 #define DISTANCE_TO_SPAWN				120
-#define DISTANCE_TO_DESPAWN				200
-#define MONSTER_SPAWN_UPDATE_TICK		4000
+#define DISTANCE_TO_DESPAWN				170
+#define MAX_MOB_ANOUNT					50
+#define MONSTER_SPAWN_UPDATE_TICK		10000
 #define MONSTER_MOVE_UPDATE_TICK		10000
 #define MAX_PLAYER_COUNT				512
 class CClientSession;

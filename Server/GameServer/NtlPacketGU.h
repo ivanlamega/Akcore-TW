@@ -1433,6 +1433,8 @@ BEGIN_PROTOCOL(GU_UPDATE_CHAR_SPEED)
 	HOBJECT			handle;
 	float			fLastWalkingSpeed;
 	float			fLastRunningSpeed;
+	float			fLastFlySpeed;
+	float			fLastFlyBoostSpeed;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_ATTACK_SPEEDRATE)
@@ -1459,8 +1461,8 @@ END_PROTOCOL()*/
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_LP)
 	HOBJECT			handle;
 	DWORD			dwLpEpEventId;
-	WORD			wCurLP;
-	WORD			wMaxLP;
+	DWORD			wCurLP;
+	DWORD			wMaxLP;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_EP)
@@ -1480,8 +1482,8 @@ END_PROTOCOL()
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_LP_EP)
 	HOBJECT			handle;
 	DWORD			dwLpEpEventId;
-	WORD			wCurLP;
-	WORD			wMaxLP;
+	DWORD			wCurLP;
+	DWORD			wMaxLP;
 	WORD			wCurEP;
 	WORD			wMaxEP;
 END_PROTOCOL()

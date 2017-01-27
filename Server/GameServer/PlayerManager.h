@@ -33,7 +33,7 @@ private:
 	PlayersMain* cPlayersMain;
 	bool m_bRun;
 	int PlayerCounter;
-	std::map<RwUInt32, PlayersMain*> m_map_Player ;
+	std::map<RwUInt32, PlayersMain*> m_map_Player;
 	typedef std::map<RwUInt32, PlayersMain*>::const_iterator itterType;
 	itterType i;
 	

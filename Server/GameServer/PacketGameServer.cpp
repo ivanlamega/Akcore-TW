@@ -10,8 +10,24 @@
 typedef std::list<SBattleData*> ListAttackBegin;
 typedef ListAttackBegin::iterator BATTLEIT;
 ListAttackBegin				m_listAttackBegin;
-SSkillData *pSkillData;
+SSkillData *pSkillData = NULL;
 #define PACKET_TRACE(opcode, packet) NTL_PRINT(PRINT_SYSTEM, "%s [%u] Size[%u]", NtlGetPacketName_GU(opcode), opcode, sizeof(packet));
+
+static float
+dbo_move_pos_to_float(uint32_t n)
+{
+	float f;
+	unsigned char *p = (unsigned char *)&n;
+	/* this works for little endian only */
+	f = (p[1] << 24) + ((p[0] & 0x7f) << 16) + (p[3] << 8) + (p[2]);
+	((char *)&f)[3] |= (p[0] & 0x80);	/* first byte sign bit for a float */
+	f /= 100.0;
+	return f;
+}
+
+#define DBO_MOVE_DIR_TO_FLOAT(n) \
+	(n / (float) 10000.0)
+
 //--------------------------------------------------------------------------------------//
 //		Log into Game Server
 //--------------------------------------------------------------------------------------//
@@ -23,8 +39,10 @@ void CClientSession::SendGameEnterReq(CNtlPacket * pPacket, CGameServer * app)
 	avatarHandle = AcquireSerialId();
 
 	g_pPlayerManager->AddNewPlayer(avatarHandle, this->GetHandle(), req->charId, req->accountId);
-	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
 
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	plr->CreatePlayerProfile();
+	this->cPlayersMain = plr;
 	plr->myCCSession = this;
 	CNtlPacket packet(sizeof(sGU_GAME_ENTER_RES));
 
@@ -110,7 +128,6 @@ void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 	res->wOpCode = GU_AVATAR_CHAR_INFO;
 	res->handle = this->GetavatarHandle();
 
-	plr->CreatePlayerProfile();
 
 	memcpy(&res->sPcProfile, plr->GetPcProfile(), sizeof(sPC_PROFILE));
 	memcpy(&res->sCharState, plr->GetCharState(), sizeof(sCHARSTATE));
@@ -717,6 +734,9 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	app->UserBroadcastothers(&packet, this);
 	app->UserBroadcasFromOthers(GU_OBJECT_CREATE, this);
 	app->AddUser(plr->GetPlayerName().c_str(), this);
+
+	CClientSession::SendNpcCreate(pPacket, app);
+	CClientSession::SendMonsterCreate(pPacket, app);
 }
 
 
@@ -742,7 +762,8 @@ void CClientSession::SendAuthCommunityServer(CNtlPacket * pPacket, CGameServer *
 //--------------------------------------------------------------------------------------//
 void CClientSession::SendNpcCreate(CNtlPacket * pPacket, CGameServer * app)
 {	
-	g_pMobManager->SpawnNpcAtLogin(pPacket, this);
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	g_pMobManager->SpawnNpcAtLogin(pPacket, plr->myCCSession);
 }
 //NPC TLQ3 test
 void CClientSession::SendNpcTLQ3Create(CNtlPacket * pPacket, CGameServer * app)
@@ -1889,6 +1910,8 @@ void CClientSession::SendEnterWorldComplete(CNtlPacket * pPacket)
 	res2->wOpCode = GU_AVATAR_RP_DECREASE_START_NFY;
 	packet2.SetPacketLen(sizeof(sGU_ENTER_WORLD_COMPLETE));
 	g_pApp->Send(this->GetHandle(), &packet2);
+
+
 }
 
 //--------------------------------------------------------------------------------------//
@@ -1949,12 +1972,12 @@ void CClientSession::SendCharMove(CNtlPacket * pPacket, CGameServer * app)
 
 	res->wOpCode = GU_CHAR_MOVE;
 	res->handle = this->GetavatarHandle();
-	res->vCurLoc.x = req->vCurLoc.x;
-	res->vCurLoc.y = req->vCurLoc.y;
-	res->vCurLoc.z = req->vCurLoc.z;
-	res->vCurDir.x = req->vCurDir.x;
-	res->vCurDir.y = 0;
-	res->vCurDir.z = req->vCurDir.z;
+	res->vCurLoc.x = dbo_move_pos_to_float(req->pos_move_x);
+	res->vCurLoc.y = dbo_move_pos_to_float(req->pos_move_y);
+	res->vCurLoc.z = dbo_move_pos_to_float(req->pos_move_z);
+	res->vCurDir.x = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_x);
+	res->vCurDir.y = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_y);
+	res->vCurDir.z = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_z);
 	res->move_type = req->move_type;
 	res->move_flag = NTL_MOVE_KEYBOARD_FIRST;
 	res->relleno[0] = 0;
@@ -1993,6 +2016,7 @@ void CClientSession::SendCharDestMove(CNtlPacket * pPacket, CGameServer * app)
 	res->vCurLoc.x = req->vCurLoc.x;
 	res->vCurLoc.y = req->vCurLoc.y;
 	res->vCurLoc.z = req->vCurLoc.z;
+	
 	res->byMoveFlag = NTL_MOVE_MOUSE_MOVEMENT;
 	res->bHaveSecondDestLoc = false;
 	res->byDestLocCount = 10;
@@ -2030,12 +2054,12 @@ void CClientSession::SendCharMoveSync(CNtlPacket * pPacket, CGameServer * app)
 
 	res->wOpCode = GU_CHAR_AIR_MOVE_SYNC;
 	res->handle = this->GetavatarHandle();
-	res->vCurLoc.x = req->vCurLoc.x;
-	res->vCurLoc.y = req->vCurLoc.y;
-	res->vCurLoc.z = req->vCurLoc.z;
-	res->vCurDir.x = req->vCurDir.x;
-	res->vCurDir.y = req->vCurDir.y;
-	res->vCurDir.z = req->vCurDir.z;
+	res->vCurLoc.x = dbo_move_pos_to_float(req->pos_move_x);
+	res->vCurLoc.y = dbo_move_pos_to_float(req->pos_move_y);
+	res->vCurLoc.z = dbo_move_pos_to_float(req->pos_move_z);
+	res->vCurDir.x = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_x);
+	res->vCurDir.y = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_y);
+	res->vCurDir.z = DBO_MOVE_DIR_TO_FLOAT(req->dir_move_z);
 
 	packet.SetPacketLen(sizeof(sGU_CHAR_AIR_MOVE_SYNC));
 	app->UserBroadcastothers(&packet, this);
@@ -2048,6 +2072,13 @@ void CClientSession::SendCharMoveSync(CNtlPacket * pPacket, CGameServer * app)
 
 	//UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 
+	printf("move: %f %f %f, %f %f %f, %d\n",
+		dbo_move_pos_to_float(req->pos_move_x),
+		dbo_move_pos_to_float(req->pos_move_y),
+		dbo_move_pos_to_float(req->pos_move_z),
+		DBO_MOVE_DIR_TO_FLOAT(req->dir_move_x),
+		DBO_MOVE_DIR_TO_FLOAT(req->dir_move_y),
+		DBO_MOVE_DIR_TO_FLOAT(req->dir_move_z));
 
 	PACKET_TRACE(GU_CHAR_AIR_MOVE_SYNC, packet);
 
@@ -2061,6 +2092,7 @@ void CClientSession::SendCharChangeHeading(CNtlPacket * pPacket, CGameServer * a
 {
 	//printf("--- CHARACTER CHANGE HEADING --- \n");
 	sUG_CHAR_CHANGE_HEADING * req = (sUG_CHAR_CHANGE_HEADING*)pPacket->GetPacketData();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
 
 
 	CNtlPacket packet(sizeof(sGU_CHAR_CHANGE_HEADING));
@@ -2074,7 +2106,6 @@ void CClientSession::SendCharChangeHeading(CNtlPacket * pPacket, CGameServer * a
 	res->vNewLoc.x = req->vCurrentPosition.x;
 	res->vNewLoc.y = req->vCurrentPosition.y;
 	res->vNewLoc.z = req->vCurrentPosition.z;
-
 	packet.SetPacketLen(sizeof(sGU_CHAR_CHANGE_HEADING));
 	app->UserBroadcastothers(&packet, this);
 
@@ -2175,8 +2206,8 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 	wcout << pServerCmd->awchCommand << endl;
 	cout << pServerCmd->awchCommand << endl;
 	::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL); 
-
-
+	wchar_t wstr[1024];
+	std::string str ="";
 
 	CNtlTokenizer lexer(chBuffer);
 
@@ -2321,7 +2352,38 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 				g_pApp->Send(this->GetHandle(), &packet);
 				return;
 			}
+			else if (strToken == "@announce")
+			{
+				const char* sMsg = NULL;
+				while (42)
+				{
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					str += strToken;
+					if (strToken == "")
+					{
+						break;
+					}
+						
+				}
+				std::wstring widestr = std::wstring(str.begin(), str.end());
+				SendServerAnnouncement(widestr.c_str(), app);
+			}
+			else if (strToken == "@broadcast")
+			{
+				const char* sMsg = NULL;
+				while (42)
+				{
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					str += strToken;
+					if (strToken == "")
+					{
+						break;
+					}
 
+				}
+				std::wstring widestr = std::wstring(str.begin(), str.end());
+				SendServerBroadcast(widestr.c_str(), app);
+			}
 			break;
 		}
 
@@ -2340,9 +2402,10 @@ void CClientSession::SendUpdateCharSpeed(float fSpeed, CGameServer * app)
 
 	res->wOpCode = GU_UPDATE_CHAR_SPEED;
 	res->handle = this->GetavatarHandle();
-	res->fLastWalkingSpeed = fSpeed * .60;
+	res->fLastWalkingSpeed = fSpeed * .50;
 	res->fLastRunningSpeed = fSpeed;
-	
+	res->fLastFlySpeed = fSpeed * .50;
+	res->fLastFlyBoostSpeed = fSpeed;
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SPEED));
 	app->UserBroadcast(&packet);
 	plr = NULL;
@@ -2396,6 +2459,8 @@ void CClientSession::SendGameLeaveReq(CNtlPacket * pPacket, CGameServer * app)
 	g_pPlayerManager->RemovePlayer(this->GetavatarHandle());
 	packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
 	app->UserBroadcastothers(&packet, this);
+	plr->SavePlayerData(app);
+	app->RemoveUser(plr->GetPlayerName().c_str());
 
 	plr = NULL;
 	delete plr;
@@ -2418,6 +2483,7 @@ void CClientSession::SendCharExitReq(CNtlPacket * pPacket, CGameServer * app)
 
 	sPacket->wOpCode = GU_OBJECT_DESTROY;
 	sPacket->handle = this->GetavatarHandle();
+	this->cPlayersMain = NULL;
 	packet1.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
 	app->UserBroadcastothers(&packet1, this);
 	g_pPlayerManager->RemovePlayer(this->GetavatarHandle());
@@ -7028,7 +7094,7 @@ void CClientSession::SendPlayerQuestReq(CNtlPacket * pPacket, CGameServer * app)
 						  plr = NULL;
 						  delete plr;
 						   //this->SendNpcCreate(pPacket, app);
-						   this->SendMonsterCreate(pPacket, app);
+						   //this->SendMonsterCreate(pPacket, app);
 					  }
 					  //Seguinte
 				  }

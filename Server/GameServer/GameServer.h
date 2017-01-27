@@ -130,7 +130,7 @@ public:
 	CClientSession(bool bAliveCheck = false, bool bOpcodeCheck = false)
 		:CNtlSession( SESSION_CLIENT )
 	{
-		SetControlFlag( CONTROL_FLAG_USE_SEND_QUEUE );
+		SetControlFlag(CONTROL_FLAG_USE_SEND_QUEUE & CONTROL_FLAG_USE_RECV_QUEUE);
 
 		if( bAliveCheck )
 		{
@@ -380,9 +380,9 @@ public:
 	void						SendServerAnnouncement(wstring sMsg, CGameServer * app);
 	void						SendServerBroadcast(wstring wsMsg, CGameServer * app);
 	void						CreateItemById(uint32_t tblidx, int playerId);
-	void						AddSkillById(uint32_t tblidx);
-	void						CreateMonsterById(unsigned int uiMobId);
-	void						CreateNPCById(unsigned int uiNpcId);
+	void						AddSkillById(uint32_t tblidx, int playerId);
+	void						CreateMonsterById(unsigned int uiMobId, int PlayerId);
+	void						CreateNPCById(unsigned int uiNpcId, int PlayerId);
 	void						SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync);
 	//Helper Functions
 	void						UpdateCharState(HOBJECT avHandle, eCHARSTATE state);
@@ -390,8 +390,8 @@ public:
 	//Game Server functions
 	sGU_OBJECT_CREATE			characterspawnInfo;
 	//Other Classes
-	PlayersMain					*cPlayersMain;
-	GsFunctionsClass			*gsf;
+	PlayersMain					*cPlayersMain = NULL;
+	GsFunctionsClass			*gsf = NULL;
 	TLQHandler					*tlqManager = NULL;
 private:
 	CNtlPacketEncoder_RandKey	m_packetEncoder;

@@ -32,12 +32,7 @@ int CClientSession::OnAccept()
 void CClientSession::OnClose()
 {
 	NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
-	CGameServer * app = (CGameServer*) NtlSfxGetApp();
-	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-
-	plr->SavePlayerData(app);
-	app->RemoveUser(plr->GetPlayerName().c_str());
-
+	this->cPlayersMain = NULL;
 
 }
 
@@ -306,7 +301,9 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		{
 			//printf("---  UG_CHAR_SERVER_CHANGE_REQ --- \n");//
 			//CClientSession::SendServerChangeReq(pPacket, app);
-		
+			CClientSession::SendWorldEnterReq1(pPacket, app);
+			CClientSession::SendEnterWorldComplete(pPacket);
+			
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:
@@ -1808,9 +1805,9 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	{
 		//Print size of structs
 		gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
-		//gs->printOk("==== LOADING MOBS / NPC ... ====");
+		gs->printOk("==== LOADING MOBS / NPC ... ====");
 		//mob->Create();
-		//gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
+		gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
 	}
 	else
 		gs->printError("Failed to load tables");

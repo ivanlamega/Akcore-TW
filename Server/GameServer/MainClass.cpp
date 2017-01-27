@@ -32,6 +32,7 @@ PlayersMain::PlayersMain(HSESSION PlayerSession,int CharID,int AccountID)
 	for (int i = 0; i < 8; i++){
 		this->tblEquipedChips[i] = INVALID_TBLIDX;
 	}
+	//CreatePlayerProfile();
 }
 PlayersMain::~PlayersMain()
 {
@@ -101,13 +102,18 @@ sCHARSTATE* PlayersMain::GetCharState()
 RwUInt32 PlayersMain::GetAvatarHandle()
 {
 	//We dont know why but it solves the problem :) - Thanks ebbo
-	//try{
-		return this->avatarHandle;
-	//}
-	//catch (exception e)
-	//{
-	//	printf("Handle is invalid\n\r %s", e.what());
-	//}
+	if (this)
+	{
+		try{
+			return this->avatarHandle;
+		}
+		catch (exception e)
+		{
+			printf("Handle is invalid\n\r %s", e.what());
+		}
+	}
+	else
+		return INVALID_HSESSION;
 }
 //Returns Mob Spawn Time
 RwUInt32 PlayersMain::GetMob_SpawnTime()
@@ -404,6 +410,8 @@ void PlayersMain::FillProfileWithInfo()
 	this->SetWorldID(db->getInt("WorldID"));
 	this->SetWorldTblidx(db->getInt("WorldTable"));
 	this->SetPlayerPosition(vLastLoc);
+	this->SetPlayerDirection(vLastDir);
+	this->SetPlayerLastPosition(vLastLoc);
 	this->SetPlayerLastDirection(vLastDir);
 }
 //Sets How many Rage Power Ball's the player gonna have it
@@ -890,6 +898,21 @@ void PlayersMain::SendThreadUpdateOnlyEP()
 	this->GetPcProfile()->wCurEP += this->GetPcProfile()->avatarAttribute.wBaseEpRegen; // += regen
 	if (this->GetPcProfile()->wCurEP > this->GetPcProfile()->avatarAttribute.wBaseMaxEP)
 		this->GetPcProfile()->wCurEP = this->GetPcProfile()->avatarAttribute.wBaseMaxEP;
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_EP));
+	sGU_UPDATE_CHAR_EP * res = (sGU_UPDATE_CHAR_EP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->wCurEP = this->GetPcProfile()->wCurEP;
+	res->wMaxEP = this->GetPcProfile()->avatarAttribute.wBaseMaxEP;
+
+	res->wOpCode = GU_UPDATE_CHAR_EP;
+	res->dwLpEpEventId = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_EP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
 }
 //Send Updates for LP Only LP of Player Thread
 void PlayersMain::SendThreadUpdateOnlyLP()
@@ -902,6 +925,20 @@ void PlayersMain::SendThreadUpdateOnlyLP()
 		if (this->GetPcProfile()->dwCurLP > this->GetPcProfile()->avatarAttribute.wBaseMaxLP)
 			this->GetPcProfile()->dwCurLP = this->GetPcProfile()->avatarAttribute.wBaseMaxLP;
 	}
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP));
+	sGU_UPDATE_CHAR_LP * res = (sGU_UPDATE_CHAR_LP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->wCurLP = this->GetPcProfile()->dwCurLP;
+	res->wMaxLP = this->GetPcProfile()->avatarAttribute.wBaseMaxLP;
+	res->wOpCode = GU_UPDATE_CHAR_LP;
+	res->dwLpEpEventId = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
 }
 //Send Updates for RP Ball of Player Thread
 void PlayersMain::SendThreadUpdateRP()
