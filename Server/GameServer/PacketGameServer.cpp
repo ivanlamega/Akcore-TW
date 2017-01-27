@@ -664,13 +664,15 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->fetch();
 
 	wcscpy_s(plr->GetPcProfile()->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(plr->GetPlayerName()).c_str());
-	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
-	sPC_TBLDAT* pcDat = (sPC_TBLDAT*)pPcTable->GetPcTbldat(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
+
+	dbo_data_table_pc *pc = new dbo_data_table_pc();
+	pc->load("data/table_pc_data.rdf");
+	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(app->db->getInt("Race"), app->db->getInt("Class"), app->db->getInt("Gender"));
 
 	res->wOpCode = GU_OBJECT_CREATE;
 	res->Handle = this->GetavatarHandle();
 	res->Type = OBJTYPE_PC;
-	res->Tblidx = pcDat->tblidx;
+	res->Tblidx = pcDat->id;
 	res->Adult = app->db->getBoolean("Adult");
 	wcscpy_s(res->Name, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(app->db->getString("CharName")).c_str());
 	wcscpy_s(res->GuildName, NTL_MAX_SIZE_GUILD_NAME_IN_UNICODE, s2ws(app->db->getString("GuildName")).c_str());
@@ -685,27 +687,27 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	res->level = app->db->getInt("Level");
 	//res->Speed = (float)app->db->getDouble("LastRunSpeed");
 	//res->sObjectInfo.pcBrief.wAttackSpeedRate = app->db->getInt("BaseAttackSpeedRate");
-	res->Loc[0] = app->db->getDouble("CurLocX");
-	res->Loc[1] = app->db->getDouble("CurLocY");;
-	res->Loc[2] = app->db->getDouble("CurLocZ");;
-	res->Dir[0] = app->db->getDouble("CurDirX");;
-	res->Dir[1] = app->db->getDouble("CurDirY");;
-	res->Dir[2] = app->db->getDouble("CurDirZ");;
+	res->Loc[0] = (float)app->db->getDouble("CurLocX");
+	res->Loc[1] = (float)app->db->getDouble("CurLocY");
+	res->Loc[2] = (float)app->db->getDouble("CurLocZ");
+	res->Dir[0] = (float)app->db->getDouble("CurDirX");
+	res->Dir[1] = (float)app->db->getDouble("CurDirY");
+	res->Dir[2] = (float)app->db->getDouble("CurDirZ");
 	res->Unknown2[0] = 0;
 	res->Unknown2[1] = 0;
 	res->Unknown2[2] = 0;
 	res->Unknown2[3] = 0;
 	res->Unknown2[4] = 0;
 	res->Unknown2[5] = 0;
-	res->StateID = CHARSTATE_SPAWNING;
-	res->AspectID = 0xFF;
-	res->mascotID = INVALID_TBLIDX;
+	res->StateID = 0;
+	res->AspectID = 255;
+	res->mascotID = 6000071;
 	res->Size = 10;
-	//res->sMarking.dwCode = 1;
+
 
 	//plr->SetGuildName(app->db->getString("GuildName"));
 
-	/*for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
+	for (int i = 0; i < NTL_MAX_EQUIP_ITEM_SLOT; i++)
 	{
 		app->db->prepare("select * from items WHERE place=7 AND pos=? AND owner_id=?");
 		app->db->setInt(1, i);
@@ -722,7 +724,7 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 			res->sItemBrief[i].tblidx = app->db->getInt("tblidx");
 		}
 
-	}*/
+	}
 
 	memcpy(&this->characterspawnInfo, res, sizeof(SpawnPlayer));
 	packet.SetPacketLen(sizeof(SpawnPlayer));
@@ -2255,26 +2257,26 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 				return;
 			}
 			
-			else if (strToken == "@addmob")
+			else if (strToken == "@addmob")//fixed
 			{
 				lexer.PopToPeek();
 				strToken = lexer.PeekNextToken(NULL, &iLine);
 				unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
 				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				float fDist = (float)atof(strToken.c_str());
-				lexer.PopToPeek();
 				printf("Executing Mob Func\n");
-				//this->AdmFuncs->CreateMonsterById(uiMobId,pPacket,app->pSession);
+				CClientSession::CreateMonsterById(uiMobId);
 				printf("Executed\n");
 				return;
 			}
-			else if (strToken == "@addmobg")
+			else if (strToken == "@addnpc")//Fixed
 			{
 				lexer.PopToPeek();
 				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int iNum = (unsigned int)atoi(strToken.c_str());
-				//SendMonsterGroupCreate(iNum);
+				unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
+				lexer.PopToPeek();
+				printf("Executing NPC Func\n");
+				CClientSession::CreateNPCById(uiMobId);
+				printf("Executed\n");
 				return;
 			}
 			else if (strToken == "@createitem")
@@ -2287,10 +2289,10 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 			}
 			else if (strToken == "@learnskill")
 			{
-				lexer.PopToPeek();
+					lexer.PopToPeek();
 				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
-					//SendCharLearnSkillRes(uiTblId);
+				unsigned int tblidx = (unsigned int)atof(strToken.c_str());
+				AddSkillById(tblidx);
 				return;
 			}
 			else if (strToken == "@learnhtb")
@@ -2340,13 +2342,13 @@ void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 			else if (strToken == "@Cash")
 			{
 				//		SLLua_Setup();
-				CNtlPacket packet(sizeof(sGU_CASHITEM_START_RES));
-				sGU_CASHITEM_START_RES* res = (sGU_CASHITEM_START_RES*)packet.GetPacketData();
+				CNtlPacket packet(sizeof(sGU_CASHITEM_HLSHOP_START_RES));
+				sGU_CASHITEM_HLSHOP_START_RES* res = (sGU_CASHITEM_HLSHOP_START_RES*)packet.GetPacketData();
 
-				//res->byType = 0;
-				res->wOpCode = GU_CASHITEM_START_RES;
+				res->dwRemainAmount = 999999;//cash point
+				res->wOpCode = GU_CASHITEM_HLSHOP_START_RES;
 				res->wResultCode = GAME_SUCCESS;
-				packet.SetPacketLen(sizeof(sGU_CASHITEM_START_RES));
+				packet.SetPacketLen(sizeof(sGU_CASHITEM_HLSHOP_START_RES));
 				g_pApp->Send(this->GetHandle(), &packet);
 				return;
 			}
@@ -8945,10 +8947,12 @@ void CClientSession::CreateItemById(uint32_t tblidx, int playerId)
 	else
 		cout << "No Such ItemID" << endl;
 }
-void  CClientSession::CreateNPCById(unsigned int uiNpcId, int playerId)
+void  CClientSession::CreateNPCById(unsigned int uiNpcId)
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	PlayersMain* pSession = g_pPlayerManager->GetPlayerByID(playerId);
+	PlayersMain* pSession = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	int playerId = 0;
+	playerId = pSession->GetCharID();
 	sVECTOR3 curpos = pSession->GetPlayerPosition();
 	CNPCTable* pMyNpcTable = app->g_pTableContainer->GetNpcTable();
 	sNPC_TBLDAT* npc = reinterpret_cast<sNPC_TBLDAT*>(pMyNpcTable->FindData(uiNpcId));
@@ -8987,10 +8991,13 @@ void  CClientSession::CreateNPCById(unsigned int uiNpcId, int playerId)
 		printf("NPC not exist/n");
 
 }
-void  CClientSession::CreateMonsterById(unsigned int uiMobId, int playerId)
+void  CClientSession::CreateMonsterById(unsigned int uiMobId)
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	PlayersMain* pSession = g_pPlayerManager->GetPlayerByID(playerId);
+	PlayersMain* pSession = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	int playerId = 0;
+	playerId = pSession->GetCharID();
+	
 	sVECTOR3 curpos = pSession->GetPlayerPosition();
 	CMobTable* pMyMobTable = app->g_pTableContainer->GetMobTable();
 	sMOB_TBLDAT* mob = reinterpret_cast<sMOB_TBLDAT*>(pMyMobTable->FindData(uiMobId));
@@ -9024,42 +9031,19 @@ void  CClientSession::CreateMonsterById(unsigned int uiMobId, int playerId)
 		packet.SetPacketLen(sizeof(SpawnMOB));
 		g_pApp->Send(pSession->GetSession(), &packet);
 	}
+
 	else
-		cout << "No Mob Exists with that tblidx" << endl;
-	CNtlPacket packet(sizeof(SpawnMOB));
-	SpawnMOB * res = (SpawnMOB *)packet.GetPacketData();
-
-	res->wOpCode = GU_OBJECT_CREATE;
-	res->Type = OBJTYPE_MOB;
-	res->Handle = AcquireSerialId(); app->mob->AcquireMOBSerialId(); //this will get your Player Handle, need change "AcquireSerialId" because here is used to generate a Handler for the players!#Issue 6 Luiz45
-	res->Loc[0] = 4750 + rand() % 85 + 3;
-	res->Loc[1] = 0;
-	res->Loc[2] = 4200 + rand() % 85 + 3;
-	res->Dir[0] = 0;
-	res->Dir[1] = 0;
-	res->Dir[2] = 0;
-	res->StateID = CHARSTATE_SPAWNING;
-	//res->sObjectInfo.mobState.sCharStateBase.bFightMode = false;
-	res->Tblidx = uiMobId;
-	res->curEP = 0;
-	res->maxEP =0;
-	res->curLP = 0;
-	res->maxLP = 0;
-	res->Level = 50;
-	res->Size = 10;
-	//res->sObjectInfo.mobBrief.fLastRunningSpeed = mob->fRun_Speed;
-	//res->sObjectInfo.mobBrief.fLastWalkingSpeed = mob->fWalk_Speed;
-	pSession->myCCSession->InsertIntoMyMonsterList(res->Handle, curpos, uiMobId);
-
-	packet.SetPacketLen(sizeof(SpawnMOB));
-	g_pApp->Send(pSession->GetSession(), &packet);
+			cout << "Player already knows skill" << endl;
+	
 }
 
 
-void CClientSession::AddSkillById(uint32_t tblidx, int playerId)
+void CClientSession::AddSkillById(uint32_t tblidx)
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	PlayersMain* pSession = g_pPlayerManager->GetPlayerByID(playerId);
+	PlayersMain* pSession = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	int playerId = 0;
+	playerId = pSession->GetCharID();
 	CSkillTable* pSkillTable = app->g_pTableContainer->GetSkillTable();
 	int iSkillCount = pSession->myCCSession->gsf->GetTotalSlotSkill(playerId);//you are still using "this" but "this" is null this is why you get the error #Issue 6
 
@@ -9627,15 +9611,16 @@ void CClientSession::SendBudokaiState(CNtlPacket * pPacket, CGameServer * app)
 	packet.SetPacketLen(sizeof(sGU_BUDOKAI_STATE_INFO_NFY));
 	g_pApp->Send(this->GetHandle(), &packet);
 }
+//Update the Netplay poit need some logic for incressing evry 15 min
 void CClientSession::SendUpdateToken(CNtlPacket * pPacket, CGameServer * app)
 {
 	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_NETP));
 	sGU_UPDATE_CHAR_NETP* res = (sGU_UPDATE_CHAR_NETP*)packet.GetPacketData();
 
-	res->dwAccumulationNetP = 1;
-	res->dwBonusNetP = 1;
-	res->netP = 1;
-	res->timeNextGainTime = 1;
+	res->dwAccumulationNetP = 1;// poit Accumulation in corrent session
+	res->dwBonusNetP = 1;//point to incress on res->netP evry 15 min
+	res->netP = 1;//corrent poit
+	res->timeNextGainTime = 1;//Time for next gain
 	res->wOpCode = GU_UPDATE_CHAR_NETP;
 	res->wResultCode = GAME_SUCCESS;
 
