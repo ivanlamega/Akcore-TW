@@ -1647,13 +1647,25 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	flagManager.Set(CTableContainer::TABLE_PC);
 	flagManager.Set(CTableContainer::TABLE_NEWBIE);
 	flagManager.Set(CTableContainer::TABLE_SKILL);
-	flagManager.Set(CTableContainer::TABLE_NPC_SPAWN); //Have to have working world data first;
-	flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);//And for these to be any use. We have to load NPC_TABLE and MOB_TABLEs 
+	flagManager.Set(CTableContainer::TABLE_NPC_SPAWN); 
+	flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
 
+	/*Unmodified Tables that load properly*/
+	flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
+	flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
+	flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
+	flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
+	flagManager.Set(CTableContainer::TABLE_EACH_DROP);
+	flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
+	flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
+	flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
+	flagManager.Set(CTableContainer::TABLE_QUEST_PROBABILITY);
 
+	flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);
+	flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);
 
 	/*Tables in Progress*/
-	flagManager.Set(CTableContainer::TABLE_ITEM);	//Table loads. Data is incorrect after first 60 bytes			
+	flagManager.Set(CTableContainer::TABLE_ITEM);	
 	flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);
 	flagManager.Set(CTableContainer::TABLE_EXP);
 	flagManager.Set(CTableContainer::TABLE_PORTAL);	
@@ -1662,13 +1674,13 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	flagManager.Set(CTableContainer::TABLE_MOB);				
 	flagManager.Set(CTableContainer::TABLE_NPC);
 
+	   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
 
 	//flagManager.Set(CTableContainer::TABLE_MERCHANT);			
 
 
 	/*Unloadable Tables*/
 	//   	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
-	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
 	//   flagManager.Set(CTableContainer::TABLE_HTB_SET);			
 	//   flagManager.Set(CTableContainer::TABLE_SET_ITEM);			
 	//   flagManager.Set(CTableContainer::TABLE_CHARM);				
@@ -1683,15 +1695,11 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_HELP);				
 	//   flagManager.Set(CTableContainer::TABLE_GUIDE_HINT);			
 	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL);			
-	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);	
 	//   flagManager.Set(CTableContainer::TABLE_TIMEQUEST);			
 	//   flagManager.Set(CTableContainer::TABLE_BUDOKAI);			
 	//   flagManager.Set(CTableContainer::TABLE_RANKBATTLE);			
-	//   flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);		
 	//   flagManager.Set(CTableContainer::TABLE_CHATTING_FILTER);	
 	//   flagManager.Set(CTableContainer::TABLE_SPEECH);				
-	//   flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);		
-	//   flagManager.Set(CTableContainer::TABLE_QUEST_NARRATION);	
 	//   flagManager.Set(CTableContainer::TABLE_VEHICLE);			
 	//   flagManager.Set(CTableContainer::TABLE_DUNGEON);			
 	//   flagManager.Set(CTableContainer::TABLE_MOB_MOVE_PATTERN);	
@@ -1700,25 +1708,30 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_ITEM_UPGRADE);		
 	//   flagManager.Set(CTableContainer::TABLE_MIX_MACHINE);		
 	//   flagManager.Set(CTableContainer::TABLE_DOJO);				
-	//   flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
 	//   
 	//   flagManager.Set(CTableContainer::TABLE_FORMULA);
 	//   flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	//   flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_EACH_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
-	//   flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
+
 	//   
 
 	/*Loadable Tables*/
 	fileNameList.SetFileName(CTableContainer::TABLE_PC,						"Table_PC_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE,					"Table_Newbie_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
+
+	/*Unmodified Tables that load properly*/
+	fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_PROBABILITY, "Table_Quest_Probablity_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK, "Table_Script_Link_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK, "Table_Direction_Link_Data");
 
 	/*Tables in progress
 	* If tables are here they load but don't have correct structures. 
@@ -1733,6 +1746,9 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 
 	fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
+	
+	
+	fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
 
 
 	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
@@ -1755,14 +1771,11 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//fileNameList.SetFileName(CTableContainer::TABLE_LAND_MARK,				"Table_Landmark_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_HELP,					"Table_Help_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_GUIDE_HINT,				"Table_Guide_Hint_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL,				"Table_Dragon_Ball_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_TIMEQUEST,				"Table_TMQ_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_BUDOKAI,				"Table_Tenkaichibudokai_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_RANKBATTLE,				"Table_RankBattle_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK,			"Table_Direction_Link_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_CHATTING_FILTER,		"Table_Chatting_Filter_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_SPEECH,					"Table_NPC_Speech_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK,			"Table_Script_Link_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_NARRATION,		"Table_Quest_Narration_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_VEHICLE,				"Table_Vehicle_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_DUNGEON,				"Table_Dungeon_Data");
@@ -1776,23 +1789,12 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD_ZONE,				"Table_World_Zone_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_FORMULA,				"TD_Formula");
 	//fileNameList.SetFileName(CTableContainer::TABLE_GAME_MANIA_TIME,		"Table_GameManiaTime_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL, "Table_Dragon_Ball_Data");
+
+	
 
 
-	/*flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);*/
+
 
 	g_pTableContainer = new CTableContainer;
 	std::string str;

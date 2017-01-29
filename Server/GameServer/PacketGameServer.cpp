@@ -3637,7 +3637,7 @@ void CClientSession::SendAttackEnd(CNtlPacket * pPacket, CGameServer * app)
 void CClientSession::AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId)
 {
 	SBattleData *pBattleData = new SBattleData;
-	printf("AddAttackBegin SERIAL %i %i \n", uiSerialId, m_uiTargetSerialId);
+	printf_s("AddAttackBegin SERIAL %i %i \n", uiSerialId, m_uiTargetSerialId);
 
 	pBattleData->uiSerialId = uiSerialId;
 	pBattleData->m_uiTargetSerialId = m_uiTargetSerialId;
@@ -3650,16 +3650,16 @@ void CClientSession::AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSeri
 
 void CClientSession::RemoveAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId)
 {
-	//SBattleData *pBattleData;
-	//for (BATTLEIT it = m_listAttackBegin.begin(); it != m_listAttackBegin.end(); it++)
+	SBattleData *pBattleData;
+	for (BATTLEIT it = m_listAttackBegin.begin(); it != m_listAttackBegin.end(); it++)
 	{
-		//pBattleData = (*it);
-		//if (pBattleData->uiSerialId == uiSerialId)
-		//{
-			//RWS_DELETE(pBattleData);
-			//m_listAttackBegin.erase(it);
+		pBattleData = (*it);
+		if (pBattleData->uiSerialId == uiSerialId)
+		{
+			RWS_DELETE(pBattleData);
+			m_listAttackBegin.erase(it);
 			return;
-		//}
+		}
 	}
 }
 
@@ -3724,7 +3724,7 @@ void CClientSession::SendCharActionAttack(RwUInt32 uiSerialId, RwUInt32 m_uiTarg
 			else if (iRandValue >= 50) 
 			{
 				cout << "Critical "  << endl;
-				//res->wAttackResultValue = (plr->GetPcProfile()->avatarAttribute.wBasePhysicalOffence ) * 1.2;
+				res->wAttackResultValue = (plr->GetPcProfile()->avatarAttribute.wBasePhysicalOffence ) * 1.2;
 				res->byAttackResult = BATTLE_ATTACK_RESULT_CRITICAL_HIT;//aplica critical demage
 				bDamageApply = true;
 			}
@@ -4251,7 +4251,7 @@ void CGameServer::UpdateClient(CNtlPacket * pPacket, CClientSession * pSession)
 		pBattleData = (*it);
 		if (timeGetTime() - pBattleData->dwCurrTime >= MONSTER_ATTACK_UPDATE_TICK)
 		{
-			//app->pSession->SendCharActionAttack(pBattleData->uiSerialId, pBattleData->m_uiTargetSerialId, pPacket);
+			app->pSession->SendCharActionAttack(pBattleData->uiSerialId, pBattleData->m_uiTargetSerialId, pPacket);
 			pBattleData->dwCurrTime = timeGetTime();
 		}
 	}
