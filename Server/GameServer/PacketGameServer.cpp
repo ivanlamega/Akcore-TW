@@ -69,7 +69,7 @@ void CClientSession::SendGameEnterReq(CNtlPacket * pPacket, CGameServer * app)
 //--------------------------------------------------------------------------------------//
 void CClientSession::CheckPlayerStat(CGameServer * app, sPC_TBLDAT *pTblData, int level,RwUInt32 playerHandle)
 {
-	/*PlayersMain* plr = g_pPlayerManager->GetPlayer(playerHandle);
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(playerHandle);
 	app->db->prepare("UPDATE characters SET BaseStr = ?, BaseCon = ?, BaseFoc = ?, BaseDex = ?,BaseSol = ?, BaseEng = ? WHERE CharID = ?");
 	app->db->setInt(1, pTblData->byStr + (pTblData->fLevel_Up_Str * level));
 	app->db->setInt(2, pTblData->byCon + (pTblData->fLevel_Up_Con * level));
@@ -110,7 +110,7 @@ void CClientSession::CheckPlayerStat(CGameServer * app, sPC_TBLDAT *pTblData, in
 	app->db->setInt(9, plr->GetCharID());
 	app->db->execute();
 
-	plr->SetStats(pTblData);*/
+	plr->SetStats(pTblData);
 }
 void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 {
@@ -135,12 +135,12 @@ void CClientSession::SendAvatarCharInfo(CNtlPacket * pPacket, CGameServer * app)
 	//res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
 	//res->sCharState.sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
 	//res->sCharState.sCharStateBase.bFightMode = false;
-	res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
-	res->sPcProfile.avatarAttribute.wLastMaxAp = 450000;
-	res->sPcProfile.bIsGameMaster = true;
+	//res->sPcProfile.avatarAttribute.wBaseMaxAp = 450000;
+	//res->sPcProfile.avatarAttribute.wLastMaxAp = 450000;
+	//res->sPcProfile.bIsGameMaster = true;
 	//res->sPcProfile.bIsAdult = false;
 	//res->sPcProfile.byLevel = 1;
-	res->sPcProfile.dwCurAp = 450000;
+	//res->sPcProfile.dwCurAp = 100000;//app->db->getInt("CurAp");//New AP TW
 //	res->sPcProfile.dwCurExp = 0;
 	packet.SetPacketLen(sizeof(sGU_AVATAR_CHAR_INFO));
 	int rc = g_pApp->Send(this->GetHandle(), &packet);
@@ -2200,194 +2200,258 @@ void CClientSession::SendCharFalling(CNtlPacket * pPacket, CGameServer * app)
 //--------------------------------------------------------------------------------------//
 void CClientSession::RecvServerCommand(CNtlPacket * pPacket, CGameServer * app)
 {
-	sUG_SERVER_COMMAND * pServerCmd = (sUG_SERVER_COMMAND*)pPacket->GetPacketData();
-
-	char chBuffer[1024];
-	wcout << pServerCmd->awchCommand << endl;
-	cout << pServerCmd->awchCommand << endl;
-	::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL); 
-	wchar_t wstr[1024];
-	std::string str ="";
-
-	CNtlTokenizer lexer(chBuffer);
-
-	if (!lexer.IsSuccess())
-		return;
-
-	enum ECmdParseState
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle()); 
+	if (plr->GetPcProfile()->bIsGameMaster == true)
 	{
-		SERVER_CMD_NONE,
-		SERVER_CMD_KEY,
-		SERVER_CMD_END,
-	};
+		sUG_SERVER_COMMAND * pServerCmd = (sUG_SERVER_COMMAND*)pPacket->GetPacketData();
 
-	ECmdParseState eState = SERVER_CMD_KEY;
-	int iOldLine = 0;
-	int iLine;
+		char chBuffer[1024];
+		wcout << pServerCmd->awchCommand << endl;
+		cout << pServerCmd->awchCommand << endl;
+		::WideCharToMultiByte(GetACP(), 0, pServerCmd->awchCommand, -1, chBuffer, 1024, NULL, NULL);
+		wchar_t wstr[1024];
+		std::string str = "";
 
-	while (1)
-	{
-		std::string strToken = lexer.PeekNextToken(NULL, &iLine);
-		cout << strToken.c_str() << endl;
-		cout << strToken << endl;
-		if (strToken == "")
-			break;
+		CNtlTokenizer lexer(chBuffer);
 
-		switch (eState)
+		if (!lexer.IsSuccess())
+			return;
+
+		enum ECmdParseState
 		{
-		case SERVER_CMD_KEY:
-			if (strToken == "@setspeed")
-			{
-				printf("received char speed command");
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				float fSpeed = (float)atof(strToken.c_str());
-				CClientSession::SendUpdateCharSpeed(fSpeed, app);
-				return;
-			}
+			SERVER_CMD_NONE,
+			SERVER_CMD_KEY,
+			SERVER_CMD_END,
+		};
 
-			else if (strToken == "@checkspawn")
-			{
-				printf("Spawning Check\n");
-				PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+		ECmdParseState eState = SERVER_CMD_KEY;
+		int iOldLine = 0;
+		int iLine;
 
-				sVECTOR3 curpos = plr->GetPlayerPosition();
-				printf("CurPos x[%u] y[%u] z[%u]\n", curpos.x, curpos.y, curpos.z);
-				g_pMobManager->RunSpawnCheck(pPacket, curpos, plr->myCCSession);
-				return;
-			}
-			
-			else if (strToken == "@addmob")//fixed
+		while (1)
+		{
+			std::string strToken = lexer.PeekNextToken(NULL, &iLine);
+			cout << strToken.c_str() << endl;
+			cout << strToken << endl;
+			if (strToken == "")
+				break;
+
+			switch (eState)
 			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
-				lexer.PopToPeek();
-				printf("Executing Mob Func\n");
-				CClientSession::CreateMonsterById(uiMobId);
-				printf("Executed\n");
-				return;
-			}
-			else if (strToken == "@addnpc")//Fixed
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
-				lexer.PopToPeek();
-				printf("Executing NPC Func\n");
-				CClientSession::CreateNPCById(uiMobId);
-				printf("Executed\n");
-				return;
-			}
-			else if (strToken == "@createitem")
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
-				//SendAddItem(uiTblId);
-				return;
-			}
-			else if (strToken == "@learnskill")
-			{
+			case SERVER_CMD_KEY:
+				if (strToken == "@setspeed")
+				{
+					printf("received char speed command");
 					lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int tblidx = (unsigned int)atof(strToken.c_str());
-				AddSkillById(tblidx);
-				return;
-			}
-			else if (strToken == "@learnhtb")
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
-				//	SendCharLearnHTBRes(uiTblId);
-				return;
-			}
-			else if (strToken == "@refreshlp")
-			{
-				//	app->db->prepare("SELECT LastMaxLp FROM characters WHERE CharID = ?");
-				//	app->db->setInt(1, this->characterID);
-				//	app->db->execute();
-				//	app->db->fetch();
-				//	int max_lp = app->db->getInt("LastMaxLp");
-
-				return;
-			}
-			else if (strToken == "@setscale")
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				float fScale = (float)atof(strToken.c_str());
-				//	CNtlSob *pSobObj = GetNtlSobManager()->GetSobObject(m_uiTargetSerialId);
-				//	if(pSobObj)
-				//	{
-				//		CNtlSobProxy *pSobProxy = pSobObj->GetSobProxy();
-				//		pSobProxy->SetScale(fScale);
-				//	}
-
-				return;
-			}
-			else if (strToken == "@is")
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				//	CNtlBehaviorProjSteal::m_ffIncSpeed = (RwReal)atof(strToken.c_str());
-			}
-			else if (strToken == "@iw")
-			{
-				lexer.PopToPeek();
-				strToken = lexer.PeekNextToken(NULL, &iLine);
-				//	CNtlBehaviorProjSteal::m_fWaitCheckTime = (RwReal)atof(strToken.c_str());
-			}
-			else if (strToken == "@Cash")
-			{
-				//		SLLua_Setup();
-				CNtlPacket packet(sizeof(sGU_CASHITEM_HLSHOP_START_RES));
-				sGU_CASHITEM_HLSHOP_START_RES* res = (sGU_CASHITEM_HLSHOP_START_RES*)packet.GetPacketData();
-
-				res->dwRemainAmount = 999999;//cash point
-				res->wOpCode = GU_CASHITEM_HLSHOP_START_RES;
-				res->wResultCode = GAME_SUCCESS;
-				packet.SetPacketLen(sizeof(sGU_CASHITEM_HLSHOP_START_RES));
-				g_pApp->Send(this->GetHandle(), &packet);
-				return;
-			}
-			else if (strToken == "@announce")
-			{
-				const char* sMsg = NULL;
-				while (42)
-				{
 					strToken = lexer.PeekNextToken(NULL, &iLine);
-					str += strToken;
-					if (strToken == "")
-					{
-						break;
-					}
-						
+					float fSpeed = (float)atof(strToken.c_str());
+					CClientSession::SendUpdateCharSpeed(fSpeed, app);
+					return;
 				}
-				std::wstring widestr = std::wstring(str.begin(), str.end());
-				SendServerAnnouncement(widestr.c_str(), app);
-			}
-			else if (strToken == "@broadcast")
-			{
-				const char* sMsg = NULL;
-				while (42)
-				{
-					strToken = lexer.PeekNextToken(NULL, &iLine);
-					str += strToken;
-					if (strToken == "")
-					{
-						break;
-					}
 
+				else if (strToken == "@checkspawn")
+				{
+					printf("Spawning Check\n");
+					PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+
+					sVECTOR3 curpos = plr->GetPlayerPosition();
+					printf("CurPos x[%u] y[%u] z[%u]\n", curpos.x, curpos.y, curpos.z);
+					g_pMobManager->RunSpawnCheck(pPacket, curpos, plr->myCCSession);
+					return;
 				}
-				std::wstring widestr = std::wstring(str.begin(), str.end());
-				SendServerBroadcast(widestr.c_str(), app);
+
+				else if (strToken == "@addmob")//fixed
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
+					lexer.PopToPeek();
+					printf("Executing Mob Func\n");
+					CClientSession::CreateMonsterById(uiMobId);
+					printf("Executed\n");
+					return;
+				}
+				else if (strToken == "@addnpc")//Fixed
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int uiMobId = (unsigned int)atoi(strToken.c_str());
+					lexer.PopToPeek();
+					printf("Executing NPC Func\n");
+					CClientSession::CreateNPCById(uiMobId);
+					printf("Executed\n");
+					return;
+				}
+				else if (strToken == "@createitem")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
+					//SendAddItem(uiTblId);
+					return;
+				}
+				else if (strToken == "@learnskill")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int tblidx = (unsigned int)atof(strToken.c_str());
+					AddSkillById(tblidx);
+					return;
+				}
+				else if (strToken == "@learnhtb")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int uiTblId = (unsigned int)atof(strToken.c_str());
+					//	SendCharLearnHTBRes(uiTblId);
+					return;
+				}
+				else if (strToken == "@refreshlp")
+				{
+					//	app->db->prepare("SELECT LastMaxLp FROM characters WHERE CharID = ?");
+					//	app->db->setInt(1, this->characterID);
+					//	app->db->execute();
+					//	app->db->fetch();
+					//	int max_lp = app->db->getInt("LastMaxLp");
+
+					return;
+				}
+				else if (strToken == "@setscale")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					float fScale = (float)atof(strToken.c_str());
+					//	CNtlSob *pSobObj = GetNtlSobManager()->GetSobObject(m_uiTargetSerialId);
+					//	if(pSobObj)
+					//	{
+					//		CNtlSobProxy *pSobProxy = pSobObj->GetSobProxy();
+					//		pSobProxy->SetScale(fScale);
+					//	}
+
+					return;
+				}
+				else if (strToken == "@is")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					//	CNtlBehaviorProjSteal::m_ffIncSpeed = (RwReal)atof(strToken.c_str());
+				}
+				else if (strToken == "@iw")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					//	CNtlBehaviorProjSteal::m_fWaitCheckTime = (RwReal)atof(strToken.c_str());
+				}
+				else if (strToken == "@heal")
+				{
+					CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_EP));
+					sGU_UPDATE_CHAR_LP_EP* res = (sGU_UPDATE_CHAR_LP_EP*)packet.GetPacketData();
+					PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+					res->handle = this->GetavatarHandle();
+					res->dwLpEpEventId = 0;
+					res->wCurEP = 6780;
+					res->wCurLP = 8750;
+					res->wMaxEP = 6785;
+					res->wMaxLP = 8754;
+					res->wOpCode = GU_UPDATE_CHAR_LP_EP;
+
+					packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_EP));
+					g_pApp->Send(this->GetHandle(), &packet);
+					app->UserBroadcastothers(&packet, this);
+					return;
+				}
+				else if (strToken == "@setlevel")
+				{
+					lexer.PopToPeek();
+					strToken = lexer.PeekNextToken(NULL, &iLine);
+					unsigned int level = (unsigned int)atof(strToken.c_str());
+
+					PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+					CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_SP));
+					sGU_UPDATE_CHAR_SP * res2 = (sGU_UPDATE_CHAR_SP *)packet2.GetPacketData();
+
+					plr->GetPcProfile()->dwCurExp -= plr->GetPcProfile()->dwMaxExpInThisLevel;
+					plr->GetPcProfile()->dwMaxExpInThisLevel += (plr->GetPcProfile()->dwMaxExpInThisLevel * 1);
+
+					CNtlPacket packet1(sizeof(sGU_UPDATE_CHAR_LEVEL));
+					sGU_UPDATE_CHAR_LEVEL * response1 = (sGU_UPDATE_CHAR_LEVEL*)packet1.GetPacketData();
+					response1->byPrevLevel = plr->GetPcProfile()->byLevel;
+					plr->GetPcProfile()->byLevel = level;
+					response1->byCurLevel = plr->GetPcProfile()->byLevel;
+					response1->dwMaxExpInThisLevel = plr->GetPcProfile()->dwMaxExpInThisLevel;
+					response1->handle = plr->GetAvatarHandle();
+					response1->wOpCode = GU_UPDATE_CHAR_LEVEL;
+
+					packet1.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LEVEL));
+					g_pApp->Send(this->GetHandle(), &packet1);
+
+					plr->SetLevelUP();
+					//plr->cPlayerAttribute->UpdateAvatarAttributes(plr->GetAvatarHandle());
+					plr->GetPcProfile()->dwSpPoint = level;
+					app->qry->UpdateSPPoint(plr->GetCharID(), plr->GetPcProfile()->dwSpPoint);
+					app->qry->UpdatePlayerLevel(plr->GetPcProfile()->byLevel, plr->GetCharID(), plr->GetPcProfile()->dwCurExp, plr->GetPcProfile()->dwMaxExpInThisLevel);
+					//response->dwCurExp = plr->GetPcProfile()->dwCurExp;
+					plr->SetRPBall();
+					//plr->SendRpBallInformation();
+					res2->wOpCode = GU_UPDATE_CHAR_SP;
+					res2->dwSpPoint = plr->GetPcProfile()->dwSpPoint;
+
+					packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_SP));
+					g_pApp->Send(this->GetHandle(), &packet2);
+
+					CNtlPacket packet4(sizeof(sGU_UPDATE_CHAR_STATE));
+					sGU_UPDATE_CHAR_STATE* res4 = (sGU_UPDATE_CHAR_STATE*)packet4.GetPacketData();
+
+					res4->handle = this->GetavatarHandle();
+					res4->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
+					res4->wOpCode = GU_UPDATE_CHAR_STATE;
+
+					packet4.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+					g_pApp->Send(this->GetHandle(), &packet4);
+					app->UserBroadcastothers(&packet1, this);
+					return;
+				}
+				else if (strToken == "@announce")
+				{
+					const char* sMsg = NULL;
+					while (42)
+					{
+						strToken = lexer.PeekNextToken(NULL, &iLine);
+						str += strToken;
+						if (strToken == "")
+						{
+							break;
+						}
+
+					}
+					std::wstring widestr = std::wstring(str.begin(), str.end());
+					SendServerAnnouncement(widestr.c_str(), app);
+				}
+				else if (strToken == "@notice")
+				{
+					const char* sMsg = NULL;
+					while (42)
+					{
+						strToken = lexer.PeekNextToken(NULL, &iLine);
+						str += strToken;
+						if (strToken == "")
+						{
+							break;
+						}
+
+					}
+					std::wstring widestr = std::wstring(str.begin(), str.end());
+					SendServerBroadcast(widestr.c_str(), app);
+				}
+				break;
 			}
-			break;
+
+			lexer.PopToPeek();
 		}
-
-		lexer.PopToPeek();
+	}
+	else
+	{
+		printf("NOT HAVE GM ACCESS");
 	}
 }
 //--------------------------------------------------------------------------------------//
@@ -2456,7 +2520,7 @@ void CClientSession::SendGameLeaveReq(CNtlPacket * pPacket, CGameServer * app)
 
 	sPacket->wOpCode = GU_OBJECT_DESTROY;
 	sPacket->handle = this->GetavatarHandle();
-	g_pPlayerManager->RemovePlayer(this->GetavatarHandle());
+	
 	packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
 	app->UserBroadcastothers(&packet, this);
 	plr->SavePlayerData(app);
@@ -6171,7 +6235,7 @@ void	CClientSession::SendDragonBallRewardReq(CNtlPacket * pPacket, CGameServer *
 
 	CNtlPacket packet3(sizeof(sGU_AVATAR_ZONE_INFO));
 	sGU_AVATAR_ZONE_INFO * zone = (sGU_AVATAR_ZONE_INFO *)packet3.GetPacketData();
-
+	
 	switch (pDBtData->byRewardType)
 	{
 	case DRAGONBALL_REWARD_TYPE_SKILL:{
@@ -6409,6 +6473,7 @@ void CClientSession::SendBankStartReq(CNtlPacket * pPacket, CGameServer * app)
 
 	packet.SetPacketLen(sizeof(sGU_BANK_START_RES));
 	g_pApp->Send(this->GetHandle(), &packet);
+	
 }
 //--------------------------------------------------------------------------------------//
 //		BANK END
@@ -6431,15 +6496,7 @@ void CClientSession::SendBankEndReq(CNtlPacket * pPacket, CGameServer * app)
 void CClientSession::SendBankLoadReq(CNtlPacket * pPacket, CGameServer * app)
 {
 	printf("LOAD BANK \n");
-	sUG_BANK_LOAD_REQ * req = (sUG_BANK_LOAD_REQ*)pPacket->GetPacketData();
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-
-	CNtlPacket packet(sizeof(sGU_BANK_LOAD_RES));
-	sGU_BANK_LOAD_RES * res = (sGU_BANK_LOAD_RES *)packet.GetPacketData();
-
-	res->wOpCode = GU_BANK_LOAD_RES;
-	res->wResultCode = GAME_SUCCESS;
-	res->handle = req->handle;
 
 	CNtlPacket packet2(sizeof(sGU_BANK_ITEM_INFO));
 	sGU_BANK_ITEM_INFO * res2 = (sGU_BANK_ITEM_INFO *)packet2.GetPacketData();
@@ -6474,9 +6531,6 @@ void CClientSession::SendBankLoadReq(CNtlPacket * pPacket, CGameServer * app)
 	packet3.SetPacketLen(sizeof(sGU_BANK_ZENNY_INFO));
 	g_pApp->Send(this->GetHandle(), &packet3);
 
-
-	packet.SetPacketLen(sizeof(sGU_BANK_LOAD_RES));
-	g_pApp->Send(this->GetHandle(), &packet);
 }
 //--------------------------------------------------------------------------------------//
 //		BANK BUY
@@ -8913,6 +8967,7 @@ void CClientSession::SendServerAnnouncement(wstring wsMsg, CGameServer * app)
 //---------------------------------------------
 void CClientSession::SendServerBroadcast(wstring wsMsg, CGameServer * app)
 {
+
 	CNtlPacket packet(sizeof(sGU_SYSTEM_DISPLAY_TEXT));
 	sGU_SYSTEM_DISPLAY_TEXT* sNotice = (sGU_SYSTEM_DISPLAY_TEXT*)packet.GetPacketData();
 
@@ -8929,6 +8984,7 @@ void CClientSession::SendServerBroadcast(wstring wsMsg, CGameServer * app)
 	sNotice->wMessageLengthInUnicode = (WORD)wcslen(wcsMsg);
 	packet.SetPacketLen(sizeof(sGU_SYSTEM_DISPLAY_TEXT));
 	app->UserBroadcast(&packet);
+
 }
 void CClientSession::CreateItemById(uint32_t tblidx, int playerId)
 {
@@ -8964,12 +9020,12 @@ void  CClientSession::CreateNPCById(unsigned int uiNpcId)
 		res->wOpCode = GU_OBJECT_CREATE;
 		res->Type = OBJTYPE_NPC;
 		res->Handle = AcquireSerialId(); //app->mob->AcquireMOBSerialId(); //this will get your Player Handle, need change "AcquireSerialId" because here is used to generate a Handler for the players!#Issue 6 Luiz45
-		res->Loc[0] = 4780 + rand() % 85 + 3;
-		res->Loc[1] = 0;
-		res->Loc[2] = 4100 + rand() % 85 + 3;
-		res->Dir[0] = 0;
-		res->Dir[1] = 0;
-		res->Dir[2] = 0;
+		res->Loc[0] = curpos.x;
+		res->Loc[1] = curpos.y;
+		res->Loc[2] = curpos.z;
+		res->Dir[0] = curpos.x;
+		res->Dir[1] = curpos.y;
+		res->Dir[2] = curpos.z;
 		res->StateID = CHARSTATE_SPAWNING;
 		//res->sObjectInfo.mobState.sCharStateBase.bFightMode = false;
 		res->Tblidx = uiNpcId;
@@ -8985,6 +9041,7 @@ void  CClientSession::CreateNPCById(unsigned int uiNpcId)
 
 		packet.SetPacketLen(sizeof(SpawnNPC));
 		g_pApp->Send(pSession->GetSession(), &packet);
+		app->UserBroadcastothers(&packet, this);
 	}
 	else
 
@@ -9009,12 +9066,12 @@ void  CClientSession::CreateMonsterById(unsigned int uiMobId)
 		res->wOpCode = GU_OBJECT_CREATE;
 		res->Type = OBJTYPE_MOB;
 		res->Handle = AcquireSerialId(); app->mob->AcquireMOBSerialId(); //this will get your Player Handle, need change "AcquireSerialId" because here is used to generate a Handler for the players!#Issue 6 Luiz45
-		res->Loc[0] = 4700 + rand() % 85+3;
-		res->Loc[1] = 0 ;
-		res->Loc[2] = 4100 + rand() % 85+3;
-		res->Dir[0] = 0;
-		res->Dir[1] = 0;
-		res->Dir[2] = 0;
+		res->Loc[0] = curpos.x;
+		res->Loc[1] = curpos.y;
+		res->Loc[2] = curpos.z; 
+		res->Dir[0] = curpos.x;
+		res->Dir[1] = curpos.y;
+		res->Dir[2] = curpos.z;
 		res->StateID = CHARSTATE_SPAWNING;
 		//res->sObjectInfo.mobState.sCharStateBase.bFightMode = false;
 		res->Tblidx = uiMobId;
@@ -9030,10 +9087,11 @@ void  CClientSession::CreateMonsterById(unsigned int uiMobId)
 
 		packet.SetPacketLen(sizeof(SpawnMOB));
 		g_pApp->Send(pSession->GetSession(), &packet);
+		app->UserBroadcastothers(&packet, this);
 	}
 
 	else
-			cout << "Player already knows skill" << endl;
+			cout << "Mob not Found\n" << endl;
 	
 }
 
@@ -9484,8 +9542,11 @@ void	CClientSession::SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync
 //Air Jump - Luiz45
 void CClientSession::SendAirJump(CNtlPacket* pPacket, CGameServer* app)
 {
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
 	sUG_CHAR_AIR_JUMP* req = (sUG_CHAR_AIR_JUMP*)pPacket->GetPacketData();
 	UpdateCharState(this->GetHandle(), CHARSTATE_AIR_JUMP);
+	
+	
 
 }
 //Air Dash - Luiz45
@@ -9564,14 +9625,104 @@ void CClientSession::SendCashItemHlsEnd(CNtlPacket * pPacket, CGameServer * app)
 }
 void CClientSession::SendCashItemBuy(CNtlPacket * pPacket, CGameServer * app)
 {
-	CNtlPacket packet(sizeof(sGU_CASHITEM_BUY_RES));
-	sGU_CASHITEM_BUY_RES* res = (sGU_CASHITEM_BUY_RES*)packet.GetPacketData();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
+	
+	/*printf("Each rate control %d\n", mob->byDropEachRateControl);
+	printf("Drop Eeach Item %d\n", mob->byDropEItemRateControl);
+	printf("Drop Legendary Item %d\n", mob->byDropLItemRateControl);
+	printf("Drop Normal Item %d\n", mob->byDropNItemRateControl);
+	printf("Drop Superior Item %d\n", mob->byDropSItemRateControl);
+	printf("Drop Type %d\n", mob->byDropTypeRateControl);
+	printf("Drop each tblidx %d\n", mob->dropEachTblidx);
+	printf("Drop Quest tblidx %d\n", mob->dropQuestTblidx);
+	printf("Drop Type TBLIDX %d\n", mob->dropTypeTblidx);
+	printf("Drop Item TBLIDX %d\n", mob->drop_Item_Tblidx);*/
+	CBasicDropTable *bDrop = app->g_pTableContainer->GetBasicDropTable();
+	CEachDropTable * edrop = app->g_pTableContainer->GetEachDropTable();
+	CNormalDropTable * ndrop = app->g_pTableContainer->GetNormalDropTable();
+	CSuperiorDropTable * sdrop = app->g_pTableContainer->GetSuperiorDropTable();
+	CLegendaryDropTable * ldrop = app->g_pTableContainer->GetLegendaryDropTable();
+	CExcellentDropTable * exdrop = app->g_pTableContainer->GetExcellentDropTable();
+	CItemTable * iTable = app->g_pTableContainer->GetItemTable();
+	CTypeDropTable * tdrop = app->g_pTableContainer->GetTypeDropTable();
+	//sVECTOR3 playerPos = plr->GetPlayerPosition();	
+	//Drop Each Table
+	int mobid = 0;
+	sMOB_TBLDAT* mob = (sMOB_TBLDAT*)app->g_pTableContainer->GetMobTable()->FindData(mobid);
 
-	res->wOpCode = GU_CASHITEM_BUY_RES;
-	res->wResultCode = GAME_SUCCESS;
+//		sEACH_DROP_TBLDAT* eDropDat = (sEACH_DROP_TBLDAT*)(edrop->FindData(mob->dropEachTblidx));	
+		
+	//Main Drop Tables
+	
+		sBASIC_DROP_TBLDAT* DropDat = (sBASIC_DROP_TBLDAT*)(bDrop->FindData(mob->drop_Item_Tblidx));	
 
-	packet.SetPacketLen(sizeof(sGU_CASHITEM_BUY_RES));
-	g_pApp->Send(this->GetHandle(), &packet);
+		for (int i = 0; i < NTL_MAX_DROP_TABLE_SELECT; i++)
+		{
+		//	sNORMAL_DROP_TBLDAT* nDropDat = (sNORMAL_DROP_TBLDAT*)(ndrop->FindData(DropDat->aNoramalDropTblidx[i]));
+
+
+			//sSUPERIOR_DROP_TBLDAT* sDropDat = (sSUPERIOR_DROP_TBLDAT*)(sdrop->FindData(DropDat->aSuperiorDropTblidx[i]));
+
+
+			//sEXCELLENT_DROP_TBLDAT* sDropDat = (sEXCELLENT_DROP_TBLDAT*)(sdrop->FindData(DropDat->aExcellentDropTblidx[i]));
+
+			sLEGENDARY_DROP_TBLDAT* sDropDat = (sLEGENDARY_DROP_TBLDAT*)(sdrop->FindData(DropDat->aLegendaryDropTblidx[i]));
+			
+
+			CNtlPacket packet(sizeof(Drop));
+			Drop * res = (Drop *)packet.GetPacketData();
+
+
+			printf("item drop \n");
+			//Randomizing numbers for  see if the player get a Fucking item 
+			std::random_device rd4;
+			std::mt19937_64 mt4(rd4());
+			std::uniform_int_distribution<int> distribution4(10, 15);
+			//sITEM_TBLDAT* pLegendary = (sITEM_TBLDAT*)app->g_pTableContainer->GetItemTable()->FindData(sDropDat->aItem_Tblidx[z]);
+			res->Handle = AcquireItemSerialId() + 1;
+			res->Type = OBJTYPE_DROPITEM;
+			res->Tblidx = DropDat->aLegendaryDropTblidx[i];
+			res->Grade = 0;
+			res->Rank = ITEM_RANK_LEGENDARY;
+			res->IsNew = false;
+			//res->bNeedToIdentify = false;
+			res->Loc[0] = plr->GetPlayerPosition().x;
+			res->Loc[1] = plr->GetPlayerPosition().y;
+			res->Loc[2] = plr->GetPlayerPosition().z;
+			//res->Size = 5;
+			res->wOpCode = GU_OBJECT_CREATE;
+			printf("Item Created %d \n Local X %d \n Local Y %d \n Local Z %d \n", res->Tblidx, res->Loc[0], res->Tblidx, res->Loc[1], res->Tblidx, res->Loc[2]);
+
+			//		app->AddNewItemDrop(res2->handle, sDropDat->aItem_Tblidx[z], res2->sObjectInfo.itemBrief.byGrade, res2->sObjectInfo.itemBrief.byRank);
+			if (res->Tblidx == 11170058)
+			{
+				printf("item Error \n");
+				res->Handle = AcquireItemSerialId() + 1;
+				res->Type = OBJTYPE_DROPITEM;
+				res->Tblidx = 11170019;
+				res->Grade = 0;
+				res->Rank = ITEM_RANK_LEGENDARY;
+				res->IsNew = false;
+				//res->bNeedToIdentify = false;
+				res->Loc[0] = plr->GetPlayerPosition().x;
+				res->Loc[1] = plr->GetPlayerPosition().y;
+				res->Loc[2] = plr->GetPlayerPosition().z;
+
+				res->wOpCode = GU_OBJECT_CREATE;
+			}
+
+
+
+
+
+			packet.SetPacketLen(sizeof(Drop));
+			g_pApp->Send(this->GetHandle(), &packet);
+			app->UserBroadcastothers(&packet, this);
+		}
+
+				
+			
+		
 
 	
 }
@@ -9585,8 +9736,8 @@ void CClientSession::SendDragonballsEvent(CNtlPacket * pPacket, CGameServer * ap
 	res->byTermType = 5;
 	res->dwMainTerm = 4;
 	res->dwSubTerm = 3;
-	res->nEndTime = 6;
-	res->nStartTime = 1;
+	res->nEndTime = HOUR;
+	res->nStartTime = HOUR;
 	res->wOpCode = GU_DRAGONBALL_SCHEDULE_INFO;
 	
 
@@ -9616,11 +9767,11 @@ void CClientSession::SendUpdateToken(CNtlPacket * pPacket, CGameServer * app)
 {
 	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_NETP));
 	sGU_UPDATE_CHAR_NETP* res = (sGU_UPDATE_CHAR_NETP*)packet.GetPacketData();
-
+	int time = 20;
 	res->dwAccumulationNetP = 1;// poit Accumulation in corrent session
 	res->dwBonusNetP = 1;//point to incress on res->netP evry 15 min
 	res->netP = 1;//corrent poit
-	res->timeNextGainTime = 1;//Time for next gain
+	res->timeNextGainTime = time;//Time for next gain
 	res->wOpCode = GU_UPDATE_CHAR_NETP;
 	res->wResultCode = GAME_SUCCESS;
 
@@ -9631,70 +9782,29 @@ void CClientSession::SendUpdateToken(CNtlPacket * pPacket, CGameServer * app)
 void CClientSession::SenGiftShop(CNtlPacket * pPacket, CGameServer * app)
 {
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-	//plr->SetPlayerFight(false);
-	CNtlPacket packet3(sizeof(SpawnMOB));
-	SpawnMOB * res3 = (SpawnMOB *)packet3.GetPacketData();
-	CGameServer::ITEMDROPEDFROMMOB* itemDropped = app->FindItemPickup(res3->Handle);
-	res3->wOpCode = GU_OBJECT_CREATE;
-	res3->Type = OBJTYPE_MOB;
-	res3->Handle = 10;//AcquireSerialId();//app->mob->AcquireMOBSerialId() this will get your Player Handle,need change "AcquireSerialId" because here is used to generate a Handler for the players! #Issue 6 Luiz45
-	res3->Tblidx = 11111101;
-	res3->Loc[0] = 4745.970215;// curpos.x;
-	res3->Loc[1] = -61.810001; //curpos.y;
-	res3->Loc[2] = 4070.149902;// curpos.z;
-	res3->Dir[0] = 0.000000;
-	res3->Dir[1] = -0.0;
-	res3->Dir[2] = 1.000000;
-	res3->Size = 10;
-	res3->curEP = 0;
-	res3->maxEP = 0;
-	res3->curLP = 0;
-	res3->maxLP = 0;
-	res3->Level = 70;
-	res3->StateID = CHARSTATE_FAINTING;
-
-	//CNtlPacket packet1(sizeof(sGU_SHOP_NETPYITEM_START_RES));
-	//sGU_SHOP_NETPYITEM_START_RES* res1 = (sGU_SHOP_NETPYITEM_START_RES*)packet1.GetPacketData();
-
-	//res1->byType = 0;
-	//res1->wOpCode = GU_SHOP_NETPYITEM_START_RES;
-	//res1->wResultCode = GAME_SUCCESS;
-	//packet1.SetPacketLen(sizeof(sGU_SHOP_NETPYITEM_START_RES));
-	//g_pApp->Send(this->GetHandle(), &packet1);
-
 
 	CNtlPacket packet(sizeof(Drop));
 	Drop * res = (Drop *)packet.GetPacketData();
 
-	//Legendary Drops
-	//if (DropDat->aLegendaryDropTblidx[i] != INVALID_TBLIDX  && (random <= DropDat->afLegendaryTblidxRate[i]))
-	{
-		//sLEGENDARY_DROP_TBLDAT* sDropDat = (sLEGENDARY_DROP_TBLDAT*)(sdrop->FindData(DropDat->aLegendaryDropTblidx[i]));
-		//	cout << "lDropDat tblidx = " << sDropDat->aItem_Tblidx[i] << endl;
-		//for (int z = 0; z < NTL_MAX_LEGENDARY_DROP; z++)
-		{
-			//if (sDropDat->aItem_Tblidx[z] != INVALID_TBLIDX && sDropDat->aItem_Tblidx[z] < 200000 && (random <= sDropDat->afDrop_Rate[i]))
-			{
-				printf("item drop \n");
-				//Randomizing numbers for  see if the player get a Fucking item
-				std::random_device rd4;
-				std::mt19937_64 mt4(rd4());
-				std::uniform_int_distribution<int> distribution4(10, 15);
-				//sITEM_TBLDAT* pLegendary = (sITEM_TBLDAT*)app->g_pTableContainer->GetItemTable()->FindData(sDropDat->aItem_Tblidx[z]);
-				res->Handle = AcquireItemSerialId() + 1;
-				res->Type = OBJTYPE_DROPITEM;
-				res->Tblidx = 11170019 + rand() % 261 + 1;
-				res->Grade = 0;
-				res->Rank = ITEM_RANK_LEGENDARY;
-				res->IsNew = false;
-				//res->bNeedToIdentify = false;
-				res->Loc[0] = 4745 + rand() % 5 + 1;
-				res->Loc[1] = 0;
-				res->Loc[2] = 4070 + rand() % 5 + 1;
 
-				//res->Size = 5;
-
-				res->wOpCode = GU_OBJECT_CREATE;
+		printf("item drop \n");
+		//Randomizing numbers for  see if the player get a Fucking item 
+		std::random_device rd4;
+		std::mt19937_64 mt4(rd4());
+		std::uniform_int_distribution<int> distribution4(10, 15);
+		//sITEM_TBLDAT* pLegendary = (sITEM_TBLDAT*)app->g_pTableContainer->GetItemTable()->FindData(sDropDat->aItem_Tblidx[z]);
+		res->Handle = AcquireItemSerialId() + 1;
+		res->Type = OBJTYPE_DROPITEM;
+		res->Tblidx = 11170019 + rand() % 261 + 1;
+		res->Grade = 0;
+		res->Rank = ITEM_RANK_LEGENDARY;
+		res->IsNew = false;
+		//res->bNeedToIdentify = false;
+		res->Loc[0] = plr->GetPlayerPosition().x;
+		res->Loc[1] = plr->GetPlayerPosition().y;
+		res->Loc[2] = plr->GetPlayerPosition().z;
+		//res->Size = 5;
+		res->wOpCode = GU_OBJECT_CREATE;
 				printf("Item Created %d \n Local X %d \n Local Y %d \n Local Z %d \n", res->Tblidx, res->Loc[0], res->Tblidx, res->Loc[1], res->Tblidx, res->Loc[2]);
 
 				//		app->AddNewItemDrop(res2->handle, sDropDat->aItem_Tblidx[z], res2->sObjectInfo.itemBrief.byGrade, res2->sObjectInfo.itemBrief.byRank);
@@ -9708,21 +9818,20 @@ void CClientSession::SenGiftShop(CNtlPacket * pPacket, CGameServer * app)
 					res->Rank = ITEM_RANK_LEGENDARY;
 					res->IsNew = false;
 					//res->bNeedToIdentify = false;
-					res->Loc[0] = 4718 + rand() % 50;
-					res->Loc[1] = 0;
-					res->Loc[2] = 4068 + rand() % 50;
-					res->Dir[0] = 0 + rand() % 50;
-					res->Dir[1] = 0;
-					res->Dir[2] = 0 + rand() % 50;
+					res->Loc[0] = plr->GetPlayerPosition().x;
+					res->Loc[1] = plr->GetPlayerPosition().y;
+					res->Loc[2] = plr->GetPlayerPosition().z;
+					
 					res->wOpCode = GU_OBJECT_CREATE;
 				}
 
 
-			}
-		}
-	}
+			
+		
+	
 	packet.SetPacketLen(sizeof(Drop));
 	g_pApp->Send(this->GetHandle(), &packet);
+	app->UserBroadcastothers(&packet, this);
 }
 
 //Helper Functions

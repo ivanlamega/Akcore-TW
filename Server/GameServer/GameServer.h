@@ -784,7 +784,6 @@ public:
 				dwTickOld = dwTickCur;
 			}
 			this->Wait(1);
-		//Sleep(100);
 		}
 	}
 

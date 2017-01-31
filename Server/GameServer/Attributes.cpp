@@ -48,10 +48,10 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.byBaseEng = 0;// db->getInt("BaseEng") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastEng = 7 * 1 + db->getInt("Level")*0.4;	
 	//EP/LP
-	this->sPlayerAttribute.wBaseMaxLP = 725 * db->getInt("Level")*0.5;
-	this->sPlayerAttribute.wLastMaxLP = 725 + this->sPlayerAttribute.byLastCon * db->getInt("Level") *3.1;
-	this->sPlayerAttribute.wBaseMaxEP = 415 * db->getInt("Level")*0.2;
-	this->sPlayerAttribute.wLastMaxEP = 415 + this->sPlayerAttribute.byLastEng * db->getInt("Level") *2.6;
+	this->sPlayerAttribute.wBaseMaxLP = 9000;
+	this->sPlayerAttribute.wLastMaxLP = 9000;
+	this->sPlayerAttribute.wBaseMaxEP = 9000;
+	this->sPlayerAttribute.wLastMaxEP = 9000;
 	//Physical Atack
 	this->sPlayerAttribute.wBasePhysicalOffence = 0;// db->getInt("BasePhysicalOffence") * db->getInt("Level")*1.5;
 	this->sPlayerAttribute.wLastPhysicalOffence = 28 + this->sPlayerAttribute.byLastStr * db->getInt("Level")*0.10;
@@ -96,8 +96,8 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.unknown_int16[2] = 0;
 	this->sPlayerAttribute.unknown_int16[3] = 0;
 	//LP Get up Reg
-	this->sPlayerAttribute.wBaseLpRegen = 4;
-	this->sPlayerAttribute.wLastLpRegen = 5;
+	this->sPlayerAttribute.wBaseLpRegen = 1;
+	this->sPlayerAttribute.wLastLpRegen = 1;
 	//LP Sit Down Reg
 	this->sPlayerAttribute.wBaseLpSitdownRegen = 6;
 	this->sPlayerAttribute.wLastLpSitdownRegen = 7;
@@ -105,8 +105,8 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.wBaseLpBattleRegen = 8;
 	this->sPlayerAttribute.wLastLpBattleRegen = 9;
 	//EP Get UP Reg
-	this->sPlayerAttribute.wBaseEpRegen = 10;
-	this->sPlayerAttribute.wLastEpRegen = 11;
+	this->sPlayerAttribute.wBaseEpRegen = 100;
+	this->sPlayerAttribute.wLastEpRegen = 100;
 	//EP Sit Down Reg
 	this->sPlayerAttribute.wBaseEpSitdownRegen = 12;
 	this->sPlayerAttribute.wLastEpSitdownRegen = 13;
@@ -162,10 +162,10 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.fCurseBlockModeSuccessRate = 0;
 	this->sPlayerAttribute.fKnockdownBlockModeSuccessRate = 0;
 
-	this->sPlayerAttribute.fHtbBlockModeSuccessRate = 0; //defesa Bleeding
-	this->sPlayerAttribute.fSitDownLpRegenBonusRate = 0; // defesa veneno
-	this->sPlayerAttribute.fSitDownEpRegenBonusRate = 0; // defesa sangramento
-	this->sPlayerAttribute.fPhysicalCriticalDamageBonusRate = 0;//Defesa Queimadura
+	this->sPlayerAttribute.fHtbBlockModeSuccessRate = 0; // Bleeding defense TW
+	this->sPlayerAttribute.fSitDownLpRegenBonusRate = 0; // posion defense tw
+	this->sPlayerAttribute.fSitDownEpRegenBonusRate = 0; // abdominal pain defense
+	this->sPlayerAttribute.fPhysicalCriticalDamageBonusRate = 0;//Burn Defense
 
 	this->sPlayerAttribute.fEnergyCriticalDamageBonusRate = 1;
 	this->sPlayerAttribute.fItemUpgradeBonusRate = 2;
@@ -176,14 +176,14 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.fLastAirDashSpeed = 20.0f;//Dash Fly TW
 	this->sPlayerAttribute.fBaseRunSpeed = 30;//Base Run TW
 	this->sPlayerAttribute.fLastAirSpeed = 15;//LastAir Speed TW
-	this->sPlayerAttribute.wLastMaxAp = 4500;// db->getInt("LastMaxAp");//Max AP
-	this->sPlayerAttribute.wBaseMaxAp = 4500;//db->getInt("BaseMaxAp");//Base Max Ap
-	this->sPlayerAttribute.wBaseApBattleRegen = 5;//Regen In Battle AP TW
-	this->sPlayerAttribute.wLastApBattleRegen = 5;//LAst Regen in Battle Ap TW
-	this->sPlayerAttribute.wBaseApRegen = 5;//Base Ap Regen TW
-	this->sPlayerAttribute.wLastApRegen = 5;//Base While Sitting Regen AP TW
-	this->sPlayerAttribute.wBaseApSitdownRegen = 5;//AP Regen TW
-	this->sPlayerAttribute.wLastApSitdownRegen = 5;//AP Regen TW
+	this->sPlayerAttribute.wLastMaxAp = 450000;// db->getInt("LastMaxAp");//Max AP
+	this->sPlayerAttribute.wBaseMaxAp = 450000;// db->getInt("BaseMaxAp");//Base Max Ap
+	this->sPlayerAttribute.wBaseApBattleRegen = 5000;//Regen In Battle AP TW
+	this->sPlayerAttribute.wLastApBattleRegen = 5000;//LAst Regen in Battle Ap TW
+	this->sPlayerAttribute.wBaseApRegen = 5000;//Base Ap Regen TW
+	this->sPlayerAttribute.wLastApRegen = 5000;//Base While Sitting Regen AP TW
+	this->sPlayerAttribute.wBaseApSitdownRegen = 5000;//AP Regen TW
+	this->sPlayerAttribute.wLastApSitdownRegen = 5000;//AP Regen TW
 
 	
 }

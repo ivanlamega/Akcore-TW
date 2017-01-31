@@ -4029,29 +4029,37 @@ END_PROTOCOL()
 
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_SERVER_CONTENTS_ONOFF)
-	BYTE      abyContentsBitFlag[7];
-	BYTE      abyQuestOnOffBitFlag[3];
-	BYTE      byNotSpawnNpcCount;
-	TBLIDX    atblNotSpawnNpcIndex[15];
-	BYTE      byNotLoadingHelpCount;
-	TBLIDX    atblNotLoadingHelpIndex[12];
-	DWORD     dwCCBDUse;
+	BYTE		abyContentsBitFlag[7];
+	BYTE		abyQuestOnOffBitFlag[3];
+	BYTE		byNotSpawnNpcCount;
+	TBLIDX		atblNotSpawnNpcIndex[15];
+	BYTE		byNotLoadingHelpCount;
+	TBLIDX		atblNotLoadingHelpIndex[12];
+	DWORD		dwCCBDUse;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_GIFT_SHOP_START_REQ)
-WORD				wResultCode;
-DWORD				dwRemainAmount;
+WORD			wResultCode;
+DWORD			dwRemainAmount;
 END_PROTOCOL()
 
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_SCOUTER_ACTIVATION_RES)
-WORD				wResultCode;
-DWORD	test;
-BYTE	test1;
-BYTE	test2;
+HOBJECT			handle;
+WORD			wResultCode;
+DWORD			test;
+BYTE			test1;
+BYTE			test2;
 END_PROTOCOL()
 BEGIN_PROTOCOL(GU_CHARTITLE_ADD)
-WORD				wResultCode;
-sMARKING			title;
+WORD			wResultCode;
+sMARKING		title;
 END_PROTOCOL()
+BEGIN_PROTOCOL(GU_UPDATE_CHAR_AP)//Correct struture for tw^^
+HOBJECT			handle;
+DWORD			dwCurAp;
+DWORD			wBaseMaxAp;
+DWORD			unknown;
+END_PROTOCOL()
+
 #pragma pack(pop)

@@ -142,10 +142,11 @@ void CMobManager::CreateMonsterList()
 			cr->chainAttackCount = 0;
 			cr->UniqueID = CreateUniqueId();
 			m_map_Monster.insert(std::make_pair(cr->UniqueID, cr));
+			//printf("level %d \n", cr->Level);
 		}
 	}
 	printf("%u MOBs loaded to list\n", m_map_Monster._Mysize);
-
+	
 }
 
 bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSession * pSession)
@@ -198,11 +199,12 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 						res->Size = 10;
 						res->Unknown3[0] = 0;
 						res->Unknown4[0] = 0;
-
+						res->Level = creaturelist->Level;
 						creaturelist->spawnedForHandle.push_back(avHandle);
 						packet.SetPacketLen(sizeof(SpawnMOB));
 						g_pApp->Send(pSession->GetHandle(), &packet);
 						printf("Monster %u Spawned \n", creaturelist->MonsterID);
+						//printf("level %d \n", res->Level);
 					}
 					else
 						printf("Maximum amount of mobs reached for your handle\n ");
@@ -410,10 +412,11 @@ void CMobManager::SpawnMonsterAtLogin(CNtlPacket * pPacket, CClientSession * pSe
 					res->Size = 10;
 					res->Unknown3[0] = 0;
 					res->Unknown4[0] = 0;
-
+					res->Level = creaturelist->Level;
 					creaturelist->spawnedForHandle.push_back(avHandle);
 					packet.SetPacketLen(sizeof(SpawnMOB));
 					g_pApp->Send(pSession->GetHandle(), &packet);
+					//printf("level %d \n", res->Level);
 			
 			}
 		}

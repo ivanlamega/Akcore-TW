@@ -376,8 +376,8 @@ void PlayersMain::FillProfileWithInfo()
 	this->sPlayerProfile->dwReputation = db->getInt("Reputation");
 	this->sPlayerProfile->dwMudosaPoint = db->getInt("MudosaPoint");
 	this->sPlayerProfile->dwSpPoint = db->getInt("SpPoint");
-	this->sPlayerProfile->bIsGameMaster = 1;//db->getBoolean("GameMaster");
-	this->sPlayerProfile->sMarking.dwCode = INVALID_TBLIDX;//db->getInt("titulo");
+	this->sPlayerProfile->bIsGameMaster = db->getBoolean("GameMaster");
+	this->sPlayerProfile->sMarking.dwCode = db->getInt("titulo");
 	this->sPlayerProfile->sMixData.bNormalStart = 0;
 	this->sPlayerProfile->sMixData.bSpecialStart = 0;
 	this->sPlayerProfile->sMixData.byMixLevel = db->getInt("MixLevel");
@@ -893,7 +893,7 @@ void PlayersMain::SendThreadUpdateEPLP()
 void PlayersMain::SendThreadUpdateOnlyEP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseEpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.1);
 
 	this->GetPcProfile()->wCurEP += this->GetPcProfile()->avatarAttribute.wBaseEpRegen; // += regen
 	if (this->GetPcProfile()->wCurEP > this->GetPcProfile()->avatarAttribute.wBaseMaxEP)
@@ -914,11 +914,36 @@ void PlayersMain::SendThreadUpdateOnlyEP()
 	g_pApp->Send(this->GetSession(), &packet);
 	app->UserBroadcastothers(&packet, this->myCCSession);
 }
+void PlayersMain::SendThreadUpdateOnlyAP()
+{
+	if (this->GetPcProfile()->avatarAttribute.wBaseApRegen <= 0)
+		this->GetPcProfile()->avatarAttribute.wBaseApRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxAp * 0.1);
+
+	this->GetPcProfile()->dwCurAp += this->GetPcProfile()->avatarAttribute.wBaseApRegen; // += regen
+	if (this->GetPcProfile()->dwCurAp > this->GetPcProfile()->avatarAttribute.wBaseMaxAp)
+		this->GetPcProfile()->dwCurAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_AP));
+	sGU_UPDATE_CHAR_AP * res = (sGU_UPDATE_CHAR_AP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->dwCurAp = this->GetPcProfile()->dwCurAp;
+	res->wBaseMaxAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+	
+
+	res->wOpCode = GU_UPDATE_CHAR_AP;
+	res->unknown = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_AP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
+}
 //Send Updates for LP Only LP of Player Thread
 void PlayersMain::SendThreadUpdateOnlyLP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseLpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.1);
 	else
 	{
 		this->GetPcProfile()->dwCurLP += this->GetPcProfile()->avatarAttribute.wBaseLpRegen; // += regen
@@ -975,6 +1000,44 @@ void PlayersMain::SendThreadUpdateDeathStatus()
 	res->sCharState.sCharStateBase.vCurDir = this->GetPlayerDirection();
 
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
+void PlayersMain::SendThreadUpdateEmergencyStatusTrue()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = true;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
+void PlayersMain::SendThreadUpdateEmergencyStatusFalse()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = false;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
 	app->UserBroadcastothers(&packet, this->myCCSession);
 	g_pApp->Send(this->GetSession(), &packet);
 }

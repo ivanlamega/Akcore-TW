@@ -65,18 +65,34 @@ void CPlayerManager::Run()
 					}
 					else if (plr->GetPlayerFight() == false)
 					{
+						
+
 						if (plr->GetPcProfile()->dwCurLP <= 0)
 							plr->SendThreadUpdateDeathStatus();
-						if (dwTickCur - lpTick >= 3000)
+
+						if (dwTickCur - lpTick >= 2000)
 						{
 							if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
 								plr->SendThreadUpdateOnlyLP();
+						//	printf("Reg LP\n");
 							if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
 								plr->SendThreadUpdateOnlyEP();
-
+						//	printf("Reg EP\n");
+							if (plr->GetPcProfile()->dwCurAp < plr->GetPcProfile()->avatarAttribute.wBaseMaxAp || plr->GetPcProfile()->dwCurAp > plr->GetPcProfile()->avatarAttribute.wBaseMaxAp)
+								plr->SendThreadUpdateOnlyAP();
+						//	printf("Reg AP\n");							
+							if (plr->GetPcProfile()->dwCurLP <= 30)
+								plr->SendThreadUpdateEmergencyStatusTrue();
+						//	printf("EmergencyStatusTrue\n");
+							if (plr->GetPcProfile()->dwCurLP >= 30)
+								plr->SendThreadUpdateEmergencyStatusFalse();
+						//	printf("EmergencyStatusFalse\n");
 							lpTick = dwTickCur;
+
+							
 						}
 					}
+					
 					/*if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 					{
 						if (plr->GetPcProfile()->wCurRP <= 0)
@@ -90,13 +106,13 @@ void CPlayerManager::Run()
 							plr->GetPcProfile()->wCurRP -= 1;
 						plr->SendThreadUpdateRP();
 					}*/
-					/*if (plr->isKaioken == true) /* TEST */
+					//if (plr->isKaioken == true) /* TEST */
 					/*{
 					plr->GetPcProfile()->wCurLP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
 					plr->GetPcProfile()->wCurEP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
 					}*/
 					//plr->SendThreadUpdateEPLP();
-					if (dwTickCur - mobTick >= 5000)
+					if (dwTickCur - mobTick >= 10)
 					{
 						mobTick = ::timeGetTime();
 						if (plr->myCCSession)

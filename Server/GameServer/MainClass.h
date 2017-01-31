@@ -138,9 +138,13 @@ class PlayersMain{
 		//Player Thread Functions
 		void SendThreadUpdateEPLP();
 		void SendThreadUpdateOnlyEP();
+		void SendThreadUpdateOnlyAP();
 		void SendThreadUpdateOnlyLP();
 		void SendThreadUpdateRP();
 		void SendThreadUpdateDeathStatus();
+		void SendThreadUpdateEmergencyStatusTrue();
+		void SendThreadUpdateEmergencyStatusFalse();
+		void SendThreadUpdateTokenPoint();
 		void SendThreadRevivalStatus();
 };
 

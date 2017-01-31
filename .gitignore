@@ -1,2 +1,12 @@
 Server/NtlDatabase/mysql/boost/
 Server/GameServer/Debug/
+Server/NtlThread/Debug/
+Server/CharServer/Debug/
+Server/GsLib/Debug/
+Server/NtlGameTable/Debug/
+Server/ChatServer/Debug/
+Server/NtlNetwork/Debug/
+Server/AuthServer/Debug/
+Server/BaseLib/Debug/
+Server/NtlSfx/Debug/
+Server/NtlSystem/Debug/
