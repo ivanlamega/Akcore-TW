@@ -130,7 +130,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_READY_TO_SPAWN:
 		{
-			CClientSession::SendCharReadyReq(pPacket, app);
+			//CClientSession::SendCharReadyReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_READY:

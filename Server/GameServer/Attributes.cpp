@@ -96,8 +96,8 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.unknown_int16[2] = 0;
 	this->sPlayerAttribute.unknown_int16[3] = 0;
 	//LP Get up Reg
-	this->sPlayerAttribute.wBaseLpRegen = 1;
-	this->sPlayerAttribute.wLastLpRegen = 1;
+	this->sPlayerAttribute.wBaseLpRegen = 20;
+	this->sPlayerAttribute.wLastLpRegen = 20;
 	//LP Sit Down Reg
 	this->sPlayerAttribute.wBaseLpSitdownRegen = 6;
 	this->sPlayerAttribute.wLastLpSitdownRegen = 7;
@@ -105,8 +105,8 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.wBaseLpBattleRegen = 8;
 	this->sPlayerAttribute.wLastLpBattleRegen = 9;
 	//EP Get UP Reg
-	this->sPlayerAttribute.wBaseEpRegen = 100;
-	this->sPlayerAttribute.wLastEpRegen = 100;
+	this->sPlayerAttribute.wBaseEpRegen = 20;
+	this->sPlayerAttribute.wLastEpRegen = 20;
 	//EP Sit Down Reg
 	this->sPlayerAttribute.wBaseEpSitdownRegen = 12;
 	this->sPlayerAttribute.wLastEpSitdownRegen = 13;

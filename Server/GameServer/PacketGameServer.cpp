@@ -162,7 +162,7 @@ void CClientSession::SendAvatarItemInfo(CNtlPacket * pPacket, CGameServer * app)
 	CNtlPacket packet(sizeof(sGU_AVATAR_ITEM_INFO));
 	sGU_AVATAR_ITEM_INFO * res = (sGU_AVATAR_ITEM_INFO *)packet.GetPacketData();
 	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-
+	sITEM_PROFILE asItemProfile[NTL_MAX_COUNT_USER_HAVE_INVEN_ITEM];
 	
 	res->wOpCode = GU_AVATAR_ITEM_INFO;
 	res->byBeginCount = plr->cPlayerInventory->GetTotalItemsCount();
@@ -180,19 +180,14 @@ void CClientSession::SendAvatarItemInfo(CNtlPacket * pPacket, CGameServer * app)
 		res->aItemProfile[i].byCurDur = plr->cPlayerInventory->GetInventory()[i].byCurDur;
 		res->aItemProfile[i].byBattleAttribute = 2;
 		res->aItemProfile[i].byDurationType = 100;
+		asItemProfile[1].aitemEffect[1].wType = 2;
+		asItemProfile[1].aitemEffect[1].dwValue = 8;
+		asItemProfile[1].aitemExtraEffect[1].wType = 2;
+		asItemProfile[1].aitemExtraEffect[1].dwValue = 8;
 	}	
 		
-	sITEM_PROFILE asItemProfile[NTL_MAX_COUNT_USER_HAVE_INVEN_ITEM];
-	// works for first item in packet
-	for (int i = 1; i < 6; i++){
-		asItemProfile[0].aitemEffect[i].wType = i + 1;
-		asItemProfile[0].aitemEffect[i].dwValue = 8;
-	}
-	// works for first item in packet
-	for (int i = 0; i < 2; i++){
-		asItemProfile[0].aitemExtraEffect[i].wType = i + 1;
-		asItemProfile[0].aitemExtraEffect[i].dwValue = 8;
-	}
+	
+	
 			
 	packet.AdjustPacketLen(sizeof(sNTLPACKETHEADER) + (2 * sizeof(BYTE)) + (res->byItemCount * sizeof(sITEM_PROFILE)));
 	g_pApp->Send(this->GetHandle(), &packet);
@@ -1992,6 +1987,8 @@ void CClientSession::SendCharMove(CNtlPacket * pPacket, CGameServer * app)
 	UpdateCharState(this->GetavatarHandle(), CHARSTATE_MOVING);
 	PACKET_TRACE(GU_CHAR_MOVE, packet);
 	
+	
+
 
 	plr = NULL;
 	delete plr;
@@ -2515,17 +2512,17 @@ void CClientSession::SendGameLeaveReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->setInt(1, plr->GetCharID());
 	app->db->execute();
 
-	CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
-	sGU_OBJECT_DESTROY * sPacket = (sGU_OBJECT_DESTROY *)packet.GetPacketData();
+	//CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+	//sGU_OBJECT_DESTROY * sPacket = (sGU_OBJECT_DESTROY *)packet.GetPacketData();
 
-	sPacket->wOpCode = GU_OBJECT_DESTROY;
-	sPacket->handle = this->GetavatarHandle();
+	//sPacket->wOpCode = GU_OBJECT_DESTROY;
+	//sPacket->handle = this->GetavatarHandle();
 	
-	packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-	app->UserBroadcastothers(&packet, this);
+	//packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+	//app->UserBroadcastothers(&packet, this);
 	plr->SavePlayerData(app);
-	app->RemoveUser(plr->GetPlayerName().c_str());
-
+	//app->RemoveUser(plr->GetPlayerName().c_str());
+	plr->SetPlayerFight(true);
 	plr = NULL;
 	delete plr;
 }
@@ -2539,19 +2536,19 @@ void CClientSession::SendCharExitReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->prepare("UPDATE characters SET IsOnline = 0, OnlineID = 0 WHERE CharID = ?");
 	app->db->setInt(1, plr->GetCharID());
 	app->db->execute();
-
+	plr->SetPlayerFight(true);
 //	plr->SavePlayerData(app);
 	// log out of game
-	CNtlPacket packet1(sizeof(sGU_OBJECT_DESTROY));
-	sGU_OBJECT_DESTROY * sPacket = (sGU_OBJECT_DESTROY *)packet1.GetPacketData();
+	//CNtlPacket packet1(sizeof(sGU_OBJECT_DESTROY));
+	//sGU_OBJECT_DESTROY * sPacket = (sGU_OBJECT_DESTROY *)packet1.GetPacketData();
 
-	sPacket->wOpCode = GU_OBJECT_DESTROY;
-	sPacket->handle = this->GetavatarHandle();
-	this->cPlayersMain = NULL;
-	packet1.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-	app->UserBroadcastothers(&packet1, this);
-	g_pPlayerManager->RemovePlayer(this->GetavatarHandle());
-	app->RemoveUser(plr->GetPlayerName().c_str());
+	//sPacket->wOpCode = GU_OBJECT_DESTROY;
+	//sPacket->handle = this->GetavatarHandle();
+	//this->cPlayersMain = NULL;
+	//packet1.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+	//->UserBroadcastothers(&packet1, this);
+	//g_pPlayerManager->RemovePlayer(this->GetavatarHandle());
+	//app->RemoveUser(plr->GetPlayerName().c_str());
 
 	// log in to char server
 	CNtlPacket packet(sizeof(sGU_CHAR_EXIT_RES));
@@ -3496,7 +3493,7 @@ void CClientSession::SendCharBindReq(CNtlPacket * pPacket, CGameServer * app)
 	app->db->execute();
 	app->db->execute("SELECT @currentWorldID");
 	app->db->fetch();
-	sOBJECT_TBLDAT* objMap = reinterpret_cast<sOBJECT_TBLDAT*>(app->g_pTableContainer->GetObjectTable(plr->GetWorldID())->FindData(req->bindObjectTblidx));
+//	sOBJECT_TBLDAT* objMap = reinterpret_cast<sOBJECT_TBLDAT*>(app->g_pTableContainer->GetObjectTable(plr->GetWorldID())->FindData(req->bindObjectTblidx));
 	res->wOpCode = GU_CHAR_BIND_RES;
 	res->wResultCode = GAME_SUCCESS;
 	res->byBindType = DBO_BIND_TYPE_FIRST;
@@ -8727,7 +8724,6 @@ void CClientSession::SendNetPyBuy(CNtlPacket * pPacket, CGameServer * app)
 	CNtlPacket packet(sizeof(sGU_SHOP_NETPYITEM_BUY_RES));
 	sGU_SHOP_NETPYITEM_BUY_RES* res = (sGU_SHOP_NETPYITEM_BUY_RES*)packet.GetPacketData();
 
-	//res->byType = 0;
 	res->wOpCode = GU_SHOP_NETPYITEM_BUY_RES;
 	res->wResultCode = GAME_SUCCESS;
 
@@ -8741,7 +8737,7 @@ void CClientSession::SendNetPyEnd(CNtlPacket * pPacket, CGameServer * app)
 	CNtlPacket packet(sizeof(sGU_SHOP_NETPYITEM_END_RES));
 	sGU_SHOP_NETPYITEM_END_RES* res = (sGU_SHOP_NETPYITEM_END_RES*)packet.GetPacketData();
 
-	//res->byType = 0;
+	
 	res->wOpCode = GU_SHOP_NETPYITEM_END_RES;
 	res->wResultCode = GAME_SUCCESS;
 
@@ -9605,7 +9601,7 @@ void CClientSession::SendCashItemHlsStart(CNtlPacket * pPacket, CGameServer * ap
 	CNtlPacket packet(sizeof(sGU_CASHITEM_HLSHOP_START_RES));
 	sGU_CASHITEM_HLSHOP_START_RES* res = (sGU_CASHITEM_HLSHOP_START_RES*)packet.GetPacketData();
 
-	res->dwRemainAmount = 999999;//cash point
+	//res->dwRemainAmount = 999999;//cash point
 	res->wOpCode = GU_CASHITEM_HLSHOP_START_RES;
 	res->wResultCode = GAME_SUCCESS;
 	packet.SetPacketLen(sizeof(sGU_CASHITEM_HLSHOP_START_RES));

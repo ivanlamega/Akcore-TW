@@ -155,9 +155,9 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 	std::vector<RwUInt32>::iterator handleSearch;
 	RwUInt32 avHandle = NULL;
 	if (pSession->cPlayersMain)
-		avHandle = pSession->cPlayersMain->GetAvatarHandle();
-	else
-		return false;
+		avHandle = pSession->GetavatarHandle();
+	//else
+		//return false;
 #pragma region monstercheck
 	CMonster::MonsterData* creaturelist;
 	
@@ -197,13 +197,14 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 						res->curLP = creaturelist->CurLP;
 						res->maxLP = creaturelist->MaxLP;
 						res->Size = 10;
-						res->Unknown3[0] = 0;
+						res->Unknown[0] = 1;//34
+						res->Unknown3[0] = 0;//12
 						res->Unknown4[0] = 0;
 						res->Level = creaturelist->Level;
 						creaturelist->spawnedForHandle.push_back(avHandle);
 						packet.SetPacketLen(sizeof(SpawnMOB));
 						g_pApp->Send(pSession->GetHandle(), &packet);
-						printf("Monster %u Spawned \n", creaturelist->MonsterID);
+						//printf("Monster %u Spawned \n", creaturelist->MonsterID);
 						//printf("level %d \n", res->Level);
 					}
 					else
@@ -277,7 +278,7 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 
 					packet.SetPacketLen(sizeof(SpawnNPC));
 					g_pApp->Send(pSession->GetHandle(), &packet);
-					printf("NPC %u Spawned \n", creaturelist->MonsterID);
+					//printf("NPC %u Spawned \n", creaturelist->MonsterID);
 
 				}
 			}

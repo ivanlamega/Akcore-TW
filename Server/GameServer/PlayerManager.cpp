@@ -34,12 +34,14 @@ void CPlayerManager::Release()
 void CPlayerManager::Run()
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-	DWORD dwTickCur, dwTickOld, lpTick, mobTick;
+	
+	DWORD dwTickCur, dwTickOld, lpTick, token, mobTick;
 	
 	
 	dwTickCur = ::timeGetTime();
 	dwTickOld = ::timeGetTime();
 	lpTick = ::timeGetTime();
+	token = ::timeGetTime();
 	mobTick = ::timeGetTime();
 	while (m_bRun)
 	{
@@ -49,50 +51,53 @@ void CPlayerManager::Run()
 			PlayersMain* plr = it->second;
 			if ((plr) && (plr->myCCSession))
 			{
-				if (plr->GetPlayerDead() == false)
+				if (plr->GetPlayerDead() == false)//If PlayerDead Is False 
 				{
 					dwTickCur = ::timeGetTime();
-					if (plr->GetPlayerFight() == true)
+					if (plr->GetPlayerFight() == true) //If GetPlayerFight Is True Run Time
 					{
-
+						
 						//printf("I'm fighting.\n");
-						if (dwTickCur - dwTickOld >= 10000)
+						if (dwTickCur - dwTickOld >= 10000) // If Time >=10000 Define Fihgt False
 						{
 							plr->SetPlayerFight(false);
 							dwTickOld = dwTickCur;
 
 						}
 					}
-					else if (plr->GetPlayerFight() == false)
-					{
-						
+					else if (plr->GetPlayerFight() == false) // Else If Player Figth Is False Check LP
+					{				
+						if (plr->GetPcProfile()->dwCurLP <= 0) //If LP Is <=0 Player Is Dead
+							plr->SendThreadUpdateDeathStatus(); //Update Dead Status
 
-						if (plr->GetPcProfile()->dwCurLP <= 0)
-							plr->SendThreadUpdateDeathStatus();
-
-						if (dwTickCur - lpTick >= 2000)
+						if (dwTickCur - lpTick >= 2000) //Send Time for Lp/Ep/Ap Reg
 						{
 							if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
-								plr->SendThreadUpdateOnlyLP();
-						//	printf("Reg LP\n");
+								plr->SendThreadUpdateOnlyLP(); //Send Update LP						
+							printf("Reg LP\n");
 							if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
-								plr->SendThreadUpdateOnlyEP();
-						//	printf("Reg EP\n");
+								plr->SendThreadUpdateOnlyEP(); //Sende Update EP
+							printf("Reg EP\n");
 							if (plr->GetPcProfile()->dwCurAp < plr->GetPcProfile()->avatarAttribute.wBaseMaxAp || plr->GetPcProfile()->dwCurAp > plr->GetPcProfile()->avatarAttribute.wBaseMaxAp)
-								plr->SendThreadUpdateOnlyAP();
-						//	printf("Reg AP\n");							
-							if (plr->GetPcProfile()->dwCurLP <= 30)
-								plr->SendThreadUpdateEmergencyStatusTrue();
-						//	printf("EmergencyStatusTrue\n");
-							if (plr->GetPcProfile()->dwCurLP >= 30)
-								plr->SendThreadUpdateEmergencyStatusFalse();
-						//	printf("EmergencyStatusFalse\n");
+								plr->SendThreadUpdateOnlyAP(); //Send Update AP
+							printf("Reg AP\n");							
+							if (plr->GetPcProfile()->dwCurLP <= 30) //If Curlp <=30 Run Emergency Status
+								plr->SendThreadUpdateEmergencyStatusTrue(); //Update Emergency Status True
+							printf("EmergencyStatusTrue\n");
+							if (plr->GetPcProfile()->dwCurLP >= 30) //If LP >=30 Disable Emergency Status
+								plr->SendThreadUpdateEmergencyStatusFalse(); //Update Emergency Status False
+							printf("EmergencyStatusFalse\n");
 							lpTick = dwTickCur;
 
 							
 						}
 					}
-					
+					//Update Token Point
+					if (dwTickCur - token >= 120000)//Send Time For Next Token
+					{
+						plr->SendThreadUpdateTokenPoint();//Update Token Point
+						token = dwTickCur;
+					}
 					/*if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 					{
 						if (plr->GetPcProfile()->wCurRP <= 0)
@@ -112,15 +117,14 @@ void CPlayerManager::Run()
 					plr->GetPcProfile()->wCurEP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
 					}*/
 					//plr->SendThreadUpdateEPLP();
-					if (dwTickCur - mobTick >= 10)
-					{
-						mobTick = ::timeGetTime();
-						if (plr->myCCSession)
-						{
-							//printf("RunSpawnCheck Fired\n");
-							g_pMobManager->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
-							plr->SetMob_SpawnTime(timeGetTime());
-						}
+					if (dwTickCur - mobTick >= 10)//Send Time For Check Mob 
+					{						
+						g_pMobManager->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
+						plr->SetMob_SpawnTime(timeGetTime());
+						printf("RunSpawnCheck Fired\n");
+						printf("%d Players Online\n\r", GetTotalPlayers());
+						
+						
 					}
 					if ((timeGetTime() - ServerTick) >= MINUTE)
 					{
