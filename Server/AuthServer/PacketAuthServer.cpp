@@ -66,7 +66,7 @@ void CClientSession::SendCharLogInReq(CNtlPacket * pPacket, CAuthServer * app)
 	packet2.SetPacket(buf, 0x05);
 	packet2.GetPacketHeader()->bEncrypt = false;
 	PushHandshakePacket(&packet2);
-	
+	//printf("res->abyAuthKey= %d \n res->accountId=%d\n res->aServerInfo=%d\n res->awchUserId=%d\n res->byServerInfoCount=%d\n res->dwAllowedFunctionForDeveloper=%d\n res->lastServerFarmId=%d\n res->serverID=%d\n", res->abyAuthKey, res->accountId, res->aServerInfo, res->awchUserId, res->byServerInfoCount, res->dwAllowedFunctionForDeveloper, res->lastServerFarmId, res->serverID);
 
 	packet.SetPacketLen(sizeof(sAU_LOGIN_RES));
 	int rc = g_pApp->Send(this->GetHandle(), &packet);

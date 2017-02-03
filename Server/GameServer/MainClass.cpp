@@ -376,8 +376,8 @@ void PlayersMain::FillProfileWithInfo()
 	this->sPlayerProfile->dwReputation = db->getInt("Reputation");
 	this->sPlayerProfile->dwMudosaPoint = db->getInt("MudosaPoint");
 	this->sPlayerProfile->dwSpPoint = db->getInt("SpPoint");
-	this->sPlayerProfile->bIsGameMaster = 1;//db->getBoolean("GameMaster");
-	this->sPlayerProfile->sMarking.dwCode = INVALID_TBLIDX;//db->getInt("titulo");
+	this->sPlayerProfile->bIsGameMaster = db->getBoolean("GameMaster");
+	this->sPlayerProfile->sMarking.dwCode = db->getInt("title");
 	this->sPlayerProfile->sMixData.bNormalStart = 0;
 	this->sPlayerProfile->sMixData.bSpecialStart = 0;
 	this->sPlayerProfile->sMixData.byMixLevel = db->getInt("MixLevel");
@@ -388,11 +388,25 @@ void PlayersMain::FillProfileWithInfo()
 	this->sPlayerProfile->wCurEP = db->getInt("CurEP");
 	this->sPlayerProfile->wCurRP = db->getInt("CurRP");
 	this->sPlayerProfile->dwCurAp = db->getInt("CurAp");//New AP TW
-	//this->sPlayerProfile->netP = 0;
-	//this->sPlayerProfile->unknown2 = 0;// Unknow TW
-	this->sPlayerProfile->sLocalize.type = 0x03;//Unknow Thing maybe is the same as Third for Taiwan Localize
-	memcpy(this->sPlayerProfile->sLocalize.unknown, "\x24\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\x00\x50\x00\x00\x00\x00\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00", 27);//Some expert need see what is this?
-
+	this->sPlayerProfile->sLocalize.netp = db->getInt("Token");// Token Point correct value	
+	this->sPlayerProfile->sLocalize.unknown4 = 0;// Notify if recive cash item from friend "mensage say gift not confirmed"
+	this->sPlayerProfile->sLocalize.unknown8 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown9 = 3;// S icon idk what is never see in old tw
+	this->sPlayerProfile->sLocalize.unknown10 = 1;// Unknow TW
+	
+	this->sPlayerProfile->sLocalize.unknown14 = 5;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown15 = 6;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown16 = 7;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown17 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown18 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown19 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown20 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown21 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown22 = 20;// WP Poit mensage
+	this->sPlayerProfile->sLocalize.unknown26 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.type = 0;//Unknow Thing maybe is the same as Third for Taiwan Localize
+	//memcpy(this->sPlayerProfile->sLocalize.unknown, "\x24\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\x00\x50\x00\x00\x00\x00\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00", 27);//Some expert need see what is this?
+													//	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	
 	sVECTOR3 vLastDir;
 	sVECTOR3 vLastLoc;
 
@@ -623,7 +637,7 @@ void PlayersMain::SavePlayerData(CGameServer* app)
 	char* save_query3 = "UPDATE characters SET LastPhysicalDefence=?, BaseEnergyOffence=?, LastEnergyOffence=?, BaseEnergyDefence=?, LastEnergyDefence=?, BaseAttackRate=?, LastAttackRate=?,  BaseDodgeRate=?, LastDodgeRate=?, BaseBlockRate=?, BaseBlockRate=?, LastBlockRate=?, BaseCurseSuccessRate=?, LastCurseSuccessRate=?, BaseCurseToleranceRate=?, LastCurseToleranceRate=?, BasePhysicalCriticalRate=?, LastPhysicalCriticalRate=? WHERE CharID = ?";
 	char* save_query4 = "UPDATE characters SET BaseEnergyCriticalRate=?, LastEnergyCriticalRate=?, LastRunSpeed=?, BaseAttackSpeedRate=?, BaseAttackRange=?, LastAttackRange=?, CastingTimeChangePercent=?, CoolTimeChangePercent=?, KeepTimeChangePercent=?, DotValueChangePercent=?, DotTimeChangeAbsolute=?, RequiredEpChangePercent=?, HonestOffence=?, HonestDefence=?, StrangeOffence=?, StrangeDefence=?, WildOffence=?, WildDefence=? WHERE CharID = ?";
 	char* save_query5 = "UPDATE characters SET EleganceOffence=?, EleganceDefence=?, FunnyDefence=?, FunnyOffence=?, FunnyDefence=?, ParalyzeToleranceRate=?, TerrorToleranceRate=?, ConfuseToleranceRate=?, StoneToleranceRate=?, CandyToleranceRate=?, ParalyzeKeepTimeDown=?, TerrorKeepTimeDown=?, ConfuseKeepTimeDown=?, StoneKeepTimeDown=?, CandyKeepTimeDown=?, BleedingKeepTimeDown=?, PoisonKeepTimeDown=?, StomachacheKeepTimeDown=?, CriticalBlockSuccessRate=?  WHERE CharID = ?";
-	char* save_query6 = "UPDATE characters SET GuardRate=?, SkillDamageBlockModeSuccessRate=?, CurseBlockModeSuccessRate=?, KnockdownBlockModeSuccessRate=?, HtbBlockModeSuccessRate=?, SitDownLpRegenBonusRate=?, SitDownEpRegenBonusRate=?, PhysicalCriticalDamageBonusRate=?, EnergyCriticalDamageBonusRate=?, ItemUpgradeBonusRate=?, ItemUpgradeBreakBonusRate=?, CurLP=?, CurEP=?, CurRP=? WHERE CharID = ?";
+	char* save_query6 = "UPDATE characters SET GuardRate=?, SkillDamageBlockModeSuccessRate=?, CurseBlockModeSuccessRate=?, KnockdownBlockModeSuccessRate=?, HtbBlockModeSuccessRate=?, SitDownLpRegenBonusRate=?, SitDownEpRegenBonusRate=?, PhysicalCriticalDamageBonusRate=?, EnergyCriticalDamageBonusRate=?, ItemUpgradeBonusRate=?, ItemUpgradeBreakBonusRate=?, CurLP=?, CurEP=?, CurRP=?, CurAp=?, Token=? WHERE CharID = ?";
 
 	db->prepare(save_query);
 	db->setFloat(1, this->vCurLoc.x);
@@ -769,8 +783,11 @@ void PlayersMain::SavePlayerData(CGameServer* app)
 	db->setInt(12, this->GetPcProfile()->dwCurLP);
 	db->setInt(13, this->GetPcProfile()->wCurEP);
 	db->setInt(14, this->GetPcProfile()->wCurRP);
-	db->setInt(15, this->GetPcProfile()->charId);
+	db->setInt(15, this->GetPcProfile()->dwCurAp);
+	db->setInt(16, this->GetPcProfile()->sLocalize.netp);
+	db->setInt(17, this->GetPcProfile()->charId);
 	db->execute();
+	
 
 	delete db;
 }
@@ -893,7 +910,7 @@ void PlayersMain::SendThreadUpdateEPLP()
 void PlayersMain::SendThreadUpdateOnlyEP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseEpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.1);
 
 	this->GetPcProfile()->wCurEP += this->GetPcProfile()->avatarAttribute.wBaseEpRegen; // += regen
 	if (this->GetPcProfile()->wCurEP > this->GetPcProfile()->avatarAttribute.wBaseMaxEP)
@@ -914,11 +931,56 @@ void PlayersMain::SendThreadUpdateOnlyEP()
 	g_pApp->Send(this->GetSession(), &packet);
 	app->UserBroadcastothers(&packet, this->myCCSession);
 }
+void PlayersMain::SendThreadUpdateOnlyAP()
+{
+	if (this->GetPcProfile()->avatarAttribute.wBaseApRegen <= 0)
+		this->GetPcProfile()->avatarAttribute.wBaseApRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxAp * 0.1);
+
+	this->GetPcProfile()->dwCurAp += this->GetPcProfile()->avatarAttribute.wBaseApRegen; // += regen
+	if (this->GetPcProfile()->dwCurAp > this->GetPcProfile()->avatarAttribute.wBaseMaxAp)
+		this->GetPcProfile()->dwCurAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_AP));
+	sGU_UPDATE_CHAR_AP * res = (sGU_UPDATE_CHAR_AP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->dwCurAp = this->GetPcProfile()->dwCurAp;
+	res->wBaseMaxAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+	
+
+	res->wOpCode = GU_UPDATE_CHAR_AP;
+	res->unknown = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_AP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
+}
+void PlayersMain::SendThreadUpdateTokenPoint()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_NETP));
+	sGU_UPDATE_CHAR_NETP * res = (sGU_UPDATE_CHAR_NETP *)packet.GetPacketData();
+	res->dwBonusNetP = 10; //poits for incress^^ 10 default
+	this->GetPcProfile()->sLocalize.netp += res->dwBonusNetP; // += regen
+	
+	res->netP = this->GetPcProfile()->sLocalize.netp; // incress on total NetP poit
+	res->dwAccumulationNetP += res->dwBonusNetP;//acumulation in current session
+	res->timeNextGainTime = 120; // timw for next gain poit
+	res->wOpCode = GU_UPDATE_CHAR_NETP;	
+	
+	printf("netp %d \n and cur %d \n", res->netP, this->GetPcProfile()->sLocalize.netp );	
+	
+	 
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_NETP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
+}
 //Send Updates for LP Only LP of Player Thread
 void PlayersMain::SendThreadUpdateOnlyLP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseLpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.1);
 	else
 	{
 		this->GetPcProfile()->dwCurLP += this->GetPcProfile()->avatarAttribute.wBaseLpRegen; // += regen
@@ -975,6 +1037,44 @@ void PlayersMain::SendThreadUpdateDeathStatus()
 	res->sCharState.sCharStateBase.vCurDir = this->GetPlayerDirection();
 
 	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
+void PlayersMain::SendThreadUpdateEmergencyStatusTrue()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = true;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
+void PlayersMain::SendThreadUpdateEmergencyStatusFalse()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = false;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
 	app->UserBroadcastothers(&packet, this->myCCSession);
 	g_pApp->Send(this->GetSession(), &packet);
 }

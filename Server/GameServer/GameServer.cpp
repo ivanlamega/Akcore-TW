@@ -130,7 +130,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_READY_TO_SPAWN:
 		{
-			CClientSession::SendCharReadyReq(pPacket, app);
+			//CClientSession::SendCharReadyReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_READY:
@@ -262,6 +262,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_ATTACK_BEGIN:
 		{
 			CClientSession::SendAttackBegin(pPacket,app);
+			CClientSession::SenGiftShop(pPacket, app);
 			
 
 		}
@@ -581,6 +582,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_BANK_LOAD_REQ:
 		{
 			printf("--- UG_BANK_LOAD_REQ --- \n");
+			CClientSession::SendBankStartReq(pPacket, app);
+			CClientSession::SendBankLoadReq(pPacket, app);
 		}
 			break;
 		case UG_BANK_START_REQ:
@@ -1013,18 +1016,19 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_PORTAL_START_REQ:
 		{
-			//CClientSession::SendPortalStartReq(pPacket, app);
+									CClientSession::SendPortalAddReq(pPacket, app);
+									CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_ADD_REQ:
 		{
-			//CClientSession::SendPortalAddReq(pPacket, app);
-			//CClientSession::SendPortalStartReq(pPacket, app);
+			CClientSession::SendPortalAddReq(pPacket, app);
+			CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_REQ:
 		{
-			//CClientSession::SendPortalTelReq(pPacket, app);
+			CClientSession::SendPortalTelReq(pPacket, app);
 		}
 			break;
 		case UG_WAR_FOG_UPDATE_REQ:
