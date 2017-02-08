@@ -1,0 +1,41 @@
+#include "DBO-TYPES.hsl" 
+
+//size 100
+struct sITEM_UPGRADE_TBLDAT
+{
+	TBLIDX			tblidx;
+	WCHAR			wszNameText[33];
+	WORD			wUp1;
+	WORD			wUp2;
+	WORD			wUp3;
+	WORD			wUp4;
+	WORD			wUp5;
+	WORD			wUp6;
+	WORD			wUp7;
+	WORD			wUp8;
+	WORD			wUp9;
+	WORD			wUp10;
+	WORD			wUp11;
+	WORD			wUp12;
+	WORD			wUp13;
+	WORD			wUp14;
+	WORD			wUp15;
+}sITEM_UPGRADE_TBLDAT;
+
+struct sITEM_UPGRADE_TBLDAT_ALL
+{	
+	BYTE					dunno;
+	DWORD					Size;
+	BYTE					dunno2;
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+	sITEM_UPGRADE_TBLDAT	upgrade[1000];
+};

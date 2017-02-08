@@ -1,0 +1,8 @@
+#include "DBO-TYPES.hsl" 
+
+struct GU_WORLD_FREE_PVP_ZONE_LEFT_NFY
+{
+	WORD			size;
+	WORD			opCode;
+	HOBJECT			handle;
+};
