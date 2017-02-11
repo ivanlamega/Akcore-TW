@@ -1,0 +1,119 @@
+#include "DBO-TYPES.hsl" 
+
+struct sPC_SHAPE
+{
+	BYTE			byFace;
+	BYTE			byHair;
+	BYTE			byHairColor;
+	BYTE			bySkinColor;
+} sPC_SHAPE;
+
+struct sITEM_SUMMARY
+{
+	TBLIDX			tblidx; // item table index
+	BYTE			byRank;
+	BYTE			byGrade;
+	BYTE			byBattleAttribute;
+}sITEM_SUMMARY;
+
+struct sDBO_GUILD_MARK
+{
+	BYTE					byMarkMain;
+	BYTE					byMarkMainColor;
+	BYTE					byMarkInLine;
+	BYTE					byMarkInColor;
+	BYTE					byMarkOutLine;
+	BYTE					byMarkOutColor;
+}sDBO_GUILD_MARK;
+
+struct sDBO_DOGI_DATA
+{
+	GUILDID         guildId;
+	BYTE			byType;			// ????
+	BYTE		    byGuildColor;	// ??????
+	BYTE			byDojoColor;	// ??????
+
+} sDBO_DOGI_DATA;
+struct sPC_BRIEF
+{
+	CHARACTERID		charId;
+	TBLIDX			tblidx; // pc ??? ???
+	bool			bIsAdult;
+	WCHAR			awchName[17];
+	WCHAR			wszGuildName[17];
+
+	sPC_SHAPE		sPcShape; // pc ?? ( ??/??/??? )
+
+	DWORD			wCurLP; //  : starts from 0x58
+	DWORD			wMaxLP; //  : starts from 0x5C
+	WORD			wCurEP; //  : starts from 0x60
+	WORD			wMaxEP; //  : starts from 0x63
+	WORD			dwCurAP; //  : changed to WORD, to move sItemBrief
+	WORD			dwMaxAP; //  : changed to WORD, to move sItemBrief
+	float			fSpeed;
+	BYTE			byLevel; //  : at 0x6C
+	BYTE			unknow1[32]; //  : some data
+
+	// : This paramters starts from offset 0x8D each element has size 7
+	sITEM_SUMMARY	sItemBrief[17]; // TODO rename this parameter
+
+	WORD			wAttackSpeedRate;
+
+	sDBO_GUILD_MARK	sMark;
+
+	DWORD		sMarking;
+	//dunno why but needed to add for matching structures
+	BYTE		WorkshopAligment;
+	sDBO_DOGI_DATA	sDogi;
+	
+	//  : There are 13 bytes missing in the structure. Don't know where.
+	BYTE			unknown2[8];
+	TBLIDX			mascotEx;
+	BYTE			characterSize; // Greater value bigger character
+	DWORD			unknown4;
+	BYTE			Unknown3;
+} sPC_BRIEF;
+
+struct sASPECTSTATE
+{
+	BYTE				sAspectStateBase;
+	// one byte added dunno why but now match
+	BYTE				sAspectStateDetail[5];
+} sASPECTSTATE;
+
+
+struct sCHARSTATE_BASE
+{
+	BYTE			byStateID;
+	DWORD			dwStateTime;
+	DWORD			dwConditionFlag;
+	DWORD			unknow1;
+
+	sASPECTSTATE	aspectState;    //  : starts at 0x137 in case of character
+	BYTE			unknown[5];
+	sVECTOR3		vCurLoc;
+	sVECTOR3		vCurDir;
+	bool			bFightMode; //  : moved position unknown
+} sCHARSTATE_BASE;
+
+
+struct sCHARSTATE
+{
+	sCHARSTATE_BASE				sCharStateBase;
+	BYTE						sCharStateDetail[720];
+} sCHARSTATE;
+struct sOBJECT_INFO
+{
+	BYTE		objType;
+	sPC_BRIEF	pcBrief;
+	sCHARSTATE	pcState;
+} sOBJECT_INFO;
+
+
+struct sGU_OBJECT_INFO
+{	
+	WORD			PacketSize;
+	WORD			wOpCode;
+	HOBJECT			handle;
+	sOBJECT_INFO	sObjectInfo;
+};

@@ -1,0 +1,147 @@
+#include "standard-types.hsl" 
+// OBJECT HANDLE
+typedef	unsigned int HOBJECT;
+
+// ACCOUNT ID
+typedef unsigned int ACCOUNTID;
+
+// GM ACCOUNT ID
+typedef unsigned int GMACCOUNTID;
+
+//Trigger
+typedef unsigned short NTL_TS_T_ID;
+
+//Trigger Group
+typedef unsigned char NTL_TS_TG_ID;
+
+//Trigger container
+typedef unsigned char NTL_TS_TC_ID;
+
+//Triger Action
+typedef unsigned char NTL_TS_TA_ID;
+
+//TriggerEvent
+typedef unsigned int NTL_TS_EVENT_ID;
+
+// GM GROUP ID
+typedef unsigned int GMGROUPID;
+
+
+// CHARACTER ID
+typedef unsigned int CHARACTERID;
+
+
+// ITEM ID
+typedef unsigned int ITEMID;
+
+
+// WORLD ID
+typedef unsigned int WORLDID;
+
+
+// ZONE ID
+typedef unsigned int ZONEID;
+
+// TABLE INDEX
+typedef unsigned int TBLIDX;
+
+// SLOT ID
+typedef unsigned char SLOTID;
+
+// PARTY ID
+typedef unsigned int PARTYID;
+
+
+// GUILD ID
+typedef unsigned int GUILDID;
+
+// RAID GROUP ID
+typedef unsigned int GROUPID;
+
+// ROOM ID
+typedef unsigned int ROOMID;
+
+
+// ANIMATION ID
+typedef WORD ANIMATIONID;
+
+// GAME SERVER FARM ID
+typedef BYTE SERVERFARMID;
+
+
+// GAME SERVER CHANNEL ID
+typedef BYTE SERVERCHANNELID;
+
+
+// SERVER INDEX
+typedef BYTE SERVERINDEX;
+
+
+// MAIL ID
+typedef unsigned int MAILID;
+
+// Private Shop Wait Time
+typedef __int64		PSHOP_WAITTIME;
+
+// Portal
+// MAIL ID
+typedef BYTE PORTALID;
+
+// spwan group id
+typedef unsigned int SPAWNGROUPID;
+
+// Alliance ID
+typedef unsigned int ALLIANCEID;
+
+
+// Tenkaichi Budokai
+typedef DWORD BUDOKAITIME;
+
+// Dojo
+typedef __int64		DOJOTIME;
+
+// Team Type [eMATCH_TEAM_TYPE]
+typedef	WORD		TEAMTYPE;
+
+// JoinId [Tenkaichi Budokai ?? ??]
+typedef	WORD		JOINID;
+
+// Buff Link ID
+typedef BYTE		BUFFLINKID;
+
+// Wait index
+typedef	DWORD		WAITINDEX;
+
+// Time
+typedef time_t		DBOTIME;
+
+// Localize Type
+typedef BYTE		LOCALIZETYPE;
+
+// NetP
+typedef DWORD		NETP;
+
+#pragma hide()
+// NewbieQuickData
+struct sNEWBIE_QUICKSLOT_DATA
+{
+	TBLIDX			tbilidx; 
+	BYTE			byType;	
+	BYTE			byQuickSlot; 
+} sNEWBIE_QUICKSLOT_DATA;
+
+struct sVECTOR3
+{
+	float x;
+	float y;
+	float z;
+} sVECTOR3;
+
+
+#pragma show()
+
+typedef unsigned int ACTIONPATTERNTBLIDX;
+typedef BYTE ACTIONPATTERNID;   //eACTIONPATTERNID? ??
+
+typedef BYTE ACTIONPATTERN_FIELDSIZE; //???? ???? ?? Pattern? ?? ??
+typedef BYTE ACTIONPATTERN_FIELD;
