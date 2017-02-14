@@ -104,8 +104,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//rdf2XmlHelper.SaveToXml_DynamicObjectTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_VehicleTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_MobMovePatternTable(szOutPath);
-		//rdf2XmlHelper.SaveToXml_DirectionLinkTable(szOutPath);
-		//rdf2XmlHelper.SaveToXml_ScriptLinkTable(szOutPath);
+		rdf2XmlHelper.SaveToXml_DirectionLinkTable(szOutPath);
+		rdf2XmlHelper.SaveToXml_ScriptLinkTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_QuestNarrationTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_BasicDropTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_EachDropTable(szOutPath);
@@ -114,8 +114,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//rdf2XmlHelper.SaveToXml_LegendaryDropTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_TypeDropTable(szOutPath);
 		//rdf2XmlHelper.SaveToXml_SuperiorDropTable(szOutPath);
-		rdf2XmlHelper.SaveToXml_ItemOptionTable(szOutPath);
-		rdf2XmlHelper.SaveToXml_SystemEffectTable(szOutPath);
+		//rdf2XmlHelper.SaveToXml_ItemOptionTable(szOutPath);
+		//rdf2XmlHelper.SaveToXml_SystemEffectTable(szOutPath);
 	}
 	else
 	{
