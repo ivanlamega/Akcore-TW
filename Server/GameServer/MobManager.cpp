@@ -211,22 +211,20 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 						printf("Maximum amount of mobs reached for your handle\n ");
 				}
 		}
-		
+
 		else if ((creaturelist->isSpawned == true) && (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false) && (handleSearch != creaturelist->spawnedForHandle.end()))
-		{	
-			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
-			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
-			res->wOpCode = GU_OBJECT_DESTROY;
-			res->handle = creaturelist->UniqueID;
+		{
 			creaturelist->target = 0;
 			creaturelist->spawnedForHandle.erase(handleSearch);
-		/*	if (handleSearch == creaturelist->spawnedForHandle.end())
+			if (pSession->cPlayersMain != NULL)
 			{
-				creaturelist->isSpawned = false;
-				creaturelist->target = 0;
-			}*/
-			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-			g_pApp->Send(pSession->GetHandle(), &packet);
+				CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+				sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+				res->wOpCode = GU_OBJECT_DESTROY;
+				res->handle = creaturelist->UniqueID;
+				packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+				g_pApp->Send(pSession->GetHandle(), &packet);
+			}
 		}
 		else if (handleSearch == creaturelist->spawnedForHandle.end())
 		{
@@ -285,19 +283,17 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 		}
 		else if ((creaturelist->isSpawned == true) && (CreatureRangeCheck(curPos, creaturelist->Spawn_Loc) == false) && (handleSearch != creaturelist->spawnedForHandle.end()))
 		{
-			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
-			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
-			res->wOpCode = GU_OBJECT_DESTROY;
-			res->handle = creaturelist->UniqueID;
 			creaturelist->target = 0;
 			creaturelist->spawnedForHandle.erase(handleSearch);
-			/*	if (handleSearch == creaturelist->spawnedForHandle.end())
+			if (pSession->cPlayersMain != NULL)
 			{
-			creaturelist->isSpawned = false;
-			creaturelist->target = 0;
-			}*/
-			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
-			g_pApp->Send(pSession->GetHandle(), &packet);
+				CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+				sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+				res->wOpCode = GU_OBJECT_DESTROY;
+				res->handle = creaturelist->UniqueID;
+				packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+				g_pApp->Send(pSession->GetHandle(), &packet);
+			}
 		}
 		else if (handleSearch == creaturelist->spawnedForHandle.end())
 		{

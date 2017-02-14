@@ -1,6 +1,7 @@
 #pragma once
 #include "SharedType.h"
 #include "NtlThread.h"
+#include "NtlMutex.h"
 #ifndef PLAYER_MANAGER_H
 #define PLAYER_MANAGER_H
 
@@ -36,6 +37,8 @@ private:
 	std::map<RwUInt32, PlayersMain*> m_map_Player;
 	typedef std::map<RwUInt32, PlayersMain*>::const_iterator itterType;
 	itterType i;
+
+	CNtlMutex*  mPlayerMutex;
 	
 
 }; 

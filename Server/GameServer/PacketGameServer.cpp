@@ -2523,6 +2523,7 @@ void CClientSession::SendGameLeaveReq(CNtlPacket * pPacket, CGameServer * app)
 	plr->SavePlayerData(app);
 	//app->RemoveUser(plr->GetPlayerName().c_str());
 	plr->SetPlayerFight(true);
+	g_pPlayerManager->RemovePlayer(avatarHandle);
 	plr = NULL;
 	delete plr;
 }
@@ -2561,6 +2562,7 @@ void CClientSession::SendCharExitReq(CNtlPacket * pPacket, CGameServer * app)
 	strcpy_s(res->aServerInfo[0].szCharacterServerIP, NTL_MAX_LENGTH_OF_IP, app->GetConfigFileExternalIP());
 	res->aServerInfo[0].wCharacterServerPortForClient = 20300;
 	res->aServerInfo[0].dwLoad = 0;
+	g_pPlayerManager->RemovePlayer(avatarHandle);
 
 	packet.SetPacketLen(sizeof(sGU_CHAR_EXIT_RES));
 	int rc = g_pApp->Send(this->GetHandle(), &packet);

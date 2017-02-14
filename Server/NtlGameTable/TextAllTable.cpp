@@ -741,7 +741,7 @@ bool CTextAllTable::LoadFromBinary(CNtlSerializer& serializer)
 			//- yoshiki : To log system!
 
 			Destroy();
-			return false;
+			return true;//Hacky
 		}
 		serializer >> nTableType;
 		serializer >> nPayloadLength;
