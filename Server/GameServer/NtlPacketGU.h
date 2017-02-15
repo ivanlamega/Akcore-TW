@@ -1069,7 +1069,12 @@ BEGIN_PROTOCOL(GU_CHAR_ACTION_ATTACK)
 	DWORD			fReflectedDamage; // 타겟으로부터 반사되어 입은 피해
 	BYTE			byBlockedAction;		// eDBO_GUARD_TYPE
 	sVECTOR3		vShift; // 어택으로 인한 이동 벡터
-END_PROTOCOL()
+	BYTE			unknown[9];
+	END_PROTOCOL()
+//------------------------------------------------------------------
+	BEGIN_PROTOCOL(GU_CHAR_IS_BATTLECOMBATING)
+	BYTE		Unknown[4];
+	END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_ACTION_SKILL)
 	HOBJECT				handle;

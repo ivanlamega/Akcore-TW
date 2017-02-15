@@ -29,7 +29,7 @@ public:
 	void			Run();
 	int				GetTotalPlayers();
 	void			SendSyncPacket(RwUInt32 PlayerHandle, sVECTOR3 loc, sVECTOR3 dir, BYTE byMovFlag);
-private:
+public:
 	CNtlThread * pThread;
 	PlayersMain* cPlayersMain;
 	bool m_bRun;

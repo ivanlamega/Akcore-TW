@@ -17,6 +17,11 @@ typedef struct _SBattleData
 	RwUInt32			uiSerialId;
 	RwUInt32			m_uiTargetSerialId;
 	RwBool				bAttackMode;
+	bool				bAttackerIsPlayer;
+	bool				bDefenderIsPlayer;
+	int	index_x;
+	int index_z;
+
 	DWORD				dwCurrTime;
 }SBattleData;
 

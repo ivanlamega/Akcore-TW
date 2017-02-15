@@ -88,7 +88,7 @@ typedef struct _CreatureData
 	float			Walk_Speed_origin;
 	TBLIDX			Name;
 
-	WORD			CurLP;
+	DWORD			CurLP;
 	WORD			CurEP;
 	WORD			MaxLP;
 	WORD			MaxEP;
