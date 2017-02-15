@@ -25,6 +25,9 @@ int CClientSession::OnAccept()
 	packet.SetPacket(buf, 0x06);
 	packet.GetPacketHeader()->bEncrypt = true;
 	PushHandshakePacket(&packet);
+
+	pServer = (CGameServer*)NtlSfxGetApp();
+
 	return NTL_SUCCESS;
 }
 
@@ -33,6 +36,8 @@ void CClientSession::OnClose()
 {
 	NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
 	this->cPlayersMain = NULL;
+	pServer->RemoveAttackBegin(this->GetavatarHandle());
+	//pServer->RemoveAttackBegin(this->m_uiTargetSerialId);
 
 }
 
@@ -42,10 +47,10 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 	CGameServer * app = (CGameServer*) NtlSfxGetApp();
 	sNTLPACKETHEADER * pHeader = (sNTLPACKETHEADER *)pPacket->GetPacketData();
 	if (pHeader->wOpCode != 1)
-	//printf("~~~ opcode %i received ~~~ \n", pHeader->wOpCode);
+	printf("~~~ opcode %i received ~~~ \n", pHeader->wOpCode);
 	if (pHeader->wOpCode > 16)
 	NTL_PRINT(PRINT_SYSTEM, "%s [%u] Length[%u] DataSize[%u]", NtlGetPacketName_UG(pHeader->wOpCode), pHeader->wOpCode, pPacket->GetPacketLen(), pPacket->GetUsedSize());
-
+	app->pSession = this;
 	switch( pHeader->wOpCode )
 	{
 
@@ -53,7 +58,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 	{
 		if (this->isHandShaken == false)
 		{
-			CNtlPacket packet2(0x22);
+			CNtlPacket packet2(0x22); 
 			unsigned char buf2[] = { 0x10, 0x00, 0x84, 0xfb, 0x48, 0xf4, 0x8e, 0x5a, 0xb6, 0x67, 0xe2, 0x3d, 0x6e, 0x14, 0xb4, 0xa3, 0xc3, 0x24, 0x9e, 0x5f, 0xe3, 0xd1, 0xd5, 0x88, 0x10, 0x0d, 0x68, 0x4f, 0x3b, 0xa5, 0xed, 0x37, 0xed, 0x4a };
 			packet2.SetPacket(buf2, 0x22);
 			packet2.GetPacketHeader()->bEncrypt = false;
@@ -262,7 +267,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_ATTACK_BEGIN:
 		{
 			CClientSession::SendAttackBegin(pPacket,app);
-			CClientSession::SenGiftShop(pPacket, app);
+			//CClientSession::SenGiftShop(pPacket, app);
 			
 
 		}

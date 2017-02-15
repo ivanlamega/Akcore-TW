@@ -18,6 +18,8 @@ PlayersMain::PlayersMain(HSESSION PlayerSession,int CharID,int AccountID)
 	this->isDead = false;
 	this->isSitted = false;
 	this->isfighting = false;
+	this->isInGame = false;
+	this->isLeavingGame = false;
 	this->bTradeOk = false;
 	this->bPlayerInTrade = false;
 	this->isInTutorial = false;
@@ -67,6 +69,16 @@ bool PlayersMain::IsInTutorial()
 bool PlayersMain::GetPlayerFight()
 {
 	return this->isfighting;
+}
+//Is the player in the game world?
+bool PlayersMain::GetPlayerGameStatus()
+{
+	return this->isInGame;
+}
+//Is the Player is leaving game?
+bool PlayersMain::GetPlayerLeaving()
+{
+	return this->isLeavingGame;
 }
 //Return if Player trade is ok
 bool PlayersMain::GetTradeOK()
@@ -245,6 +257,17 @@ void PlayersMain::SetPlayerSit(bool SiteGetUp)
 {
 	this->isSitted = SiteGetUp;
 }
+//Set Player Sit or Get Up
+void PlayersMain::SetPlayerGameStatus(bool bStatus)
+{
+	this->isInGame = bStatus;
+}
+//Set Player Sit or Get Up
+void PlayersMain::SetPlayerLeaving(bool bLeaving)
+{
+	this->isLeavingGame = bLeaving;
+}
+
 //Sets Player Dead or Alive
 void PlayersMain::SetPlayerDead(bool isDead)
 {
