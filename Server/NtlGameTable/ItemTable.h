@@ -40,9 +40,8 @@ public:
 //	std::string		strIcon_Name;
 	char			szIcon_Name[ DBO_MAX_LENGTH_ITEM_ICON_NAME + 1 ];
 	BYTE			byModel_Type;
-//	std::string		strModel;
 	char			szModel[ DBO_MAX_LENGTH_ITEM_MODEL_NAME + 1 ];
-//	std::string		strSub_Weapon_Act_Model;
+
 	char			szSub_Weapon_Act_Model[ DBO_MAX_LENGTH_ITEM_SUBWEAPON_ACT_MODEL_NAME + 1 ];
 	BYTE			byItem_Type;
 	BYTE			byEquip_Type;
@@ -50,6 +49,9 @@ public:
 	WORD			wFunction_Bit_Flag;
 	BYTE			byMax_Stack;
 	BYTE			byRank;
+
+	BYTE			unkA[17]; //Unknown Structs
+
 	DWORD			dwCost;
 	BYTE			bySell_Price;
 	BYTE			byDurability;
@@ -57,6 +59,9 @@ public:
 	BYTE			byBattle_Attribute;
 	// 공격력, 방어력 관련
 	WORD			wPhysical_Offence;
+
+	WORD			unk2; //Soemthing with this
+
 	WORD			wEnergy_Offence;
 	WORD			wPhysical_Defence;
 	WORD			wEnergy_Defence;
@@ -67,6 +72,8 @@ public:
 	DWORD			dwEnergy_DefenceUpgrade;
 
 	float			fAttack_Range_Bonus;
+	BYTE			unk3[9];
+
 	WORD			wAttack_Speed_Rate;  // 애니메이 속도에 대한 %
 	BYTE			byNeed_Level;
 	DWORD			dwNeed_Class_Bit_Flag;
@@ -98,6 +105,9 @@ public:
 	BYTE			byDurationType;		//eDURATIONTYPE
 	TBLIDX			contentsTblidx;
 	DWORD			dwDurationGroup;	// 같은 종류의 기간제 아이템인지를 나타내는 그룹
+
+	BYTE			unk5[32]; //This data still has to be inserted into the struct someplace. 
+
 public:
 
 	virtual int GetDataSize()

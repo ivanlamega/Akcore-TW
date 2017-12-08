@@ -1,10 +1,10 @@
-//***********************************************************************************
+﻿//***********************************************************************************
 //
 //	File		:	HLSItemTable.h
 //
 //	Begin		:	2009-8-14
 //
-//	Copyright	:	�� NTL-Inc Co., Ltd
+//	Copyright	:	ㄏ NTL-Inc Co., Ltd
 //
 //	Author		:	Chung Doo sup   ( john@ntl-inc.com )
 //
@@ -32,23 +32,69 @@ struct sSUB_ITEM
 struct sHLS_ITEM_TBLDAT : public sTBLDAT
 {
 public:
-	WCHAR			wszName[ DBO_MAX_LENGTH_HLSITEM_NAME_TEXT + 1 ];
-	WCHAR			wszCJIProductID[ DBO_MAX_LENGTH_HLSITEM_ID_TEXT + 1 ];
-	WORD			wHLSItemType;
-	TBLIDX			itemTblidx;
-	bool			bOnSale;
-	BYTE			bySellType;
-	DWORD			dwCash;
-	BYTE			byDiscount;	// ���η�
-	BYTE			byStackCount;
-	bool			bCjVip;		//CJ VIP ���ΰ����Ѱ�
-	BYTE			byVipDiscount; // CJ VIP ���η�
-	WORD			wDisplayBitFlag;		//eHLS_DISPLAY_ITEM_FUNC_BIT_FLAG
-	sSUB_ITEM		asSubItem[DBO_MAX_COUNT_HLSITEM_SUB_ITEM];
-	sDBO_TIME		sLimitedStart;
-	sDBO_TIME		sLimitedEnd;	
-	DWORD			dwLimitedSellNum;
+	//WCHAR            wszName[20 + 1];
+	//WCHAR            wszCJIProductID[128 + 1];
+	////need Check all Struture 
+	//WORD            wHLSItemType;
+	//bool            bOnSale;
+	//BYTE            bySellType;
+	//WORD            unk2;
+	//BYTE            byDiscount;    // ÇÒÀÎ·ü
+	//BYTE            byStackCount;
+	//bool            bCjVip;        //CJ VIP ÇÒÀÎ°¡´ÉÇÑ°¡
+	//BYTE            byVipDiscount; // CJ VIP ÇÒÀÎ·ü
+	//WORD            wDisplayBitFlag;        //eHLS_DISPLAY_ITEM_FUNC_BIT_FLAG
+	//sSUB_ITEM       asSubItem[5];
+	//sDBO_TIME       sLimitedStart;
+	//sDBO_TIME       sLimitedEnd;
+	//DWORD           unk6;
+	/////// all before need to be checked
+	////Correct IDS
+	//DWORD           itemTblidx;//Next Item ID "asSubItem"
+	//DWORD           itemTblidx2;//Next Item ID "asSubItem"
+	//DWORD           itemTblidx3;//Next Item ID "asSubItem"
+	///////////////////////
+	//DWORD           unk7;
+	////Maybe Price
+	//DWORD           Price;//Price CP"
+	//////////??????//////
+	//BYTE           unk8;
+	//BYTE           unk9;
+	//BYTE           unk10;
+	//BYTE           unk11;
+	//DWORD           unk12;
+	//DWORD           unk13;
+	//DWORD           unk14;
+	//DWORD           unk15;
+	//DWORD           unk16;
+	/////Need Check 32 Byte
+	//BYTE        TEST1[32];
 
+	WCHAR            wszName[20 + 1];
+	WCHAR            wszCJIProductID[128 + 1];
+	WCHAR            wszIcon[32 + 1];
+	//need Check all Struture 
+	WORD            wHLSItemType;
+	bool            bOnSale;
+	BYTE            bySellType;
+	BYTE            byDiscount;    // ÇÒÀÎ·ü
+	BYTE            byStackCount;
+	bool            bCjVip;        //CJ VIP ÇÒÀÎ°¡´ÉÇÑ°¡
+	BYTE            byVipDiscount; // CJ VIP ÇÒÀÎ·ü
+	WORD            wDisplayBitFlag;        //eHLS_DISPLAY_ITEM_FUNC_BIT_FLAG
+	BYTE				unk1;
+	sSUB_ITEM       asSubItem[5];
+	sDBO_TIME       sLimitedStart;
+	sDBO_TIME       sLimitedEnd;
+	///// all before need to be checked
+	//Correct IDS
+	DWORD           itemTblidx;//Next Item ID "asSubItem"
+	DWORD           itemTblidx2;//Next Item ID "asSubItem"
+	DWORD           itemTblidx3;//Next Item ID "asSubItem"
+	/////////////////////
+	//Maybe Price
+	////////??????//////
+	WORD 		Price;
 public:
 
 	virtual int GetDataSize()

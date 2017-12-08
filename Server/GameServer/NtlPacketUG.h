@@ -771,27 +771,40 @@ BEGIN_PROTOCOL(UG_CHAR_READY)
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_CHAR_MOVE)
-	//- yoshiki : Do we use dwTimeStamp or not?
-	DWORD				dwTimeStamp;
-	BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
-	sVECTOR3			vCurLoc;
-	sVECTOR2			vCurDir;
-	BYTE				byMoveDirection;
+//- yoshiki : Do we use dwTimeStamp or not?
+uint8_t avatar_type;
+//sVECTOR3            vCurLoc;
+//sVECTOR3            vCurDir;
+uint32_t pos_move_x;
+uint32_t pos_move_y;
+uint32_t pos_move_z;
+int16_t dir_move_x;
+int16_t dir_move_y;
+int16_t dir_move_z;
+uint8_t move_type;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_CHAR_AIR_MOVE)
 //- yoshiki : Do we use dwTimeStamp or not?
 BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
-sVECTOR3			vCurLoc;
-sVECTOR3			vCurDir;
+uint32_t pos_move_x;
+uint32_t pos_move_y;
+uint32_t pos_move_z;
+int16_t dir_move_x;
+int16_t dir_move_y;
+int16_t dir_move_z;
 BYTE				byMoveDirection;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(UG_CHAR_AIR_MOVE_SYNC)
 //- yoshiki : Do we use dwTimeStamp or not?
 BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
-sVECTOR3			vCurLoc;
-sVECTOR3			vCurDir;
+uint32_t pos_move_x;
+uint32_t pos_move_y;
+uint32_t pos_move_z;
+int16_t dir_move_x;
+int16_t dir_move_y;
+int16_t dir_move_z;
 BYTE				byMoveDirection;
 END_PROTOCOL()
 //------------------------------------------------------------------
@@ -811,7 +824,7 @@ BEGIN_PROTOCOL(UG_CHAR_CHANGE_HEADING)
 END_PROTOCOL()
 //------------------------------------------------------------------
 //BEGIN_PROTOCOL(UG_CHAR_MOVE_SYNC)
-//	//- yoshiki : Do we use dwTimeStamp or not?
+////	//- yoshiki : Do we use dwTimeStamp or not?
 //	DWORD				dwTimeStamp;
 //	BYTE				byAvatarType;		// eDBO_AVATAR_TYPE
 //	sVECTOR3			vCurLoc;
@@ -2041,6 +2054,17 @@ BYTE				byBuyCount;
 DWORD				adwIdxHlsTable[NTL_MAX_BUY_HLSSHOP_CART];
 END_PROTOCOL()
 //------------------------------------------------------------------
+
+/*
+,
+UG_CHAR_AIR_JUMP,
+UG_CHAR_AIR_DASH,
+UG_CHAR_AIR_FALLING,
+UG_CHAR_AIR_END,
+UG_CHAR_AIR_FOLLOW_MOVE,
+UG_CHAR_AIR_ACCEL,
+UG_CHAR_AIR_POSE_REQ,
+*/
 #pragma pack()
 
 

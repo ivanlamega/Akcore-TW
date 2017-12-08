@@ -1,0 +1,28 @@
+#include "DBO-TYPES.hsl" 
+
+#pragma show()
+struct sEXP_TBLDAT
+{
+	TBLIDX			tblidx;
+	DWORD		dwExp;		// Required exp to become the level from level 1.
+	DWORD		dwNeed_Exp;		// Required exp to become the level from the previous level.
+	DWORD win_score_personal;
+	DWORD loose_score_personal;
+	DWORD perfect_win_score_personal;
+	DWORD normal_win_score_personal;
+	DWORD normal_win_score_party;
+	DWORD normal_race;
+	DWORD mob_exp;
+	DWORD phy_def_ref;
+	DWORD eng_def_ref;
+	DWORD mob_zenny;
+} sEXP_TBLDAT;
+
+struct sEXP_TBLDAT_ALL
+{
+	BYTE			dunno;
+	DWORD			Size;
+	BYTE			dunno2;
+	sEXP_TBLDAT	type[100];
+
+};

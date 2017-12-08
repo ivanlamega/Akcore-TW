@@ -71,7 +71,7 @@
 #include "MainClass.h"
 #include "TLQHandler.h"
 #include <random> //For real randoms
-
+#include "NtlMutex.h"
 enum APP_LOG
 {
 	PRINT_APP = 2,
@@ -130,7 +130,7 @@ public:
 	CClientSession(bool bAliveCheck = false, bool bOpcodeCheck = false)
 		:CNtlSession( SESSION_CLIENT )
 	{
-		SetControlFlag( CONTROL_FLAG_USE_SEND_QUEUE );
+		SetControlFlag(CONTROL_FLAG_USE_SEND_QUEUE & CONTROL_FLAG_USE_RECV_QUEUE);
 
 		if( bAliveCheck )
 		{
@@ -193,6 +193,7 @@ public:
 	void						SendAirJump(CNtlPacket * pPacket, CGameServer * app);
 	void						SendAirDash(CNtlPacket * pPacket, CGameServer * app);	
 	void						SendCharJump(CNtlPacket * pPacket, CGameServer * app);
+	void						SendCharJumpChange(CNtlPacket * pPacket, CGameServer * app);
 	void						SendCharDashKeyBoard(CNtlPacket * pPacket, CGameServer * app);
 	void						SendCharDashMouse(CNtlPacket * pPacket, CGameServer * app);
 	void						SendCharChangeDirOnFloating(CNtlPacket * pPacket, CGameServer * app);
@@ -216,12 +217,9 @@ public:
 	void						SendAttackBegin(CNtlPacket * pPacket, CGameServer * app);
 	void						SendAttackEnd(CNtlPacket * pPacket, CGameServer * app);
 	void						SendCharToggleFighting(CNtlPacket * pPacket, CGameServer * app);
-	void						AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId);
-	void						RemoveAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId);
-	void						SendCharActionAttack(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, CNtlPacket * pPacket);
 	void						SendMobActionAttack(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, CNtlPacket * pPacket);
 	void						SendCharUpdateFaintingState(CNtlPacket * pPacket, CGameServer * app, RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId);
-	void						SendCharUpdateLp(CNtlPacket * pPacket, CGameServer * app, RwUInt16 wLp, RwUInt32 m_uiTargetSerialId);
+	void						SendCharUpdateLp(CNtlPacket * pPacket, CGameServer * app, RwUInt32 wLp, RwUInt32 m_uiTargetSerialId);
 	void						SendGmtUpdateReq(CNtlPacket * pPacket, CGameServer * app);
 	void						SendCharRevivalReq(CNtlPacket * pPacket, CGameServer * app);
 	//Guild
@@ -380,17 +378,25 @@ public:
 	void						SendServerAnnouncement(wstring sMsg, CGameServer * app);
 	void						SendServerBroadcast(wstring wsMsg, CGameServer * app);
 	void						CreateItemById(uint32_t tblidx, int playerId);
-	void						AddSkillById(uint32_t tblidx, int playerId);
-	void						CreateMonsterById(unsigned int uiMobId, int PlayerId);
-	void						CreateNPCById(unsigned int uiNpcId, int PlayerId);
+	void						AddSkillById(uint32_t tblidx);
+	void						CreateMonsterById(unsigned int uiMobId);
+	void						CreateNPCById(unsigned int uiNpcId);
 	void						SendTestDirectPlay(uint32_t tblidx, int playerId, bool sync);
+	//Helper Functions
+	void						UpdateCharState(HOBJECT avHandle, eCHARSTATE state);
 
 	//Game Server functions
 	sGU_OBJECT_CREATE			characterspawnInfo;
 	//Other Classes
-	PlayersMain					*cPlayersMain;
-	GsFunctionsClass			*gsf;
+	PlayersMain					*cPlayersMain = NULL;
+	GsFunctionsClass			*gsf = NULL;
 	TLQHandler					*tlqManager = NULL;
+	CGameServer					*pServer = NULL;
+
+	bool						isingame;
+	bool						isleavinggame;
+	bool						issitting;
+	bool						isfighting;
 private:
 	CNtlPacketEncoder_RandKey	m_packetEncoder;
 	RwUInt32					avatarHandle;
@@ -552,6 +558,7 @@ public:
 		BYTE   byBattleAttribute;
 		int    StackCount;
 	};
+	
 	int					OnInitApp()
 	{
 		m_nMaxSessionCount = MAX_NUMOF_SESSION;
@@ -737,9 +744,9 @@ public:
 			g_pPlayerManager = new CPlayerManager;
 			g_pPlayerManager->Init();
 			NTL_PRINT(PRINT_APP, "Player Manager Initalzed\n\r");
-			/*g_pMobManager = new CMobManager;
+			g_pMobManager = new CMobManager;
 			g_pMobManager->Init();
-			NTL_PRINT(PRINT_APP, "Mob Manager Initalzed\n\r");*/
+			NTL_PRINT(PRINT_APP, "Mob Manager Initalzed\n\r");
 			return NTL_SUCCESS;
 		}else{
 		printf("FAILED LOADING TABLES !!! \n");
@@ -765,7 +772,18 @@ public:
 	CNtlPacket *				pPacket;
 	CClientSession *			pSession;
 	CTableContainer	*			g_pTableContainer;
+	CNtlMutex					m_game_mutex;	//Mutexs To make sure we finish doing thread things FIRST
+	CNtlMutex					m_batle_mutex;
+	RwUInt32					m_uiSerialId;
+
+	void						AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, bool bIsplayer, bool bIsplayer2 = false, float indexx = 0, float indexz = 0);
+	void						RemoveAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId = 0);
+	void						SendCharActionAttack(SBattleData *pBattleData);
+	typedef std::map<RwUInt32, PlayersMain*>::const_iterator itterType;
+	itterType i;
 	bool						CreateTableContainer(int byLoadMethod);
+
+
 
 	void						Run()
 	{
@@ -774,12 +792,12 @@ public:
 		while( IsRunnable() )
 		{		
 			dwTickCur = ::GetTickCount();
-			if( dwTickCur - dwTickOld >= 1000 )
+			if (dwTickCur - dwTickOld >= 10)
 			{
 				UpdateClient(pPacket,pSession);
 				dwTickOld = dwTickCur;
 			}
-		Sleep(100);
+			this->Wait(1);
 		}
 	}
 
@@ -801,6 +819,15 @@ public:
 		if( it == m_userList.end() )
 			return false;
 		return true;
+	}
+	bool						IsUser(unsigned int lpszUserID)
+	{
+		for (USERIT it = m_userList.begin(); it != m_userList.end(); it++)
+		{
+			if (it->second->GetavatarHandle() == lpszUserID)
+				return true;
+		}
+		return false;
 	}
 	void						UserBroadcast(CNtlPacket * pPacket)
 	{

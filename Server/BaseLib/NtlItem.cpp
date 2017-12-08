@@ -519,8 +519,7 @@ bool Dbo_SetItemBrief( sITEM_BRIEF* const pItemBrief
 							, TBLIDX tblidx
 							, BYTE byRank
 							, BYTE byGrade
-							, BYTE byBattleAttribute
-							, TBLIDX* const aOptionTblidx )
+							, BYTE byBattleAttribute )
 {
 	if( NULL == pItemBrief )
 	{
@@ -532,14 +531,14 @@ bool Dbo_SetItemBrief( sITEM_BRIEF* const pItemBrief
 	pItemBrief->byGrade = byGrade;
 	pItemBrief->byBattleAttribute = byBattleAttribute;
 
-	if( NULL == aOptionTblidx )
+	/*if( NULL == aOptionTblidx )
 	{
 		memset( pItemBrief->aOptionTblidx, INVALID_TBLIDX, sizeof( pItemBrief->aOptionTblidx ) );
 	}
 	else
 	{
 		memcpy( pItemBrief->aOptionTblidx, aOptionTblidx, sizeof( pItemBrief->aOptionTblidx ) );
-	}
+	}*/
 
 	return true;
 }

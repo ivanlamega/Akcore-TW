@@ -808,8 +808,8 @@ int	GsFunctionsClass::consoleCommandHandler(std::string command)
 				app->db->switchDb(app->GetConfigFileDatabase());
 				string sPlayer = "test";
 				uint32_t tblidx = 0;
-				//cout << "Please enter recipents name: ";
-				//getline(cin, sPlayer);
+				cout << "Please enter recipents name: ";
+				getline(cin, sPlayer);
 				app->db->prepare("SELECT * from characters where CharName = ?");
 				app->db->setString(1, sPlayer);
 				app->db->execute();
@@ -854,7 +854,7 @@ int	GsFunctionsClass::consoleCommandHandler(std::string command)
 				cin >> tblidx;
 
 				cout << "Spawn at : " << sPlayer  << "'s Position." << endl << "Mob ID: " << tblidx << endl << "PlayerID: " << playerId << endl;
-				app->pSession->CreateNPCById(tblidx, playerId);
+				//app->pSession->CreateNPCById(tblidx, playerId);
 				commandFinished();
 			}
 			//clear these pointers before returning.
@@ -885,7 +885,7 @@ int	GsFunctionsClass::consoleCommandHandler(std::string command)
 			cin >> tblidx;
 
 			cout << "Spawn at : " << sPlayer << "'s Position." << endl << "Mob ID: " << tblidx << endl << "PlayerID: " << playerId << endl;
-			app->pSession->CreateMonsterById(tblidx, playerId);
+			//app->pSession->CreateMonsterById(tblidx, playerId);
 			commandFinished();
 		}
 		//clear these pointers before returning.
@@ -916,7 +916,7 @@ int	GsFunctionsClass::consoleCommandHandler(std::string command)
 				cin >> tblidx;
 
 				cout << "Recipients Name: " << sPlayer << endl << "Skill ID: " << tblidx << endl << "PlayerID: " << playerId << endl;
-				app->pSession->AddSkillById(tblidx, playerId);
+				//app->pSession->AddSkillById(tblidx, playerId);
 				commandFinished();
 			}
 			//clear these pointers before returning.

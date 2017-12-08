@@ -161,7 +161,7 @@ bool CHLSItemTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstri
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Cash"))
 		{
 			CheckNegativeInvalid( pstrDataName->c_str(), bstrData );
-			pItem->dwCash = READ_DWORD( bstrData );
+			pItem->Price = READ_DWORD( bstrData );
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Discount"))
 		{
@@ -270,7 +270,7 @@ bool CHLSItemTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstri
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Limited_Sell_Num"))
 		{
-			pItem->dwLimitedSellNum = READ_DWORD( bstrData );
+			pItem->itemTblidx3 = READ_DWORD(bstrData);
 		}	
 		else
 		{

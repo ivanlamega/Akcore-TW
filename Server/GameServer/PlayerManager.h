@@ -1,6 +1,7 @@
 #pragma once
 #include "SharedType.h"
 #include "NtlThread.h"
+#include "NtlMutex.h"
 #ifndef PLAYER_MANAGER_H
 #define PLAYER_MANAGER_H
 
@@ -26,15 +27,18 @@ public:
 	void            RemovePlayer(RwUInt32 playerHandle);
 	void			CreatePlayerThread();
 	void			Run();
-	int			GetTotalPlayers();
-private:
+	int				GetTotalPlayers();
+	void			SendSyncPacket(RwUInt32 PlayerHandle, sVECTOR3 loc, sVECTOR3 dir, BYTE byMovFlag);
+public:
 	CNtlThread * pThread;
 	PlayersMain* cPlayersMain;
 	bool m_bRun;
 	int PlayerCounter;
-	std::map<RwUInt32, PlayersMain*> m_map_Player ;
+	std::map<RwUInt32, PlayersMain*> m_map_Player;
 	typedef std::map<RwUInt32, PlayersMain*>::const_iterator itterType;
 	itterType i;
+
+	CNtlMutex*  mPlayerMutex;
 	
 
 }; 

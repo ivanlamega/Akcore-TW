@@ -616,7 +616,7 @@ enum eMARKING_TYPE
 	MARKING_TYPE_BUDOKAI_JUNIOR_WINNER02 = MARKING_TYPE_BUDOKAI_WINNER02,
 	MARKING_TYPE_BUDOKAI_JUNIOR_WINNER03 = MARKING_TYPE_BUDOKAI_WINNER03,
 
-	INVALID_MARKING_TYPE = INVALID_WORD,
+	INVALID_MARKING_TYPE = INVALID_DWORD,
 };
 
 enum eMARKING_CONTENTS_TYPE
@@ -809,6 +809,7 @@ union sCHARSTATE_DETAIL
 	sCHARSTATE_OPERATING			sCharStateOperating;
 	sCHARSTATE_RIDEON				sCharStateRideOn;
 	sCHARSTATE_TURNING				sCharStateTurning;
+	
 };
 
 
@@ -985,8 +986,29 @@ struct sPC_PROFILE_LOCALIZE_CJIKOR
 struct sPC_PROFILE_LOCALIZE
 {
 	LOCALIZETYPE type;
-	BYTE unknown[27];
+	DWORD netp;// Token Point correct value
+	//BYTE unknown1;// incress token poit too worong value
+	//BYTE unknown2;// incress token poit too worong value
+	//BYTE unknown3;// incress token poit too worong value 
+	DWORD unknown4;// Notify if recive cash item from friend "mensage say gift not confirmed"
+	BYTE unknown8;// Unknow TW
+	BYTE unknown9;// INVALID_TBLIDX TW
+	DWORD unknown10;// Unknow TW
+	BYTE unknown14;// Unknow TW
+	BYTE unknown15;// Unknow TW
+	BYTE unknown16;// Unknow TW
+	BYTE unknown17;// INVALID_TBLIDX TW
+	BYTE unknown18;// INVALID_TBLIDX TW
+	BYTE unknown19;// INVALID_TBLIDX TW
+	BYTE unknown20;// INVALID_TBLIDX TW
+	BYTE unknown21;// Unknow TW
+	DWORD unknown22;// WP Poit mensage
+	BYTE unknown26;// Unknow TW
 
+	union
+	{
+
+	};
 	/*union
 	{
 	sPC_PROFILE_LOCALIZE_DEV pcProfileDev;

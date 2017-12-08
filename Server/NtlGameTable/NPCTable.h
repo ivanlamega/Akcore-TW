@@ -20,6 +20,8 @@ public:
 	char			szModel[ NTL_MAX_LENGTH_MODEL_NAME + 1 ];
 	BYTE			byLevel;
 
+	BYTE			byUnknown; //TW
+	
 	DWORD			dwAi_Bit_Flag;
 	WORD			wLP_Regeneration;
 	WORD			wEP_Regeneration;
@@ -27,6 +29,9 @@ public:
 	BYTE			byAttack_Animation_Quantity;
 	BYTE			byBattle_Attribute;
 	WORD			wBasic_Offence;
+
+	WORD			wUnknown;
+
 	float			fWalk_Speed_Origin;
 	float			fWalk_Speed;
 	float			fRun_Speed_Origin;
@@ -35,6 +40,9 @@ public:
 	float			fRadius_Z;
 	BYTE			bySight_Range;
 	BYTE			byScan_Range;
+
+	WORD			wUnkwown1;
+
 
 	WORD			wUse_Skill_Time[NTL_MAX_NPC_HAVE_SKILL];
 	TBLIDX			use_Skill_Tblidx[NTL_MAX_NPC_HAVE_SKILL];
@@ -51,7 +59,7 @@ public:
 
 	bool			bSpawn_Animation;
 	DWORD			dwDialogGroup;
-
+	//BYTE			byUnknown1;
 	CHAR			szILLust[ DBO_MAX_LENGTH_BOT_ILLUST_NAME + 1 ];
 	DWORD			dwAllianceIdx;
 	WORD			wAggroMaxCount;
@@ -68,11 +76,13 @@ public:
 	BYTE			byJob;
 	DWORD			dwFunc_Bit_Flag;
 	TBLIDX			Dialog_Script_Index;
-
+	WORD			wUnknown2;
 	TBLIDX			amerchant_Tblidx[NTL_MAX_MERCHANT_TAB_COUNT];
 
 	TBLIDX			statusTransformTblidx;
 	TBLIDX			contentsTblidx;
+	BYTE			unknownSize[20];
+
 
 public:
 

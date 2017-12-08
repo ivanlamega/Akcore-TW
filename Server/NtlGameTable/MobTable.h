@@ -14,8 +14,10 @@ enum eMOB_PROPERTY_TYPE
 struct sMOB_TBLDAT : public sBOT_TBLDAT
 {
 public:
+	//BYTE			wUnknown3;
 	DWORD			dwMobGroup;		
 	WORD			wMob_Kind;
+
 	DWORD			dwDrop_Zenny;
 	float			fDrop_Zenny_Rate;
 	WORD			wExp;
@@ -44,6 +46,7 @@ public:
 	BYTE			byHtbBlockRate;
 
 	WORD			wSightAngle;
+	BYTE			unknownSize[100];
 
 public:
 

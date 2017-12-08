@@ -889,13 +889,12 @@ BEGIN_PROTOCOL(GU_OBJECT_DESTROY)
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_MOVE)
-	HOBJECT			handle;
-	//- yoshiki : Do we use dwTimeStamp or not?
-	DWORD			dwTimeStamp;
-	sVECTOR3		vCurLoc;
-	sVECTOR3		vCurDir;
-	BYTE			byMoveDirection;
-	BYTE			byMoveFlag;		// 뛰기 혹은 걷기(ENtlMovementFlag 참조)
+HOBJECT handle;
+sVECTOR3            vCurLoc;
+sVECTOR3            vCurDir;
+uint8_t move_type;
+uint32_t move_flag;
+uint8_t relleno[61];
 END_PROTOCOL()
 //-----------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_AIR_MOVE_SYNC)
@@ -1070,7 +1069,12 @@ BEGIN_PROTOCOL(GU_CHAR_ACTION_ATTACK)
 	DWORD			fReflectedDamage; // 타겟으로부터 반사되어 입은 피해
 	BYTE			byBlockedAction;		// eDBO_GUARD_TYPE
 	sVECTOR3		vShift; // 어택으로 인한 이동 벡터
-END_PROTOCOL()
+	BYTE			unknown[9];
+	END_PROTOCOL()
+//------------------------------------------------------------------
+	BEGIN_PROTOCOL(GU_CHAR_IS_BATTLECOMBATING)
+	BYTE		Unknown[4];
+	END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_ACTION_SKILL)
 	HOBJECT				handle;
@@ -1081,7 +1085,8 @@ BEGIN_PROTOCOL(GU_CHAR_ACTION_SKILL)
 	HOBJECT				hAppointedTarget;
 	bool				bIsSkillHarmful;
 	BYTE				bySkillResultCount;
-	sSKILL_RESULT		aSkillResult[NTL_MAX_NUMBER_OF_SKILL_TARGET];
+	sSKILL_RESULT		aSkillResult[26];//NTL_MAX_NUMBER_OF_SKILL_TARGET];
+	BYTE				Unknown[78];
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_ACTION_ITEM)
@@ -1434,6 +1439,8 @@ BEGIN_PROTOCOL(GU_UPDATE_CHAR_SPEED)
 	HOBJECT			handle;
 	float			fLastWalkingSpeed;
 	float			fLastRunningSpeed;
+	float			fLastFlySpeed;
+	float			fLastFlyBoostSpeed;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_ATTACK_SPEEDRATE)
@@ -1460,8 +1467,8 @@ END_PROTOCOL()*/
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_LP)
 	HOBJECT			handle;
 	DWORD			dwLpEpEventId;
-	WORD			wCurLP;
-	WORD			wMaxLP;
+	DWORD			wCurLP;
+	DWORD			wMaxLP;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_EP)
@@ -1481,8 +1488,8 @@ END_PROTOCOL()
 BEGIN_PROTOCOL(GU_UPDATE_CHAR_LP_EP)
 	HOBJECT			handle;
 	DWORD			dwLpEpEventId;
-	WORD			wCurLP;
-	WORD			wMaxLP;
+	DWORD			wCurLP;
+	DWORD			wMaxLP;
 	WORD			wCurEP;
 	WORD			wMaxEP;
 END_PROTOCOL()
@@ -4028,29 +4035,37 @@ END_PROTOCOL()
 
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_SERVER_CONTENTS_ONOFF)
-	BYTE      abyContentsBitFlag[7];
-	BYTE      abyQuestOnOffBitFlag[3];
-	BYTE      byNotSpawnNpcCount;
-	TBLIDX    atblNotSpawnNpcIndex[15];
-	BYTE      byNotLoadingHelpCount;
-	TBLIDX    atblNotLoadingHelpIndex[12];
-	DWORD     dwCCBDUse;
+	BYTE		abyContentsBitFlag[7];
+	BYTE		abyQuestOnOffBitFlag[3];
+	BYTE		byNotSpawnNpcCount;
+	TBLIDX		atblNotSpawnNpcIndex[15];
+	BYTE		byNotLoadingHelpCount;
+	TBLIDX		atblNotLoadingHelpIndex[12];
+	DWORD		dwCCBDUse;
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_GIFT_SHOP_START_REQ)
-WORD				wResultCode;
-DWORD				dwRemainAmount;
+WORD			wResultCode;
+DWORD			dwRemainAmount;
 END_PROTOCOL()
 
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_SCOUTER_ACTIVATION_RES)
-WORD				wResultCode;
-DWORD	test;
-BYTE	test1;
-BYTE	test2;
+HOBJECT			handle;
+WORD			wResultCode;
+DWORD			test;
+BYTE			test1;
+BYTE			test2;
 END_PROTOCOL()
-BEGIN_PROTOCOL(GU_CHARTITLE_ADD)
-WORD				wResultCode;
-sMARKING			title;
+BEGIN_PROTOCOL(GU_CHARTITLE_LIST_INFO)
+HOBJECT			handle;
+sMARKING		title;
 END_PROTOCOL()
+BEGIN_PROTOCOL(GU_UPDATE_CHAR_AP)//Correct struture for tw^^
+HOBJECT			handle;
+DWORD			dwCurAp;
+DWORD			wBaseMaxAp;
+DWORD			unknown;
+END_PROTOCOL()
+
 #pragma pack(pop)

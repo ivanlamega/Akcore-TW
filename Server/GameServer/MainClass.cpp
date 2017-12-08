@@ -18,6 +18,8 @@ PlayersMain::PlayersMain(HSESSION PlayerSession,int CharID,int AccountID)
 	this->isDead = false;
 	this->isSitted = false;
 	this->isfighting = false;
+	this->isInGame = false;
+	this->isLeavingGame = false;
 	this->bTradeOk = false;
 	this->bPlayerInTrade = false;
 	this->isInTutorial = false;
@@ -32,6 +34,7 @@ PlayersMain::PlayersMain(HSESSION PlayerSession,int CharID,int AccountID)
 	for (int i = 0; i < 8; i++){
 		this->tblEquipedChips[i] = INVALID_TBLIDX;
 	}
+	//CreatePlayerProfile();
 }
 PlayersMain::~PlayersMain()
 {
@@ -67,6 +70,16 @@ bool PlayersMain::GetPlayerFight()
 {
 	return this->isfighting;
 }
+//Is the player in the game world?
+bool PlayersMain::GetPlayerGameStatus()
+{
+	return this->isInGame;
+}
+//Is the Player is leaving game?
+bool PlayersMain::GetPlayerLeaving()
+{
+	return this->isLeavingGame;
+}
 //Return if Player trade is ok
 bool PlayersMain::GetTradeOK()
 {
@@ -101,13 +114,18 @@ sCHARSTATE* PlayersMain::GetCharState()
 RwUInt32 PlayersMain::GetAvatarHandle()
 {
 	//We dont know why but it solves the problem :) - Thanks ebbo
-	//try{
-		return this->avatarHandle;
-	//}
-	//catch (exception e)
-	//{
-	//	printf("Handle is invalid\n\r %s", e.what());
-	//}
+	if (this)
+	{
+		try{
+			return this->avatarHandle;
+		}
+		catch (exception e)
+		{
+			printf("Handle is invalid\n\r %s", e.what());
+		}
+	}
+	else
+		return INVALID_HSESSION;
 }
 //Returns Mob Spawn Time
 RwUInt32 PlayersMain::GetMob_SpawnTime()
@@ -239,6 +257,17 @@ void PlayersMain::SetPlayerSit(bool SiteGetUp)
 {
 	this->isSitted = SiteGetUp;
 }
+//Set Player Sit or Get Up
+void PlayersMain::SetPlayerGameStatus(bool bStatus)
+{
+	this->isInGame = bStatus;
+}
+//Set Player Sit or Get Up
+void PlayersMain::SetPlayerLeaving(bool bLeaving)
+{
+	this->isLeavingGame = bLeaving;
+}
+
 //Sets Player Dead or Alive
 void PlayersMain::SetPlayerDead(bool isDead)
 {
@@ -300,7 +329,7 @@ void PlayersMain::FillCharState()
 	db->switchDb(app->GetConfigFileDatabase());
 
 	//Makesure this sets everything to 0 before assigning things
-	//memset(this->sPlayerState, 0, sizeof(this->sPlayerState));
+	memset(this->sPlayerState, 0, sizeof(this->sPlayerState));
 
 	db->prepare("SELECT * FROM characters WHERE CharID = ?");
 	db->setInt(1, this->GetCharID());
@@ -312,8 +341,8 @@ void PlayersMain::FillCharState()
 	this->sPlayerState->sCharStateBase.vCurDir.x = (float)db->getDouble("CurDirX");
 	this->sPlayerState->sCharStateBase.vCurDir.y = (float)db->getDouble("CurDirY");
 	this->sPlayerState->sCharStateBase.vCurDir.z = (float)db->getDouble("CurDirZ");
-	this->sPlayerState->sCharStateBase.dwConditionFlag = 0xff;
-	this->sPlayerState->sCharStateBase.byStateID = CHARSTATE_STANDING;
+	this->sPlayerState->sCharStateBase.dwConditionFlag = 0;
+	this->sPlayerState->sCharStateBase.byStateID = CHARSTATE_SPAWNING;
 	this->sPlayerState->sCharStateBase.bFightMode = false;
 	this->sPlayerState->sCharStateBase.dwStateTime = 0;
 	this->sPlayerState->sCharStateBase.unknow1 = 0;
@@ -321,12 +350,12 @@ void PlayersMain::FillCharState()
 	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.unknown[i] = 0;*/
 
 	
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sGreatNamek.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sPureMajin.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sSuperSaiyan.bySourceGrade = 0xff;
-	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sVehicle.idVehicleTblidx = 0xff;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateBase.byAspectStateId = 255;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sGreatNamek.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sPureMajin.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sSuperSaiyan.bySourceGrade = 0;
+	this->sPlayerState->sCharStateBase.aspectState.sAspectStateDetail.sVehicle.idVehicleTblidx = 0;
 }
 //This will fill our sPC_Profile with Other Infos(PC Shape,Level,Name,blabla)
 void PlayersMain::FillProfileWithInfo()
@@ -343,37 +372,35 @@ void PlayersMain::FillProfileWithInfo()
 	db->fetch();
 	
 	//Getting right Table
-	/*CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
-	sPC_TBLDAT *pTblData = (sPC_TBLDAT*)pPcTable->GetPcTbldat(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));*/
-	dbo_data_table_pc *pc = new dbo_data_table_pc();
-	pc->load("data/table_pc_data.rdf");
-	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
+	CPCTable *pPcTable = app->g_pTableContainer->GetPcTable();
+	sPC_TBLDAT *pTblData = (sPC_TBLDAT*)pPcTable->GetPcTbldat(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
 	this->sPlayerProfile->byMaxLevel = 70;
-	//this->sPlayerProfile->tblidx = pTblData->tblidx;
-	this->sPlayerProfile->tblidx = pcDat->id;
+	this->sPlayerProfile->tblidx = pTblData->tblidx;
 	this->sPlayerProfile->bChangeClass = db->getBoolean("ChangeClass");
 	this->sPlayerProfile->bIsAdult = db->getBoolean("Adult");
 	this->sPlayerProfile->charId = db->getInt("CharID");
 	wcscpy_s(this->sPlayerProfile->awchName, NTL_MAX_SIZE_CHAR_NAME_UNICODE, s2ws(db->getString("CharName")).c_str());
+
 	//PC Shape
 	this->sPlayerProfile->sPcShape.byFace = db->getInt("Face");
 	this->sPlayerProfile->sPcShape.byHair = db->getInt("Hair");
 	this->sPlayerProfile->sPcShape.byHairColor = db->getInt("HairColor");
 	this->sPlayerProfile->sPcShape.bySkinColor = db->getInt("SkinColor");
+
 	//Other Infos
 	this->sPlayerProfile->byLevel = db->getInt("Level");
 	this->sPlayerProfile->dwCurExp = db->getInt("Exp");
 	this->sPlayerProfile->dwMaxExpInThisLevel = db->getInt("MaxExpInThisLevel");
 	this->sPlayerProfile->dwZenny = db->getInt("Money");
 	this->sPlayerProfile->dwTutorialHint = -1;
-	this->sPlayerProfile->byBindType = 0;
-	this->sPlayerProfile->bindObjectTblidx = -1;
+	this->sPlayerProfile->byBindType = DBO_BIND_TYPE_INITIAL_LOCATION;
+	//this->sPlayerProfile->bindObjectTblidx = -1;
 
 	this->sPlayerProfile->dwReputation = db->getInt("Reputation");
 	this->sPlayerProfile->dwMudosaPoint = db->getInt("MudosaPoint");
 	this->sPlayerProfile->dwSpPoint = db->getInt("SpPoint");
 	this->sPlayerProfile->bIsGameMaster = db->getBoolean("GameMaster");
-	this->sPlayerProfile->sMarking.dwCode = db->getInt("titulo");
+	this->sPlayerProfile->sMarking.dwCode = db->getInt("title");
 	this->sPlayerProfile->sMixData.bNormalStart = 0;
 	this->sPlayerProfile->sMixData.bSpecialStart = 0;
 	this->sPlayerProfile->sMixData.byMixLevel = db->getInt("MixLevel");
@@ -384,11 +411,25 @@ void PlayersMain::FillProfileWithInfo()
 	this->sPlayerProfile->wCurEP = db->getInt("CurEP");
 	this->sPlayerProfile->wCurRP = db->getInt("CurRP");
 	this->sPlayerProfile->dwCurAp = db->getInt("CurAp");//New AP TW
-	//this->sPlayerProfile->netP = 0;
-	//this->sPlayerProfile->unknown2 = 0;// Unknow TW
-	this->sPlayerProfile->sLocalize.type = 0x03;//Unknow Thing maybe is the same as Third for Taiwan Localize
-	memcpy(this->sPlayerProfile->sLocalize.unknown, "\x24\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\x00\x50\x00\x00\x00\x00\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00", 27);//Some expert need see what is this?
-
+	this->sPlayerProfile->sLocalize.netp = db->getInt("Token");// Token Point correct value	
+	this->sPlayerProfile->sLocalize.unknown4 = 0;// Notify if recive cash item from friend "mensage say gift not confirmed"
+	this->sPlayerProfile->sLocalize.unknown8 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown9 = 3;// S icon idk what is never see in old tw
+	this->sPlayerProfile->sLocalize.unknown10 = 1;// Unknow TW
+	
+	this->sPlayerProfile->sLocalize.unknown14 = 5;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown15 = 6;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown16 = 7;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown17 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown18 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown19 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown20 = INVALID_TBLIDX;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown21 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.unknown22 = 20;// WP Poit mensage
+	this->sPlayerProfile->sLocalize.unknown26 = 0;// Unknow TW
+	this->sPlayerProfile->sLocalize.type = 0;//Unknow Thing maybe is the same as Third for Taiwan Localize
+	//memcpy(this->sPlayerProfile->sLocalize.unknown, "\x24\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\x00\x50\x00\x00\x00\x00\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00", 27);//Some expert need see what is this?
+													//	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	
 	sVECTOR3 vLastDir;
 	sVECTOR3 vLastLoc;
 
@@ -400,12 +441,14 @@ void PlayersMain::FillProfileWithInfo()
 	vLastDir.y = (float)db->getDouble("CurDirY");
 	vLastDir.z = (float)db->getDouble("CurDirZ");
 
-	//this->sPcData = pTblData;
+	this->sPcData = pTblData;
 	this->SetPlayerName(db->getString("CharName"));
 	this->SetGuildName(db->getString("GuildName"));
 	this->SetWorldID(db->getInt("WorldID"));
 	this->SetWorldTblidx(db->getInt("WorldTable"));
 	this->SetPlayerPosition(vLastLoc);
+	this->SetPlayerDirection(vLastDir);
+	this->SetPlayerLastPosition(vLastLoc);
 	this->SetPlayerLastDirection(vLastDir);
 }
 //Sets How many Rage Power Ball's the player gonna have it
@@ -617,7 +660,7 @@ void PlayersMain::SavePlayerData(CGameServer* app)
 	char* save_query3 = "UPDATE characters SET LastPhysicalDefence=?, BaseEnergyOffence=?, LastEnergyOffence=?, BaseEnergyDefence=?, LastEnergyDefence=?, BaseAttackRate=?, LastAttackRate=?,  BaseDodgeRate=?, LastDodgeRate=?, BaseBlockRate=?, BaseBlockRate=?, LastBlockRate=?, BaseCurseSuccessRate=?, LastCurseSuccessRate=?, BaseCurseToleranceRate=?, LastCurseToleranceRate=?, BasePhysicalCriticalRate=?, LastPhysicalCriticalRate=? WHERE CharID = ?";
 	char* save_query4 = "UPDATE characters SET BaseEnergyCriticalRate=?, LastEnergyCriticalRate=?, LastRunSpeed=?, BaseAttackSpeedRate=?, BaseAttackRange=?, LastAttackRange=?, CastingTimeChangePercent=?, CoolTimeChangePercent=?, KeepTimeChangePercent=?, DotValueChangePercent=?, DotTimeChangeAbsolute=?, RequiredEpChangePercent=?, HonestOffence=?, HonestDefence=?, StrangeOffence=?, StrangeDefence=?, WildOffence=?, WildDefence=? WHERE CharID = ?";
 	char* save_query5 = "UPDATE characters SET EleganceOffence=?, EleganceDefence=?, FunnyDefence=?, FunnyOffence=?, FunnyDefence=?, ParalyzeToleranceRate=?, TerrorToleranceRate=?, ConfuseToleranceRate=?, StoneToleranceRate=?, CandyToleranceRate=?, ParalyzeKeepTimeDown=?, TerrorKeepTimeDown=?, ConfuseKeepTimeDown=?, StoneKeepTimeDown=?, CandyKeepTimeDown=?, BleedingKeepTimeDown=?, PoisonKeepTimeDown=?, StomachacheKeepTimeDown=?, CriticalBlockSuccessRate=?  WHERE CharID = ?";
-	char* save_query6 = "UPDATE characters SET GuardRate=?, SkillDamageBlockModeSuccessRate=?, CurseBlockModeSuccessRate=?, KnockdownBlockModeSuccessRate=?, HtbBlockModeSuccessRate=?, SitDownLpRegenBonusRate=?, SitDownEpRegenBonusRate=?, PhysicalCriticalDamageBonusRate=?, EnergyCriticalDamageBonusRate=?, ItemUpgradeBonusRate=?, ItemUpgradeBreakBonusRate=?, CurLP=?, CurEP=?, CurRP=? WHERE CharID = ?";
+	char* save_query6 = "UPDATE characters SET GuardRate=?, SkillDamageBlockModeSuccessRate=?, CurseBlockModeSuccessRate=?, KnockdownBlockModeSuccessRate=?, HtbBlockModeSuccessRate=?, SitDownLpRegenBonusRate=?, SitDownEpRegenBonusRate=?, PhysicalCriticalDamageBonusRate=?, EnergyCriticalDamageBonusRate=?, ItemUpgradeBonusRate=?, ItemUpgradeBreakBonusRate=?, CurLP=?, CurEP=?, CurRP=?, CurAp=?, Token=? WHERE CharID = ?";
 
 	db->prepare(save_query);
 	db->setFloat(1, this->vCurLoc.x);
@@ -763,8 +806,11 @@ void PlayersMain::SavePlayerData(CGameServer* app)
 	db->setInt(12, this->GetPcProfile()->dwCurLP);
 	db->setInt(13, this->GetPcProfile()->wCurEP);
 	db->setInt(14, this->GetPcProfile()->wCurRP);
-	db->setInt(15, this->GetPcProfile()->charId);
+	db->setInt(15, this->GetPcProfile()->dwCurAp);
+	db->setInt(16, this->GetPcProfile()->sLocalize.netp);
+	db->setInt(17, this->GetPcProfile()->charId);
 	db->execute();
+	
 
 	delete db;
 }
@@ -887,23 +933,97 @@ void PlayersMain::SendThreadUpdateEPLP()
 void PlayersMain::SendThreadUpdateOnlyEP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseEpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseEpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxEP * 0.1);
 
 	this->GetPcProfile()->wCurEP += this->GetPcProfile()->avatarAttribute.wBaseEpRegen; // += regen
 	if (this->GetPcProfile()->wCurEP > this->GetPcProfile()->avatarAttribute.wBaseMaxEP)
 		this->GetPcProfile()->wCurEP = this->GetPcProfile()->avatarAttribute.wBaseMaxEP;
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_EP));
+	sGU_UPDATE_CHAR_EP * res = (sGU_UPDATE_CHAR_EP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->wCurEP = this->GetPcProfile()->wCurEP;
+	res->wMaxEP = this->GetPcProfile()->avatarAttribute.wBaseMaxEP;
+
+	res->wOpCode = GU_UPDATE_CHAR_EP;
+	res->dwLpEpEventId = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_EP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
+}
+void PlayersMain::SendThreadUpdateOnlyAP()
+{
+	if (this->GetPcProfile()->avatarAttribute.wBaseApRegen <= 0)
+		this->GetPcProfile()->avatarAttribute.wBaseApRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxAp * 0.1);
+
+	this->GetPcProfile()->dwCurAp += this->GetPcProfile()->avatarAttribute.wBaseApRegen; // += regen
+	if (this->GetPcProfile()->dwCurAp > this->GetPcProfile()->avatarAttribute.wBaseMaxAp)
+		this->GetPcProfile()->dwCurAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_AP));
+	sGU_UPDATE_CHAR_AP * res = (sGU_UPDATE_CHAR_AP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->dwCurAp = this->GetPcProfile()->dwCurAp;
+	res->wBaseMaxAp = this->GetPcProfile()->avatarAttribute.wBaseMaxAp;
+	
+
+	res->wOpCode = GU_UPDATE_CHAR_AP;
+	res->unknown = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_AP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
+}
+void PlayersMain::SendThreadUpdateTokenPoint()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_NETP));
+	sGU_UPDATE_CHAR_NETP * res = (sGU_UPDATE_CHAR_NETP *)packet.GetPacketData();
+	res->dwBonusNetP = 10; //poits for incress^^ 10 default
+	this->GetPcProfile()->sLocalize.netp += res->dwBonusNetP; // += regen
+	
+	res->netP = this->GetPcProfile()->sLocalize.netp; // incress on total NetP poit
+	res->dwAccumulationNetP += res->dwBonusNetP;//acumulation in current session
+	res->timeNextGainTime = 120; // timw for next gain poit
+	res->wOpCode = GU_UPDATE_CHAR_NETP;	
+	
+	printf("netp %d \n and cur %d \n", res->netP, this->GetPcProfile()->sLocalize.netp );	
+	
+	 
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_NETP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
 }
 //Send Updates for LP Only LP of Player Thread
 void PlayersMain::SendThreadUpdateOnlyLP()
 {
 	if (this->GetPcProfile()->avatarAttribute.wBaseLpRegen <= 0)
-		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (WORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.01);
+		this->GetPcProfile()->avatarAttribute.wBaseLpRegen = (DWORD)(this->GetPcProfile()->avatarAttribute.wBaseMaxLP * 0.1);
 	else
 	{
 		this->GetPcProfile()->dwCurLP += this->GetPcProfile()->avatarAttribute.wBaseLpRegen; // += regen
 		if (this->GetPcProfile()->dwCurLP > this->GetPcProfile()->avatarAttribute.wBaseMaxLP)
 			this->GetPcProfile()->dwCurLP = this->GetPcProfile()->avatarAttribute.wBaseMaxLP;
 	}
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP));
+	sGU_UPDATE_CHAR_LP * res = (sGU_UPDATE_CHAR_LP *)packet.GetPacketData();
+
+	res->handle = this->avatarHandle;
+	res->wCurLP = this->GetPcProfile()->dwCurLP;
+	res->wMaxLP = this->GetPcProfile()->avatarAttribute.wBaseMaxLP;
+	res->wOpCode = GU_UPDATE_CHAR_LP;
+	res->dwLpEpEventId = 0;
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP));
+	g_pApp->Send(this->GetSession(), &packet);
+	app->UserBroadcastothers(&packet, this->myCCSession);
 }
 //Send Updates for RP Ball of Player Thread
 void PlayersMain::SendThreadUpdateRP()
@@ -943,6 +1063,44 @@ void PlayersMain::SendThreadUpdateDeathStatus()
 	app->UserBroadcastothers(&packet, this->myCCSession);
 	g_pApp->Send(this->GetSession(), &packet);
 }
+void PlayersMain::SendThreadUpdateEmergencyStatusTrue()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = true;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
+void PlayersMain::SendThreadUpdateEmergencyStatusFalse()
+{
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	//this->SetPlayerFight(false);
+	//this->SetPlayerDead(false);
+	CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	sGU_UPDATE_CHAR_LP_STATUS_NFY * res = (sGU_UPDATE_CHAR_LP_STATUS_NFY *)packet.GetPacketData();
+
+	res->wOpCode = GU_UPDATE_CHAR_STATE;
+	res->handle = this->avatarHandle;
+	res->bEmergency = false;
+	res->wOpCode = GU_UPDATE_CHAR_LP_STATUS_NFY;
+	res->wResultCode = GAME_SUCCESS;
+
+
+	packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_LP_STATUS_NFY));
+	app->UserBroadcastothers(&packet, this->myCCSession);
+	g_pApp->Send(this->GetSession(), &packet);
+}
 //Send Thread Revival Status
 void PlayersMain::SendThreadRevivalStatus()
 {
@@ -967,7 +1125,7 @@ void PlayersMain::SendThreadRevivalStatus()
 //Update For Player Thread maybe this is the Real Player Thread
 DWORD WINAPI Update(LPVOID arg)
 {
-	DWORD dwTickCur, dwTickOld = ::GetTickCount();
+	DWORD dwTickCur, dwTickOld, lpTick = ::GetTickCount();
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
 	PlayersMain* plr = (PlayersMain*)arg;
 	if (plr)
@@ -991,12 +1149,17 @@ DWORD WINAPI Update(LPVOID arg)
 				{
 					if (plr->GetPcProfile()->dwCurLP <= 0)
 						plr->SendThreadUpdateDeathStatus();
-					else if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
-						plr->SendThreadUpdateOnlyLP();
-					if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
-						plr->SendThreadUpdateOnlyEP();
+					if (dwTickCur - lpTick >= 1500)
+					{
+						if (plr->GetPcProfile()->dwCurLP < plr->GetPcProfile()->avatarAttribute.wBaseMaxLP || plr->GetPcProfile()->dwCurLP > plr->GetPcProfile()->avatarAttribute.wBaseMaxLP)
+							plr->SendThreadUpdateOnlyLP();
+						if (plr->GetPcProfile()->wCurEP < plr->GetPcProfile()->avatarAttribute.wBaseMaxEP || plr->GetPcProfile()->wCurEP > plr->GetPcProfile()->avatarAttribute.wBaseMaxEP)
+							plr->SendThreadUpdateOnlyEP();
+							
+						lpTick = dwTickCur;
+					}
 				}
-				if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
+		/*		if ((plr->GetPcProfile()->wCurRP > 0) || plr->GetRpBallFull() > 0)
 				{
 					if (plr->GetPcProfile()->wCurRP <= 0)
 						if (plr->GetRpBallFull() > 0)
@@ -1008,7 +1171,7 @@ DWORD WINAPI Update(LPVOID arg)
 					else
 						plr->GetPcProfile()->wCurRP -= 1;
 					plr->SendThreadUpdateRP();
-				}
+				}*/
 				/*if (plr->isKaioken == true) /* TEST */
 				/*{
 					plr->GetPcProfile()->wCurLP -= (500 * plr->GetCharState()->sCharStateBase.aspectState.sAspectStateDetail.sKaioken.byRepeatingCount);
@@ -1017,12 +1180,12 @@ DWORD WINAPI Update(LPVOID arg)
 				//plr->SendThreadUpdateEPLP();
 				if ((timeGetTime() - plr->GetMob_SpawnTime()) >= MONSTER_SPAWN_UPDATE_TICK)
 				{
-					//app->mob->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
-					//plr->SetMob_SpawnTime(timeGetTime());
+					app->mob->RunSpawnCheck(NULL, plr->GetPlayerPosition(), plr->myCCSession);
+					plr->SetMob_SpawnTime(timeGetTime());
 				}
 			}
 			plr = plr->GetRefreshPointer();
-			Sleep(1000);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
+			Sleep(1);// And no it's every second, it's only the amount regen is too high (this->pcProfile->avatarAttribute.wBaseMaxEP * 0.03) 3% every seconds it's for make some test this is not the last "release"			
 		}
 	}
 	return 0;

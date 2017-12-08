@@ -19,7 +19,7 @@
 #include "Vector.h"
 #include "Skill.h"
 
-const DWORD		DBO_MAX_LENGTH_SKILL_NAME_TEXT = 64;//Old 40
+const DWORD		DBO_MAX_LENGTH_SKILL_NAME_TEXT = 40;
 const DWORD		DBO_MAX_LENGTH_SKILL_ICON_NAME = 32;
 
 #pragma pack(push, 4)
@@ -36,6 +36,7 @@ public:
 	bool			bValidity_Able;
 
 	DWORD			dwPC_Class_Bit_Flag;		// ePC_CLASS_FLAG
+	BYTE			UnknownR;
 	BYTE			bySkill_Class;				// eSKILL_CLASS
 	BYTE			bySkill_Type;				// eSKILL_TYPE
 	BYTE			bySkill_Active_Type;
@@ -50,14 +51,17 @@ public:
 	BYTE			byApply_Range;
 	BYTE			byApply_Area_Size_1;
 	BYTE			byApply_Area_Size_2;
+	DWORD			dwUnknown;
 	TBLIDX			skill_Effect[NTL_MAX_EFFECT_IN_SKILL];
 	BYTE			bySkill_Effect_Type[NTL_MAX_EFFECT_IN_SKILL];
 	float			fSkill_Effect_Value[NTL_MAX_EFFECT_IN_SKILL];
 	WORD			wAdditional_Aggro_Point;
-
+	/*Errors here with data misalgnment.
+	* Look for issues with the following 2 structs. 
+	*/
 	BYTE			abyRpEffect[DBO_MAX_RP_BONUS_COUNT_PER_SKILL];		// eDBO_RP_BONUS_TYPE
 	DWORD			adwRpEffectValue[DBO_MAX_RP_BONUS_COUNT_PER_SKILL];
-
+	
 	BYTE			byRequire_Train_Level;
 	DWORD			dwRequire_Zenny;
 	WORD			wNext_Skill_Train_Exp;
@@ -72,6 +76,7 @@ public:
 	BYTE			byRequire_Epuip_Slot_Type;
 	BYTE			byRequire_Item_Type;
 //	std::string		 strIcon_Name;
+	BYTE			byUnknownArray[12];
 	char			szIcon_Name[ DBO_MAX_LENGTH_SKILL_ICON_NAME + 1 ];
 	WORD			wRequire_LP;
 	WORD			wRequire_EP;
@@ -92,6 +97,8 @@ public:
 	DWORD			dwNextSkillTblidx;
 	bool			bDefaultDisplayOff;
 
+	DWORD			UnknownR3;
+
 	ANIMATIONID		wCasting_Animation_Start;
 	ANIMATIONID		wCasting_Animation_Loop;
 	ANIMATIONID		wAction_Animation_Index;
@@ -103,7 +110,10 @@ public:
 	float			fSuccess_Rate;
 
 	BYTE			byPC_Class_Change;
-
+	BYTE			UnknownR4;
+	BYTE			UnknownR5;
+	DWORD			UnknownR6;
+	DWORD			UnknownR7;
 public:
 
 	virtual int GetDataSize()

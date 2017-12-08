@@ -62,7 +62,9 @@ class PlayersMain{
 		PlayersSkills* cPlayerSkills;
 		PlayerAttributes* cPlayerAttribute;
 		PlayersMain* GetRefreshPointer(){ return this; };
-		CClientSession* myCCSession;
+		CClientSession* myCCSession = NULL;
+		bool isLeavingGame;
+		bool isInGame;
 		void CreatePlayerProfile();
 		void SavePlayerData(CGameServer* app);
 		void SetChainAttack(int number);
@@ -72,6 +74,8 @@ class PlayersMain{
 		bool GetPlayerDead();
 		bool GetPlayerSitGetUp();
 		bool GetPlayerFight();		
+		bool GetPlayerGameStatus();
+		bool GetPlayerLeaving();
 		bool GetTradeOK();
 		bool GetPlayerIsInTrade();
 		bool GetDuelStatus();
@@ -124,6 +128,8 @@ class PlayersMain{
 		void SetPlayerThread(HANDLE thread);
 		void SetLevelUP();
 		void SetPlayerSit(bool SitGetUp);
+		void SetPlayerGameStatus(bool bStatus);
+		void SetPlayerLeaving(bool bLeaving);
 		void SetPlayerDead(bool isDead);
 		void SetPlayerFight(bool isFighting);
 		void SetTradeOK(bool bTradeOK);
@@ -138,9 +144,13 @@ class PlayersMain{
 		//Player Thread Functions
 		void SendThreadUpdateEPLP();
 		void SendThreadUpdateOnlyEP();
+		void SendThreadUpdateOnlyAP();
 		void SendThreadUpdateOnlyLP();
 		void SendThreadUpdateRP();
 		void SendThreadUpdateDeathStatus();
+		void SendThreadUpdateEmergencyStatusTrue();
+		void SendThreadUpdateEmergencyStatusFalse();
+		void SendThreadUpdateTokenPoint();
 		void SendThreadRevivalStatus();
 };
 

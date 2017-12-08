@@ -30,8 +30,8 @@ class MySQLConnWrapper
         {
             host     = "tcp://127.0.0.1:3306";
             user     = "root";
-            password = "12345";
-			database = "devserver";
+            password = "johnsond";
+			database = "dbo";
         };
         ~MySQLConnWrapper();
         void manageException(sql::SQLException& e);

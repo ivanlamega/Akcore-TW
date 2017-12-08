@@ -111,9 +111,12 @@ bool CItemTable::AddTable(void * pvTable, bool bReload)
 	}
 
 	if ( false == m_mapTableList.insert( std::map<TBLIDX, sTBLDAT*>::value_type(pTbldat->tblidx, pTbldat)).second )
-	{
+	{ 
+		int i;
+		i = 10;
 		CTable::CallErrorCallbackFunction(L"[File] : %s\r\n Table Tblidx[%u] is Duplicated ",m_wszXmlFileName, pTbldat->tblidx );
 		_ASSERTE( 0 );
+		
 		return false;
 	}
 
@@ -144,7 +147,7 @@ bool CItemTable::SetTableData(void* pvTable, WCHAR* pwszSheetName, std::wstring*
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Name"))
 		{
-			pItem->Name = READ_DWORD( bstrData );
+			pItem->Name =  READ_DWORD( bstrData );
 		}
 		else if (0 == wcscmp(pstrDataName->c_str(), L"Icon_Name"))
 		{

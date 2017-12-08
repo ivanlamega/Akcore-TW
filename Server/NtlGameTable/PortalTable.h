@@ -11,11 +11,14 @@ public:
 	DWORD			dwPointName;
 	char			szPointNameText[ DBO_MAX_LENGTH_POINT_NAME + 1];
 	WORLDID			worldId;
+	DWORD			dwUnknown;
+	BYTE			byUnknown1;
 	CNtlVector		vLoc;
 	CNtlVector		vDir;
 	CNtlVector		vMap;
 	PORTALID		aPoint[DBO_MAX_POINT_PORTAL];
 	DWORD			adwPointZenny[DBO_MAX_POINT_PORTAL];
+	BYTE			byUnknown[98];
 
 protected:
 

@@ -8,9 +8,7 @@ struct sEXP_TBLDAT : public sTBLDAT
 public:
 	DWORD		dwExp;		// Required exp to become the level from level 1.
 	DWORD		dwNeed_Exp;		// Required exp to become the level from the previous level.
-	DWORD		dwUnknown1;
-	DWORD		dwUnknown2;
-	//DWORD		bUnknown2;
+	WORD		wUnknown[20];		//No Clue?
 
 public:
 

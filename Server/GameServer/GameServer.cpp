@@ -25,13 +25,19 @@ int CClientSession::OnAccept()
 	packet.SetPacket(buf, 0x06);
 	packet.GetPacketHeader()->bEncrypt = true;
 	PushHandshakePacket(&packet);
+
+	pServer = (CGameServer*)NtlSfxGetApp();
+
 	return NTL_SUCCESS;
 }
 
 
 void CClientSession::OnClose()
 {
-	//NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
+	NTL_PRINT( PRINT_APP, "%s", __FUNCTION__ );	
+	this->cPlayersMain = NULL;
+	pServer->RemoveAttackBegin(this->GetavatarHandle());
+	//pServer->RemoveAttackBegin(this->m_uiTargetSerialId);
 
 }
 
@@ -41,10 +47,10 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 	CGameServer * app = (CGameServer*) NtlSfxGetApp();
 	sNTLPACKETHEADER * pHeader = (sNTLPACKETHEADER *)pPacket->GetPacketData();
 	if (pHeader->wOpCode != 1)
-	//printf("~~~ opcode %i received ~~~ \n", pHeader->wOpCode);
+	printf("~~~ opcode %i received ~~~ \n", pHeader->wOpCode);
 	if (pHeader->wOpCode > 16)
-	NTL_PRINT(PRINT_SYSTEM, "%s [%u] Size[%u]", NtlGetPacketName_UG(pHeader->wOpCode), pHeader->wOpCode, sizeof(pPacket));
-
+	NTL_PRINT(PRINT_SYSTEM, "%s [%u] Length[%u] DataSize[%u]", NtlGetPacketName_UG(pHeader->wOpCode), pHeader->wOpCode, pPacket->GetPacketLen(), pPacket->GetUsedSize());
+	app->pSession = this;
 	switch( pHeader->wOpCode )
 	{
 
@@ -52,7 +58,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 	{
 		if (this->isHandShaken == false)
 		{
-			CNtlPacket packet2(0x22);
+			CNtlPacket packet2(0x22); 
 			unsigned char buf2[] = { 0x10, 0x00, 0x84, 0xfb, 0x48, 0xf4, 0x8e, 0x5a, 0xb6, 0x67, 0xe2, 0x3d, 0x6e, 0x14, 0xb4, 0xa3, 0xc3, 0x24, 0x9e, 0x5f, 0xe3, 0xd1, 0xd5, 0x88, 0x10, 0x0d, 0x68, 0x4f, 0x3b, 0xa5, 0xed, 0x37, 0xed, 0x4a };
 			packet2.SetPacket(buf2, 0x22);
 			packet2.GetPacketHeader()->bEncrypt = false;
@@ -105,9 +111,9 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			CClientSession::SendServerContents(pPacket, app);
 			CClientSession::SendWorldEnterReq(pPacket, app);
 			CClientSession::SendEnterWorldComplete(pPacket);
-			CClientSession::SendNpcCreate(pPacket, app);
-			CClientSession::SendMonsterCreate(pPacket, app);
 			CClientSession::SendBudokaiState(pPacket, app);
+			//CClientSession::SendNpcCreate(pPacket, app);
+			//CClientSession::SendMonsterCreate(pPacket, app);
 		}
 			break;
 		case UG_SERVER_COMMAND:
@@ -129,35 +135,18 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_READY_TO_SPAWN:
 		{
-			PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-			plr->SetCharState(3);
-			CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
-			sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
-			res->handle = this->GetavatarHandle();
-			res->sCharState.sCharStateBase.byStateID = CHARSTATE_STANDING;
-			res->wOpCode = GU_UPDATE_CHAR_STATE;
-
-			packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
-			
-			PushHandshakePacket(&packet);
 			//CClientSession::SendCharReadyReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_READY:
 		{
+
 			CClientSession::SendCharReady(pPacket);
 		}
 			break;
 		case UG_CHAR_AIR_DASH:
 		{
-			CNtlPacket packet(sizeof(sGU_UPDATE_CHAR_STATE));
-			sGU_UPDATE_CHAR_STATE* res = (sGU_UPDATE_CHAR_STATE*)packet.GetPacketData();
-			res->handle = this->GetavatarHandle();
-			res->sCharState.sCharStateBase.byStateID = CHARSTATE_AIR_DASH_ACCEL;
-			res->wOpCode = GU_UPDATE_CHAR_STATE;
-			packet.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
 
-			PushHandshakePacket(&packet);
 			CClientSession::SendAirDash(pPacket,app);
 			//CClientSession::SendCharMove(pPacket, app);
 		}
@@ -179,7 +168,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_AIR_MOVE:
 		{
-			//CClientSession::SendCharMove(pPacket, app);
+			CClientSession::SendCharMove(pPacket, app);
 		}
 			break;
 		case UG_CHAR_DEST_MOVE:	
@@ -195,6 +184,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_AIR_MOVE_SYNC:
 		{
 			CClientSession::SendCharMoveSync(pPacket, app);
+			
 		}
 			break;
 		case UG_CHAR_CHANGE_DIRECTION_ON_FLOATING:
@@ -248,7 +238,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TOGG_FIGHTING:
 		{
 			CClientSession::SendCharToggleFighting(pPacket, app);
-			CClientSession::SendNetPyStart(pPacket, app);
+			//CClientSession::SendNetPyStart(pPacket, app);
 			
 		}
 			break;
@@ -260,7 +250,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_CHAR_TARGET_SELECT:
 		{
 			CClientSession::SendCharTargetSelect(pPacket);
-			//CClientSession::SendScouterIndicatorReq(pPacket, app);
+			CClientSession::SendScouterIndicatorReq(pPacket, app);
 		}
 			break;
 		case UG_CHAR_TARGET_INFO:
@@ -276,7 +266,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_ATTACK_BEGIN:
 		{
-			CClientSession::SendAttackBegin(pPacket,app);
+			CClientSession::SendAttackBegin(pPacket,app); 
+			//CClientSession::SenGiftShop(pPacket, app);
 			
 
 		}
@@ -318,8 +309,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			//CClientSession::SendServerChangeReq(pPacket, app);
 			CClientSession::SendWorldEnterReq1(pPacket, app);
 			CClientSession::SendEnterWorldComplete(pPacket);
-			//CClientSession::SendNpcCreate(pPacket, app);
-			//CClientSession::SendMonsterCreate(pPacket, app);
+			
 		}
 			break;
 		case UG_CHAR_CHANNEL_CHANGE_REQ:
@@ -473,12 +463,12 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			CClientSession::SendShopEndReq(pPacket, app);
 		}
 			break;
-		case UG_SKILL_LEARN_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
+		case UG_SKILL_LEARN_REQ://fix by Marco changed for old  UG_BUY_SKILL_REQ
 		{
 			CClientSession::SendCharLearnSkillReq(pPacket, app);
 		}
 			break;
-		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco Troquei pelo UG_BUY_SKILL_REQ
+		case UG_SKILL_LEARN_BY_ITEM_REQ://fix by Marco 
 		{
 			CClientSession::SendCharSkillByItemRes(pPacket, app); 
 		}
@@ -597,6 +587,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_BANK_LOAD_REQ:
 		{
 			printf("--- UG_BANK_LOAD_REQ --- \n");
+			CClientSession::SendBankStartReq(pPacket, app);
+			CClientSession::SendBankLoadReq(pPacket, app);
 		}
 			break;
 		case UG_BANK_START_REQ:
@@ -1029,7 +1021,8 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_PORTAL_START_REQ:
 		{
-			CClientSession::SendPortalStartReq(pPacket, app);
+									CClientSession::SendPortalAddReq(pPacket, app);
+									CClientSession::SendPortalStartReq(pPacket, app);
 		}
 			break;
 		case UG_PORTAL_ADD_REQ:
@@ -1467,7 +1460,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_SHOP_NETPYITEM_START_REQ:
 		{
 			printf("--- UG_SHOP_NETPYITEM_START_REQ --- \n");
-			//CClientSession::SendNetPyStart(pPacket, app);
+			CClientSession::SendNetPyStart(pPacket, app);
 			//CClientSession::SendNetPyEnd(pPacket, app);//provisory
 		}
 			break;
@@ -1609,7 +1602,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 		case UG_GIFT_SHOP_START_REQ:
 		{
 			CClientSession::SenGiftShop(pPacket, app);
-			CClientSession::SendCharReadyReq(pPacket, app);
+			
 			printf("--- UG_GIFT_SHOP_START_REQ --- \n");
 		}
 			break;
@@ -1632,7 +1625,10 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 
 		default:
-			return CNtlSession::OnDispatch( pPacket );
+		{
+
+			return CNtlSession::OnDispatch(pPacket);
+		}
 	}
 	return NTL_SUCCESS;
 }
@@ -1656,41 +1652,63 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	{
 		return false;
 	}
-	//flagManager.Set(CTableContainer::TABLE_WORLD);				
-	flagManager.Set(CTableContainer::TABLE_PC);					
-	//   flagManager.Set(CTableContainer::TABLE_MOB);				
-	//   flagManager.Set(CTableContainer::TABLE_NPC);				
-	//   flagManager.Set(CTableContainer::TABLE_ITEM);				
-	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);		
-	//   flagManager.Set(CTableContainer::TABLE_SKILL);				
-	//   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
-	flagManager.Set(CTableContainer::TABLE_NEWBIE);				
-	//   flagManager.Set(CTableContainer::TABLE_MERCHANT);			
+	/*Loadable Tables*/
+	flagManager.Set(CTableContainer::TABLE_PC);
+	flagManager.Set(CTableContainer::TABLE_NEWBIE);
+	flagManager.Set(CTableContainer::TABLE_SKILL);
+	flagManager.Set(CTableContainer::TABLE_NPC_SPAWN); 
+	flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
+
+	/*Unmodified Tables that load properly*/
+	flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
+	flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
+	flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
+	flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
+	flagManager.Set(CTableContainer::TABLE_EACH_DROP);
+	flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
+	flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
+	flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
+	flagManager.Set(CTableContainer::TABLE_QUEST_PROBABILITY);
+
+	flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);
+	flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);
+
+	/*Tables in Progress*/
+	flagManager.Set(CTableContainer::TABLE_ITEM);	
+	flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);
+	flagManager.Set(CTableContainer::TABLE_EXP);
+	flagManager.Set(CTableContainer::TABLE_PORTAL);	
+    flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
+	flagManager.Set(CTableContainer::TABLE_WORLD);								
+	flagManager.Set(CTableContainer::TABLE_MOB);				
+	flagManager.Set(CTableContainer::TABLE_NPC);
+
+	   flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);		
+
+	//flagManager.Set(CTableContainer::TABLE_MERCHANT);			
+
+
+	/*Unloadable Tables*/
+	//   	//   flagManager.Set(CTableContainer::TABLE_ITEM_OPTION);							
 	//   flagManager.Set(CTableContainer::TABLE_HTB_SET);			
-	//   flagManager.Set(CTableContainer::TABLE_USE_ITEM);			
 	//   flagManager.Set(CTableContainer::TABLE_SET_ITEM);			
 	//   flagManager.Set(CTableContainer::TABLE_CHARM);				
 	//   flagManager.Set(CTableContainer::TABLE_ACTION);				
 	//   flagManager.Set(CTableContainer::TABLE_CHAT_COMMAND);		
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_ITEM);			
 	//   flagManager.Set(CTableContainer::TABLE_QUEST_TEXT_DATA);	
-	//flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
-	//   //flagManager.Set(CTableContainer::TABLE_OBJECT);			
+	//   flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
+	//   flagManager.Set(CTableContainer::TABLE_OBJECT);			
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_MAP);			
 	//   flagManager.Set(CTableContainer::TABLE_LAND_MARK);			
 	//   flagManager.Set(CTableContainer::TABLE_HELP);				
 	//   flagManager.Set(CTableContainer::TABLE_GUIDE_HINT);			
 	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL);			
-	//   flagManager.Set(CTableContainer::TABLE_DRAGONBALL_REWARD);	
 	//   flagManager.Set(CTableContainer::TABLE_TIMEQUEST);			
 	//   flagManager.Set(CTableContainer::TABLE_BUDOKAI);			
 	//   flagManager.Set(CTableContainer::TABLE_RANKBATTLE);			
-	//   flagManager.Set(CTableContainer::TABLE_DIRECTION_LINK);		
 	//   flagManager.Set(CTableContainer::TABLE_CHATTING_FILTER);	
-	//   flagManager.Set(CTableContainer::TABLE_PORTAL);				
 	//   flagManager.Set(CTableContainer::TABLE_SPEECH);				
-	//   flagManager.Set(CTableContainer::TABLE_SCRIPT_LINK);		
-	//   flagManager.Set(CTableContainer::TABLE_QUEST_NARRATION);	
 	//   flagManager.Set(CTableContainer::TABLE_VEHICLE);			
 	//   flagManager.Set(CTableContainer::TABLE_DUNGEON);			
 	//   flagManager.Set(CTableContainer::TABLE_MOB_MOVE_PATTERN);	
@@ -1699,57 +1717,74 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//   flagManager.Set(CTableContainer::TABLE_ITEM_UPGRADE);		
 	//   flagManager.Set(CTableContainer::TABLE_MIX_MACHINE);		
 	//   flagManager.Set(CTableContainer::TABLE_DOJO);				
-	//   flagManager.Set(CTableContainer::TABLE_QUEST_REWARD);		
 	//   flagManager.Set(CTableContainer::TABLE_WORLD_ZONE);
-	////flagManager.Set(CTableContainer::TABLE_NPC_SPAWN);
-	////flagManager.Set(CTableContainer::TABLE_MOB_SPAWN);
-	//flagManager.Set(CTableContainer::TABLE_FORMULA);
-	//flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	//flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	//flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	//flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	//flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EACH_DROP);
-	//flagManager.Set(CTableContainer::TABLE_TYPE_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);
-	//flagManager.Set(CTableContainer::TABLE_QUEST_DROP);
-	//flagManager.Set(CTableContainer::TABLE_EXP);
+	//   
+	//   flagManager.Set(CTableContainer::TABLE_FORMULA);
+	//   flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
 
-	//
-	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
+	//   
+
+	/*Loadable Tables*/
 	fileNameList.SetFileName(CTableContainer::TABLE_PC,						"Table_PC_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE,					"Table_Newbie_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SKILL,					"Table_Skill_Data");
+
+	/*Unmodified Tables that load properly*/
+	fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_QUEST_PROBABILITY, "Table_Quest_Probablity_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK, "Table_Script_Link_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK, "Table_Direction_Link_Data");
+
+	/*Tables in progress
+	* If tables are here they load but don't have correct structures. 
+	* Just a correct size. 
+	*/
+	fileNameList.SetFileName(CTableContainer::TABLE_ITEM,					"Table_Item_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL_REWARD,		"Table_DB_Reward_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_PORTAL,					"Table_Portal_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_WORLD,					"Table_World_Data");
+
+	fileNameList.SetFileName(CTableContainer::TABLE_MOB,					"Table_MOB_Data");
+	fileNameList.SetFileName(CTableContainer::TABLE_NPC,					"Table_NPC_Data");
+	
+	
+	fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
+
+
 	//fileNameList.SetFileName(CTableContainer::TABLE_MERCHANT,				"Table_Merchant_Data");
+
+
+	/*Unloadable Tables*/
+	//
+	//fileNameList.SetFileName(CTableContainer::TABLE_ITEM_OPTION,			"Table_Item_Option_Data");	
+	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"Table_System_Effect_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_HTB_SET,				"Table_HTB_Set_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_USE_ITEM,				"Table_Use_Item_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_SET_ITEM,				"Table_Set_Item_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_CHARM,					"Table_Charm_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_ACTION,					"Table_Action_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_CHAT_COMMAND,			"Table_Chat_Command_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_ITEM,				"Table_Quest_Item_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_TEXT_DATA,		"Table_Quest_Text_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_TEXT_ALL, "Table_Text_All_Data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_TEXT_ALL,				"Table_Text_All_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_OBJECT,					"Table_Object");
 	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD_MAP,				"Table_Worldmap_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_LAND_MARK,				"Table_Landmark_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_HELP,					"Table_Help_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_GUIDE_HINT,				"Table_Guide_Hint_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL,				"Table_Dragon_Ball_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL_REWARD,		"Table_DB_Reward_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_TIMEQUEST,				"Table_TMQ_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_BUDOKAI,				"Table_Tenkaichibudokai_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_RANKBATTLE,				"Table_RankBattle_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_DIRECTION_LINK,			"Table_Direction_Link_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_CHATTING_FILTER,		"Table_Chatting_Filter_Data");
-	//   fileNameList.SetFileName(CTableContainer::TABLE_PORTAL,					"Table_Portal_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_SPEECH,					"Table_NPC_Speech_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SCRIPT_LINK,			"Table_Script_Link_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_NARRATION,		"Table_Quest_Narration_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_VEHICLE,				"Table_Vehicle_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_DUNGEON,				"Table_Dungeon_Data");
@@ -1763,25 +1798,12 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//fileNameList.SetFileName(CTableContainer::TABLE_WORLD_ZONE,				"Table_World_Zone_Data");
 	//fileNameList.SetFileName(CTableContainer::TABLE_FORMULA,				"TD_Formula");
 	//fileNameList.SetFileName(CTableContainer::TABLE_GAME_MANIA_TIME,		"Table_GameManiaTime_Data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_BASIC_DROP,				"table_basic_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_NORMAL_DROP,			"table_normal_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SUPERIOR_DROP,			"table_superior_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EXCELLENT_DROP,			"table_excellent_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_LEGENDARY_DROP,			"table_legendary_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_QUEST_DROP,				"table_quest_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_TYPE_DROP,				"table_type_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EACH_DROP,				"table_each_drop_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT,			"table_system_effect_data");
-	//fileNameList.SetFileName(CTableContainer::TABLE_EXP,					"table_exp_data");
+	//fileNameList.SetFileName(CTableContainer::TABLE_DRAGONBALL, "Table_Dragon_Ball_Data");
+
+	
 
 
-	/*flagManager.Set(CTableContainer::TABLE_GAME_MANIA_TIME);
-	flagManager.Set(CTableContainer::TABLE_BASIC_DROP);
-	flagManager.Set(CTableContainer::TABLE_LEGENDARY_DROP);
-	flagManager.Set(CTableContainer::TABLE_NORMAL_DROP);
-	flagManager.Set(CTableContainer::TABLE_SUPERIOR_DROP);
-	flagManager.Set(CTableContainer::TABLE_EXCELLENT_DROP);*/
+
 
 	g_pTableContainer = new CTableContainer;
 	std::string str;
@@ -1792,25 +1814,16 @@ bool CGameServer::CreateTableContainer(int byLoadMethod)
 	//g_pTableContainer->SaveToFile(flagManager, &fileNameList, false); 
 	if (bResult != false)
 	{
-		CPCTable* pcTbl= g_pTableContainer->GetPcTable();
-
-		sPC_TBLDAT* noob = (sPC_TBLDAT*)pcTbl->GetPcTbldat(0, 0, 0);
-	
-		cout << "PC Table Data" << endl;
-
-		cout << "Adult Model" << noob->szModel_Adult << endl;
-		cout << "Child Model" << noob->szModel_Child << endl;
-		
-
+		//Print size of structs
 		gs->printOk("==== LOADING GAMETABLES COMPLETE ====");
 		gs->printOk("==== LOADING MOBS / NPC ... ====");
 		//mob->Create();
-		delete gs;
 		gs->printOk("==== LOADING MOBS / NPC COMPLETE ====");
 	}
 	else
 		gs->printError("Failed to load tables");
 
+	delete gs;
 	return bResult;
 }
 void	CleanDatabase()
