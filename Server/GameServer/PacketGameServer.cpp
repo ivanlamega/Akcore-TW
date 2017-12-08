@@ -3681,11 +3681,28 @@ void CClientSession::SendAttackBegin(CNtlPacket * pPacket, CGameServer * app)
 {
 
 	sUG_CHAR_ATTACK_BEGIN* req = (sUG_CHAR_ATTACK_BEGIN *)pPacket->GetPacketData();
+	
+	CNtlPacket packet(sizeof(sGU_CHAR_FIGHTMODE));
+	sGU_CHAR_FIGHTMODE * fightMode = (sGU_CHAR_FIGHTMODE *)packet.GetPacketData();
+
+	fightMode->wOpCode = GU_CHAR_FIGHTMODE;
+	fightMode->bFightMode = true;
+	g_pApp->Send(this->GetHandle(), &packet);
+	//this->gsf->printError("An error is occured in SendPortalTelReq: GAME_PORTAL_NOT_EXIST");
+
+	CNtlPacket packet2(sizeof(sGU_CHAR_IS_BATTLECOMBATING));
+	sGU_CHAR_IS_BATTLECOMBATING* battleCombat = (sGU_CHAR_IS_BATTLECOMBATING*)packet2.GetPacketData();
+	battleCombat->wOpCode = GU_CHAR_FIGHTMODE;
+	battleCombat->Unknown[0] = 1;
+	battleCombat->Unknown[1] = 0;
+	battleCombat->Unknown[2] = 0;
+	battleCombat->Unknown[3] = 0;
+	g_pApp->Send(this->GetHandle(), &packet2);
 
 	printf("--- ATTACK BEGIN --- \n");
 	this->cPlayersMain->SetPlayerFight(true);
-	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 	this->cPlayersMain->SetPlayerSit(false);
+	UpdateCharState(this->GetavatarHandle(), CHARSTATE_STANDING);
 	if (req->byType == 0)
 	{
 		if (app->IsUser(this->GetTargetSerialId()))
@@ -3728,6 +3745,7 @@ void CClientSession::SendAttackBegin(CNtlPacket * pPacket, CGameServer * app)
 void CClientSession::SendAttackEnd(CNtlPacket * pPacket, CGameServer * app)
 {
 	//printf("--- ATTACK END --- \n");
+	this->cPlayersMain->SetPlayerFight(false);
 	sUG_CHAR_ATTACK_END* req = (sUG_CHAR_ATTACK_END *)pPacket->GetPacketData();
 	if (req->byType == 0)
 	{
@@ -3770,6 +3788,8 @@ void CGameServer::RemoveAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSeri
 void CGameServer::AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, bool bIsplayer, bool bIsplayer2, float indexx, float indexz)
 {
 	SBattleData *pOldBattleData;
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->pSession->GetavatarHandle());
+
 	//m_batle_mutex.Lock();
 	for (BATTLEIT it = m_listAttackBegin.begin(); it != m_listAttackBegin.end(); it++)
 	{
@@ -3804,401 +3824,411 @@ void CGameServer::AddAttackBegin(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialI
 	pBattleData->index_x = indexx;
 	pBattleData->index_z = indexz;
 	pBattleData->dwCurrTime = GetTickCount();
-	m_listAttackBegin.push_back(pBattleData);
-	//m_batle_mutex.Unlock();
-}
-void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
-{
-	static RwUInt8 byChainAttack = 1;
-	RwBool bDamageApply = true;
-	//m_game_mutex.Lock();
-	itterType it, it1;
-	CMonster::MonsterData* it2;
-	DWORD CurHP = 42;
-	//If we Find the Target as Mob or if the Attacker is Mob
-	if (g_pMobManager->FindCreature(m_uiTargetSerialId))
-	{
-		it2 = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
-		if (it2 != NULL)
-		{
-			CurHP = (RwUInt32)it2->CurLP;
-			//printf("First HP %d\n LP %d\n", CurHP, it2->CurLP);
-		}
-	}
-
 	if (pBattleData->bAttackerIsPlayer)
 	{
-		for (it = g_pPlayerManager->m_map_Player.begin(); it != g_pPlayerManager->m_map_Player.end(); it++)
-		{
-			if (it->second->GetAvatarHandle() == pBattleData->uiSerialId)
-				break;
-		}
-		if (it == g_pPlayerManager->m_map_Player.end())
-		{
-			//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-			pBattleData->uiSerialId = 0;
-			return;
-		}
-		if (it->second->GetPlayerFight() == false)return;
-		if (pBattleData->bDefenderIsPlayer)
-		{
-			for (it1 = g_pPlayerManager->m_map_Player.begin(); it1 != g_pPlayerManager->m_map_Player.end(); it1++)
-			{
-				if (it1->second->GetAvatarHandle() == pBattleData->m_uiTargetSerialId)
-					break;
-			}
-			if (it1 == g_pPlayerManager->m_map_Player.end())
-			{
-				//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-				pBattleData->uiSerialId = 0;
-				return;
-			}
-		}
-		else
-		{
-			//it2 = m_monsterlist[pBattleData->index_x][pBattleData->index_z].find(pBattleData->m_uiTargetSerialId);
-			//if (it2 == m_monsterlist[pBattleData->index_x][pBattleData->index_z].end())
-			//{
-			//	pBattleData->uiSerialId = 0;
-			//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-			//	return;
-			//}
-			//if (it2->second->wCurHP == 0)
-			//{
-			//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-			//	pBattleData->uiSerialId = 0;
-			//	return;
-			//}
-			///*if(it2->second->bIsFighting == false)
-			//{
-			//AddAttackBegin(pBattleData->m_uiTargetSerialId, pBattleData->uiSerialId, pBattleData->bDefenderIsPlayer, pBattleData->bAttackerIsPlayer);
-			//it2->second->bIsFighting = true;
-			//}*/
-		}
-	}
-	else
-	{
-		for (it = g_pPlayerManager->m_map_Player.begin(); it != g_pPlayerManager->m_map_Player.end(); it++)
-		{
-			if (it->second->GetAvatarHandle() == pBattleData->m_uiTargetSerialId)
-			{
-				if (it->second->GetPcProfile()->dwCurLP == 0)
-				{
-				//	RemoveAttackBegin(pBattleData->uiSerialId, 0);
-					pBattleData->uiSerialId = 0;
-					return;
-				}
-				break;
-			}
-		}
-		if (it == g_pPlayerManager->m_map_Player.end())
-		{
-			//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-			pBattleData->uiSerialId = 0;
-			return;
-		}
-		//it2 = m_monsterlist[pBattleData->index_x][pBattleData->index_z].find(pBattleData->uiSerialId);
-		//if (it2 == m_monsterlist[pBattleData->index_x][pBattleData->index_z].end())
-		//{
-		//	printf("mob disapeared from list??\n");
-		//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
-		//	pBattleData->uiSerialId = 0;
-		//	return;
-		//}	
-		if (it2->CurLP == 0 ) //|| it2->bIsFighting == false)
-		{
-
-			pBattleData->uiSerialId = 0;
-			return;
-		}
-		float distance = GetDistance(it2->curPos, it->second->GetPlayerLastPosition());
-		//if (distance > 2.0f)
-		//{
-		//	SendMobFollowMove(it2->first, it0->second->GetavatarHandle(), 1, 1/*NTL_FOLLOW_FIGHTING*/);
-		//	it2->second->folowID = it0->second->GetavatarHandle();
-		//	it2->second->vDest_Loc = it0->second->plr->GetPosition();
-		//	it2->second->dwLastMoveTime = GetTickCount();
-		//	return;
-		//}
-		//else 
-		//if (distance > 30.0f)
-		//{
-		//	//it2->second->folowID = 0;
-		//	pBattleData->uiSerialId = 0;
-		//	return;
-		//}
-		//if (distance > 2.0f)return;
-	}
-	//if(it0->second->isfighting == false)return;
-	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
-	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
-	res->wOpCode = GU_CHAR_ACTION_ATTACK;
-	res->hSubject = pBattleData->uiSerialId;
-	res->hTarget = pBattleData->m_uiTargetSerialId;
-	res->bChainAttack = true;//pBattleData->bAttackerIsPlayer;
-
-	res->dwLpEpEventId = 999;
-	res->fReflectedDamage = 0;
-	res->byBlockedAction = DBO_GUARD_TYPE_INVALID;
-
-	//	res->wAttackResultValue = m_iCurrentHp;
-	for (int i = 0; i < 9; i++)	res->unknown[i] = 0;
-
-	res->vShift.x = 0;
-	res->vShift.y = 0;
-	res->vShift.z = 0;
-	if(res->bChainAttack)
-	res->byAttackSequence = byChainAttack%6+NTL_BATTLE_CHAIN_ATTACK_START;
-	else
-	res->byAttackSequence = rand()%2;
-	if (pBattleData->bAttackerIsPlayer)
-	{
-		if (it->second->GetLastFightTime() > GetTickCount())
+		if (plr->GetLastFightTime() > GetTickCount())
 		{
 			printf("too soon to fight again");
 			return;
 		}
-		it->second->SetLastTimeFight(GetTickCount() + 1000);/*it0->second->plr->pcProfile->avatarAttribute.wBaseAttackSpeedRate*/;
-		res->wAttackResultValue = it->second->cPlayerAttribute->GetAvatarAttribute().byLastStr*2;//100;
-	}
-	//else
-	//{
-	//	if (it2->second->dwLastAttackTime > GetTickCount())return;
-	//	it2->second->dwLastAttackTime = GetTickCount() + it2->second->staticData->wAttackCoolTime;
-	//	res->wAttackResultValue = it2->second->staticData->byStr;//10;
-	//}
-
-	if (res->byAttackSequence == 6)
-	{
-		if (rand() % 2)
-			res->byAttackResult = BATTLE_ATTACK_RESULT_KNOCKDOWN;
-		else
-			res->byAttackResult = BATTLE_ATTACK_RESULT_SLIDING;
-	}
-	else
-	{
-		RwInt32 iRandValue = rand() % 5;
-		if (iRandValue <= 2)
-			res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;
-		else if (iRandValue == 3)
-		{
-			bDamageApply = false;
-			res->wAttackResultValue = 0;
-			res->byAttackResult = BATTLE_ATTACK_RESULT_DODGE;
-		}
-		else
-		{
-			bDamageApply = false;
-			res->wAttackResultValue = 0;
-			res->byAttackResult = BATTLE_ATTACK_RESULT_BLOCK;
-		}
+		plr->SetLastTimeFight(GetTickCount() + 1000);/*it0->second->plr->pcProfile->avatarAttribute.wBaseAttackSpeedRate*/;
 	}
 
-	packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
-
-	if (pBattleData->bDefenderIsPlayer)
-	{	
-		UserBroadcastothers(&packet, pSession);
-		//UserBroadcastothersVisible(&packet, pBattleData->m_uiTargetSerialId);
-	}
-	else
-	{
-		Send(it->second->myCCSession->GetHandle(), &packet);
-		byChainAttack++;
-		UserBroadcast(&packet);
-		//MOBBroadcastothersVisible(&packet, pBattleData->m_uiTargetSerialId);
-	}
-	// update LP
-	if (bDamageApply)
-	{
-		if (pBattleData->bAttackerIsPlayer)
-		{
-			if (pBattleData->bDefenderIsPlayer)
-			{
-				//int healthp = it1->second->plr->pcProfile->wCurLP - res->wAttackResultValue;
-				//if (healthp < 1)healthp = 1;
-				//it1->second->plr->pcProfile->wCurLP = healthp;
-				//UpdateLP(pBattleData->m_uiTargetSerialId, healthp, it1->second->plr->pcProfile->avatarAttribute.wLastMaxLP, 0, 999);
-				//if (healthp <= 1)
-				//{
-				//	it0->second->isfighting = false;
-				//	it1->second->isfighting = false;
-				//	it1->second->SendCharUpdateState(CHARSTATE_CAMPING);
-
-				//	CNtlPacket packet(sizeof(sGU_FREEBATTLE_END_NFY));
-				//	sGU_FREEBATTLE_END_NFY * sPacket = (sGU_FREEBATTLE_END_NFY *)packet.GetPacketData();
-				//	sPacket->wOpCode = GU_FREEBATTLE_END_NFY;
-				//	sPacket->byFreeBattleResult = FREEBATTLE_RESULT_WIN;
-				//	packet.SetPacketLen(sizeof(sGU_FREEBATTLE_END_NFY));
-				//	Send(it0->second->GetHandle(), &packet);
-				//	sPacket->byFreeBattleResult = FREEBATTLE_RESULT_LOSE;
-				//	Send(it1->second->GetHandle(), &packet);
-				//	//	printf("endpvp %lu %lu\n",it0->second->GetavatarHandle(),it1->second->GetavatarHandle());
-				//	it0->second->SetPVPTarget(0);
-				//	it1->second->SetPVPTarget(0);
-				//	//RemoveAttackBegin(it1->second->GetavatarHandle(), 0);
-				//	//RemoveAttackBegin(it0->second->GetavatarHandle(), 0);
-				//	pBattleData->uiSerialId = 0;
-					return;
-				//}
-			}
-			else
-			{
-				DWORD healthp = it2->CurLP - res->wAttackResultValue;
-				if (healthp <= 0) 
-					healthp = 0;
-
-				it2->CurLP = healthp;
-				pSession->SendCharUpdateLp(NULL, this, healthp, pBattleData->m_uiTargetSerialId);
-					printf("monster battle lp %u\n", it2->CurLP);
-				if (healthp == 0)
-				{
-					printf("removing target %u\n",pBattleData->m_uiTargetSerialId);
-					//printf("removing %u\n",it2->first);
-					//printf("removing %u\n",it0->second->GetavatarHandle());
-					//printf("Spawngroup 0x%X party 0x%X\n", it2->second->spawnlist->spawnGroupId, it2->second->spawnlist->dwParty_Index);
-					g_pMobManager->UpdateDeathStatus(pBattleData->m_uiTargetSerialId, true);
-					//RemoveAttackBegin(it2->first, 0);
-					RemoveAttackBegin(it->second->GetAvatarHandle(), 0);
-					pBattleData->uiSerialId = 0;
-					it2->IsDead = true;
-					//it2->second->dwReviveTime = it2->second->dwDieTime + it2->second->spawnlist->wSpawn_Cool_Time * 10000 + 10000;
-					//it2->second->bIsFighting = false;
-					//SendExpUpdate(it2->second->staticData->wExp, it0->second);
-				}
-				//else
-					/*if (it2->second->bIsFighting == false)
-					{
-					it2->second->bIsFighting = true;
-					return AddAttackBegin(pBattleData->m_uiTargetSerialId, pBattleData->uiSerialId, pBattleData->bDefenderIsPlayer, pBattleData->bAttackerIsPlayer, pBattleData->index_x, pBattleData->index_z);
-					}*/
-			}
-		}
-		//else
-		//{
-		//	DWORD healthp = it->second->GetPcProfile()->dwCurLP - res->wAttackResultValue;
-		//	if (healthp < 0)healthp = 0;
-		//	it0->second->plr->pcProfile->wCurLP = healthp;
-		//	UpdateLP(pBattleData->m_uiTargetSerialId, healthp, it0->second->plr->pcProfile->avatarAttribute.wLastMaxLP, 0, 999);
-		//	if (healthp == 0)
-		//	{
-		//		it0->second->isfighting = false;
-		//		pBattleData->bAttackMode = false;
-		//		pBattleData->uiSerialId = 0;
-		//		pBattleData->m_uiTargetSerialId = 0;
-		//		it0->second->SendCharUpdateState(CHARSTATE_FAINTING);
-		//		//	RemoveAttackBegin(it2->first, 0);
-		//		//	RemoveAttackBegin(it0->second->GetavatarHandle(), 0);
-		//	}
-		//}
-	}
-	//m_game_mutex.Unlock();
+	m_listAttackBegin.push_back(pBattleData);
+	//m_batle_mutex.Unlock();
 }
-
-
-//Old Attack Function
 //void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 //{
-//
-//	CGameServer * app = (CGameServer*)NtlSfxGetApp();
-//	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->GetavatarHandle());
-//	static int byChainAttack = plr->ChainNumber();
-//	int CurHP = 0;
+//	static RwUInt8 byChainAttack = 1;
 //	RwBool bDamageApply = true;
-//	float formula;
-//	plr->SetPlayerFight(true);
-//	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
-//	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
-//
-//	res->wOpCode = GU_CHAR_ACTION_ATTACK;
-//	res->hSubject = uiSerialId;
-//	res->hTarget = m_uiTargetSerialId;
-//	res->dwLpEpEventId = 255;
-//	res->byBlockedAction = 255;
-//	CMonster::MonsterData *lol = NULL;
+//	//m_game_mutex.Lock();
+//	itterType it, it1;
+//	CMonster::MonsterData* it2;
+//	DWORD CurHP = 42;
 //	//If we Find the Target as Mob or if the Attacker is Mob
 //	if (g_pMobManager->FindCreature(m_uiTargetSerialId))
 //	{
-//		//lol = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
-//		if (lol != NULL)
+//		it2 = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
+//		if (it2 != NULL)
 //		{
-//			CurHP = (RwUInt32)lol->CurLP;
-//			printf("Frist HP %d\n LP %d\n", CurHP, lol->CurLP);
+//			CurHP = (RwUInt32)it2->CurLP;
+//			//printf("First HP %d\n LP %d\n", CurHP, it2->CurLP);
 //		}
 //	}
-//	//if (CurHP <= 1)
-//		//CurHP = 0;
-//	
+//
+//	if (pBattleData->bAttackerIsPlayer)
 //	{
-//	
-//		formula = 2 * (plr->GetPcProfile()->avatarAttribute.wLastPhysicalOffence + plr->GetPcProfile()->avatarAttribute.byLastStr - plr->GetPcProfile()->avatarAttribute.wLastPhysicalDefence * 0.005); //calculation for Demage auto atack...
-//		//2 * attack * ((1 - defense / (defense + attacker_lv * 20)) + ((attacker_lv - target_lv) * 0.005))
-//		//attack * ((1 - defense / (defense + attacker_lv * 40)) + ((attacker_lv - target_lv) * 0.005))
-//		if (formula < 0)
+//		for (it = g_pPlayerManager->m_map_Player.begin(); it != g_pPlayerManager->m_map_Player.end(); it++)
 //		{
-//			formula = 0;
+//			if (it->second->GetAvatarHandle() == pBattleData->uiSerialId)
+//				break;
 //		}
-//		res->wAttackResultValue = formula;
-//		res->fReflectedDamage = 0.0;
-//		res->vShift.x = plr->GetPlayerPosition().x;
-//		res->vShift.y = plr->GetPlayerPosition().y;
-//		res->vShift.z = plr->GetPlayerPosition().z;
-//		
-//		res->byAttackSequence = 1;
-//		cout << "AttackSequence is " << byChainAttack << endl;
-//		res->bChainAttack = true;
-//		
-//		
-//			RwInt32 iRandValue = rand()%100; //valor random
-//			if (iRandValue <=49)
-//			{
-//				res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;//aplica normal demage
-//				bDamageApply = true; 
-//			}
-//			else if (iRandValue >= 50) 
-//			{
-//				cout << "Critical "  << endl;
-//				res->wAttackResultValue = (plr->GetPcProfile()->avatarAttribute.wBasePhysicalOffence ) * 1.2;
-//				res->byAttackResult = BATTLE_ATTACK_RESULT_CRITICAL_HIT;//aplica critical demage
-//				bDamageApply = true;
-//			}
-//
-//			}
-//		//res->byAttackSequence = (res->byAttackSequence == 0 ? 1 : res->byAttackSequence);//NEVER LET THE 0 Comes because in Attack they are always 1 if the 0 comes then you got a crash - Luiz45
-//		packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
-//		int rc = g_pApp->Send(this->GetHandle(), &packet);
-//		app->UserBroadcast(&packet);
-//
-//		plr->SetChainAttack(byChainAttack++);
-//		// update LP
-//		if (bDamageApply == true)
+//		if (it == g_pPlayerManager->m_map_Player.end())
 //		{
-//			CurHP -= (res->wAttackResultValue);
-//			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->CurLP = CurHP;
-//			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->target = uiSerialId;
-//
-//			printf("HP %d\n LP\n", CurHP);
+//			//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//			pBattleData->uiSerialId = 0;
+//			return;
 //		}
-//		if (CurHP <= 0)
+//		if (it->second->GetPlayerFight() == false)return;
+//		if (pBattleData->bDefenderIsPlayer)
 //		{
-//			plr->SetPlayerFight(false);
-//			CurHP = 0;
-//			SendCharUpdateFaintingState(pPacket, app, uiSerialId, m_uiTargetSerialId);
-//			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->IsDead = true;
-//			lol->IsDead = true;
-//			plr->SetChainAttack(1);
-//			byChainAttack = 1;
+//			for (it1 = g_pPlayerManager->m_map_Player.begin(); it1 != g_pPlayerManager->m_map_Player.end(); it1++)
+//			{
+//				if (it1->second->GetAvatarHandle() == pBattleData->m_uiTargetSerialId)
+//					break;
+//			}
+//			if (it1 == g_pPlayerManager->m_map_Player.end())
+//			{
+//				//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//				pBattleData->uiSerialId = 0;
+//				return;
+//			}
 //		}
 //		else
-//			SendCharUpdateLp(pPacket, app, CurHP, m_uiTargetSerialId);
-//		//If we are attacking a Mob then we gonna send a request to attack our little and beautiful player
-//		if ((lol != NULL) && (!lol->IsDead))
 //		{
-//			
+//			//it2 = m_monsterlist[pBattleData->index_x][pBattleData->index_z].find(pBattleData->m_uiTargetSerialId);
+//			//if (it2 == m_monsterlist[pBattleData->index_x][pBattleData->index_z].end())
+//			//{
+//			//	pBattleData->uiSerialId = 0;
+//			//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//			//	return;
+//			//}
+//			//if (it2->second->wCurHP == 0)
+//			//{
+//			//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//			//	pBattleData->uiSerialId = 0;
+//			//	return;
+//			//}
+//			///*if(it2->second->bIsFighting == false)
+//			//{
+//			//AddAttackBegin(pBattleData->m_uiTargetSerialId, pBattleData->uiSerialId, pBattleData->bDefenderIsPlayer, pBattleData->bAttackerIsPlayer);
+//			//it2->second->bIsFighting = true;
+//			//}*/
 //		}
-//		
-//return ;
+//	}
+//	else
+//	{
+//		for (it = g_pPlayerManager->m_map_Player.begin(); it != g_pPlayerManager->m_map_Player.end(); it++)
+//		{
+//			if (it->second->GetAvatarHandle() == pBattleData->m_uiTargetSerialId)
+//			{
+//				if (it->second->GetPcProfile()->dwCurLP == 0)
+//				{
+//				//	RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//					pBattleData->uiSerialId = 0;
+//					return;
+//				}
+//				break;
+//			}
+//		}
+//		if (it == g_pPlayerManager->m_map_Player.end())
+//		{
+//			//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//			pBattleData->uiSerialId = 0;
+//			return;
+//		}
+//		//it2 = m_monsterlist[pBattleData->index_x][pBattleData->index_z].find(pBattleData->uiSerialId);
+//		//if (it2 == m_monsterlist[pBattleData->index_x][pBattleData->index_z].end())
+//		//{
+//		//	printf("mob disapeared from list??\n");
+//		//	//RemoveAttackBegin(pBattleData->uiSerialId, 0);
+//		//	pBattleData->uiSerialId = 0;
+//		//	return;
+//		//}	
+//		if (it2->CurLP == 0 ) //|| it2->bIsFighting == false)
+//		{
+//
+//			pBattleData->uiSerialId = 0;
+//			return;
+//		}
+//		float distance = GetDistance(it2->curPos, it->second->GetPlayerLastPosition());
+//		//if (distance > 2.0f)
+//		//{
+//		//	SendMobFollowMove(it2->first, it0->second->GetavatarHandle(), 1, 1/*NTL_FOLLOW_FIGHTING*/);
+//		//	it2->second->folowID = it0->second->GetavatarHandle();
+//		//	it2->second->vDest_Loc = it0->second->plr->GetPosition();
+//		//	it2->second->dwLastMoveTime = GetTickCount();
+//		//	return;
+//		//}
+//		//else 
+//		//if (distance > 30.0f)
+//		//{
+//		//	//it2->second->folowID = 0;
+//		//	pBattleData->uiSerialId = 0;
+//		//	return;
+//		//}
+//		//if (distance > 2.0f)return;
+//	}
+//	//if(it0->second->isfighting == false)return;
+//	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
+//	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
+//	res->wOpCode = GU_CHAR_ACTION_ATTACK;
+//	res->hSubject = pBattleData->uiSerialId;
+//	res->hTarget = pBattleData->m_uiTargetSerialId;
+//	res->bChainAttack = true;//pBattleData->bAttackerIsPlayer;
+//
+//	res->dwLpEpEventId = 999;
+//	res->fReflectedDamage = 0;
+//	res->byBlockedAction = DBO_GUARD_TYPE_INVALID;
+//
+//	//	res->wAttackResultValue = m_iCurrentHp;
+//	for (int i = 0; i < 9; i++)	res->unknown[i] = 0;
+//
+//	res->vShift.x = 0;
+//	res->vShift.y = 0;
+//	res->vShift.z = 0;
+//	if(res->bChainAttack)
+//	res->byAttackSequence = byChainAttack%6+NTL_BATTLE_CHAIN_ATTACK_START;
+//	else
+//	res->byAttackSequence = rand()%2;
+//	if (pBattleData->bAttackerIsPlayer)
+//	{
+//		if (it->second->GetLastFightTime() > GetTickCount())
+//		{
+//			printf("too soon to fight again");
+//			return;
+//		}
+//		it->second->SetLastTimeFight(GetTickCount() + 1000);/*it0->second->plr->pcProfile->avatarAttribute.wBaseAttackSpeedRate*/;
+//		res->wAttackResultValue = it->second->cPlayerAttribute->GetAvatarAttribute().byLastStr*2;//100;
+//	}
+//	//else
+//	//{
+//	//	if (it2->second->dwLastAttackTime > GetTickCount())return;
+//	//	it2->second->dwLastAttackTime = GetTickCount() + it2->second->staticData->wAttackCoolTime;
+//	//	res->wAttackResultValue = it2->second->staticData->byStr;//10;
+//	//}
+//
+//	if (res->byAttackSequence == 6)
+//	{
+//		if (rand() % 2)
+//			res->byAttackResult = BATTLE_ATTACK_RESULT_KNOCKDOWN;
+//		else
+//			res->byAttackResult = BATTLE_ATTACK_RESULT_SLIDING;
+//	}
+//	else
+//	{
+//		RwInt32 iRandValue = rand() % 5;
+//		if (iRandValue <= 2)
+//			res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;
+//		else if (iRandValue == 3)
+//		{
+//			bDamageApply = false;
+//			res->wAttackResultValue = 0;
+//			res->byAttackResult = BATTLE_ATTACK_RESULT_DODGE;
+//		}
+//		else
+//		{
+//			bDamageApply = false;
+//			res->wAttackResultValue = 0;
+//			res->byAttackResult = BATTLE_ATTACK_RESULT_BLOCK;
+//		}
+//	}
+//
+//	packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
+//
+//	if (pBattleData->bDefenderIsPlayer)
+//	{	
+//		UserBroadcastothers(&packet, pSession);
+//		//UserBroadcastothersVisible(&packet, pBattleData->m_uiTargetSerialId);
+//	}
+//	else
+//	{
+//		Send(it->second->myCCSession->GetHandle(), &packet);
+//		byChainAttack++;
+//		UserBroadcast(&packet);
+//		//MOBBroadcastothersVisible(&packet, pBattleData->m_uiTargetSerialId);
+//	}
+//	// update LP
+//	if (bDamageApply)
+//	{
+//		if (pBattleData->bAttackerIsPlayer)
+//		{
+//			if (pBattleData->bDefenderIsPlayer)
+//			{
+//				//int healthp = it1->second->plr->pcProfile->wCurLP - res->wAttackResultValue;
+//				//if (healthp < 1)healthp = 1;
+//				//it1->second->plr->pcProfile->wCurLP = healthp;
+//				//UpdateLP(pBattleData->m_uiTargetSerialId, healthp, it1->second->plr->pcProfile->avatarAttribute.wLastMaxLP, 0, 999);
+//				//if (healthp <= 1)
+//				//{
+//				//	it0->second->isfighting = false;
+//				//	it1->second->isfighting = false;
+//				//	it1->second->SendCharUpdateState(CHARSTATE_CAMPING);
+//
+//				//	CNtlPacket packet(sizeof(sGU_FREEBATTLE_END_NFY));
+//				//	sGU_FREEBATTLE_END_NFY * sPacket = (sGU_FREEBATTLE_END_NFY *)packet.GetPacketData();
+//				//	sPacket->wOpCode = GU_FREEBATTLE_END_NFY;
+//				//	sPacket->byFreeBattleResult = FREEBATTLE_RESULT_WIN;
+//				//	packet.SetPacketLen(sizeof(sGU_FREEBATTLE_END_NFY));
+//				//	Send(it0->second->GetHandle(), &packet);
+//				//	sPacket->byFreeBattleResult = FREEBATTLE_RESULT_LOSE;
+//				//	Send(it1->second->GetHandle(), &packet);
+//				//	//	printf("endpvp %lu %lu\n",it0->second->GetavatarHandle(),it1->second->GetavatarHandle());
+//				//	it0->second->SetPVPTarget(0);
+//				//	it1->second->SetPVPTarget(0);
+//				//	//RemoveAttackBegin(it1->second->GetavatarHandle(), 0);
+//				//	//RemoveAttackBegin(it0->second->GetavatarHandle(), 0);
+//				//	pBattleData->uiSerialId = 0;
+//					return;
+//				//}
+//			}
+//			else
+//			{
+//				DWORD healthp;
+//				
+//				if ((healthp = (it2->CurLP - res->wAttackResultValue) <= 0))
+//					healthp = 0;
+//
+//				it2->CurLP = healthp;
+//				pSession->SendCharUpdateLp(pPacket, this, healthp, pBattleData->m_uiTargetSerialId);
+//					printf("monster battle lp %u\n", it2->CurLP);
+//				if (healthp == 0 || it2->CurLP == 0)
+//				{
+//					printf("removing target %u\n",pBattleData->m_uiTargetSerialId);
+//					//printf("removing %u\n",it2->first);
+//					//printf("removing %u\n",it0->second->GetavatarHandle());
+//					//printf("Spawngroup 0x%X party 0x%X\n", it2->second->spawnlist->spawnGroupId, it2->second->spawnlist->dwParty_Index);
+//					g_pMobManager->UpdateDeathStatus(pBattleData->m_uiTargetSerialId, true);
+//					//RemoveAttackBegin(it2->first, 0);
+//					RemoveAttackBegin(it->second->GetAvatarHandle(), 0);
+//					pBattleData->uiSerialId = 0;
+//					it2->IsDead = true;
+//					//it2->second->dwReviveTime = it2->second->dwDieTime + it2->second->spawnlist->wSpawn_Cool_Time * 10000 + 10000;
+//					//it2->second->bIsFighting = false;
+//					//SendExpUpdate(it2->second->staticData->wExp, it0->second);
+//				}
+//				//else
+//					/*if (it2->second->bIsFighting == false)
+//					{
+//					it2->second->bIsFighting = true;
+//					return AddAttackBegin(pBattleData->m_uiTargetSerialId, pBattleData->uiSerialId, pBattleData->bDefenderIsPlayer, pBattleData->bAttackerIsPlayer, pBattleData->index_x, pBattleData->index_z);
+//					}*/
+//			}
+//		}
+//		//else
+//		//{
+//		//	DWORD healthp = it->second->GetPcProfile()->dwCurLP - res->wAttackResultValue;
+//		//	if (healthp < 0)healthp = 0;
+//		//	it0->second->plr->pcProfile->wCurLP = healthp;
+//		//	UpdateLP(pBattleData->m_uiTargetSerialId, healthp, it0->second->plr->pcProfile->avatarAttribute.wLastMaxLP, 0, 999);
+//		//	if (healthp == 0)
+//		//	{
+//		//		it0->second->isfighting = false;
+//		//		pBattleData->bAttackMode = false;
+//		//		pBattleData->uiSerialId = 0;
+//		//		pBattleData->m_uiTargetSerialId = 0;
+//		//		it0->second->SendCharUpdateState(CHARSTATE_FAINTING);
+//		//		//	RemoveAttackBegin(it2->first, 0);
+//		//		//	RemoveAttackBegin(it0->second->GetavatarHandle(), 0);
+//		//	}
+//		//}
+//	}
+//	//m_game_mutex.Unlock();
 //}
+
+
+void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
+{
+
+	CGameServer * app = (CGameServer*)NtlSfxGetApp();
+	PlayersMain* plr = g_pPlayerManager->GetPlayer(this->pSession->GetavatarHandle());
+	static RwUInt8 byChainAttack = 1;
+	DWORD CurHP = 0;
+	RwBool bDamageApply = true;
+	float formula;
+	plr->SetPlayerFight(true);
+	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
+	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
+
+	res->wOpCode = GU_CHAR_ACTION_ATTACK;
+	res->hSubject = pBattleData->uiSerialId;
+	res->hTarget = pBattleData->m_uiTargetSerialId;
+	res->dwLpEpEventId = 255;
+	res->byBlockedAction = 255;
+	CMonster::MonsterData *lol = NULL;
+
+	//If we Find the Target as Mob or if the Attacker is Mob
+	if (g_pMobManager->FindCreature(m_uiTargetSerialId))
+	{
+		lol = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
+		if (lol != NULL)
+		{
+			CurHP = lol->CurLP;
+			printf("Frist HP %d\n LP %d\n", CurHP, lol->CurLP);
+		}
+	}
+	//if (CurHP <= 1)
+		//CurHP = 0;
+
+	{
+	
+		formula = 2 * (plr->GetPcProfile()->avatarAttribute.wLastPhysicalOffence + plr->GetPcProfile()->avatarAttribute.byLastStr - lol->Basic_physical_defence * 0.005); //calculation for Demage auto atack...
+		//2 * attack * ((1 - defense / (defense + attacker_lv * 20)) + ((attacker_lv - target_lv) * 0.005))
+		//attack * ((1 - defense / (defense + attacker_lv * 40)) + ((attacker_lv - target_lv) * 0.005))
+		if (formula < 0)
+		{
+			formula = 70;
+		}
+		res->wAttackResultValue = formula;
+		res->fReflectedDamage = 0.0;
+		res->vShift.x = 0;
+		res->vShift.y = 0;
+		res->vShift.z = 0;
+		
+		res->byAttackSequence = byChainAttack % 6 + NTL_BATTLE_CHAIN_ATTACK_START;
+		printf("AttackSequence is %u", byChainAttack);
+		res->bChainAttack = true;
+		
+		
+			RwInt32 iRandValue = rand()%100; //valor random
+		/*	if (iRandValue <=49)
+			{*/
+				res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;//aplica normal demage
+				bDamageApply = true; 
+				byChainAttack++;
+				//}
+			//else if (iRandValue >= 50) 
+			//{
+			//	cout << "Critical "  << endl;
+			//	res->wAttackResultValue = (plr->GetPcProfile()->avatarAttribute.wBasePhysicalOffence ) * 1.2;
+			//	res->byAttackResult = BATTLE_ATTACK_RESULT_CRITICAL_HIT;//aplica critical demage
+			//	bDamageApply = true;
+			//}
+
+			}
+		//res->byAttackSequence = (res->byAttackSequence == 0 ? 1 : res->byAttackSequence);//NEVER LET THE 0 Comes because in Attack they are always 1 if the 0 comes then you got a crash - Luiz45
+		packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
+		int rc = g_pApp->Send(this->pSession->GetHandle(), &packet);
+		app->UserBroadcast(&packet);
+		// update LP
+		if (bDamageApply == true)
+		{
+			if ((CurHP -= (res->wAttackResultValue)) <= 0)
+			CurHP = 0;
+			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->CurLP = CurHP;
+			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->target = pBattleData->uiSerialId;
+
+			printf("HP %d\n LP\n", CurHP);
+		}
+		if (CurHP <= 0)
+		{
+			plr->SetPlayerFight(false);
+			CurHP = 0;
+			pSession->SendCharUpdateFaintingState(pPacket, app, pBattleData->uiSerialId, pBattleData->m_uiTargetSerialId);
+			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->IsDead = true;
+			lol->IsDead = true;
+			byChainAttack = 1;
+		}
+		else
+			pSession->SendCharUpdateLp(pPacket, app, CurHP, pBattleData->m_uiTargetSerialId);
+		//If we are attacking a Mob then we gonna send a request to attack our little and beautiful player
+		if ((lol != NULL) && (!lol->IsDead))
+		{
+			
+		}
+		
+return ;
+}
 void CClientSession::SendMobActionAttack(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, CNtlPacket * pPacket)
 {
 	CGameServer * app = (CGameServer*)NtlSfxGetApp();
@@ -4440,7 +4470,7 @@ void CClientSession::SendCharUpdateFaintingState(CNtlPacket * pPacket, CGameServ
 		packet.SetPacketLen(sizeof(SpawnMOB));
 		app->UserBroadcastothers(&packet, this);
 		g_pApp->Send(this->GetHandle(), &packet);
-		//g_pMobManager->UpdateDeathStatus(m_uiTargetSerialId, true);
+		g_pMobManager->UpdateDeathStatus(m_uiTargetSerialId, true);
 	}
 	plr = NULL;
 	delete plr;

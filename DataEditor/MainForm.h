@@ -35,6 +35,7 @@ namespace DataEditor {
 			//
 			//TODO: Add the constructor code here
 			//
+			container = NULL;
 		}
 
 	protected:
@@ -119,6 +120,14 @@ namespace DataEditor {
 	private: System::Windows::Forms::Label^  label8;
 	private: System::Windows::Forms::TextBox^  textBox1;
 	private: System::Windows::Forms::Label^  label7;
+	private: System::Windows::Forms::TabPage^  tpHLSItems;
+	private: System::Windows::Forms::GroupBox^  gbHLSItems;
+	private: System::Windows::Forms::TextBox^  tbHLSIcon;
+	private: System::Windows::Forms::Label^  label11;
+	private: System::Windows::Forms::TextBox^  tbHLSName;
+	private: System::Windows::Forms::Label^  label9;
+	private: System::Windows::Forms::ListBox^  lbHLSItems;
+	private: System::Windows::Forms::Button^  btnHLSLoad;
 
 
 
@@ -195,6 +204,14 @@ namespace DataEditor {
 			this->btnNpcSave = (gcnew System::Windows::Forms::Button());
 			this->btnNpcLoad = (gcnew System::Windows::Forms::Button());
 			this->tpMob = (gcnew System::Windows::Forms::TabPage());
+			this->tpHLSItems = (gcnew System::Windows::Forms::TabPage());
+			this->btnHLSLoad = (gcnew System::Windows::Forms::Button());
+			this->gbHLSItems = (gcnew System::Windows::Forms::GroupBox());
+			this->tbHLSIcon = (gcnew System::Windows::Forms::TextBox());
+			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->tbHLSName = (gcnew System::Windows::Forms::TextBox());
+			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->lbHLSItems = (gcnew System::Windows::Forms::ListBox());
 			this->log = (gcnew System::Windows::Forms::RichTextBox());
 			this->mainMenu = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -211,6 +228,8 @@ namespace DataEditor {
 			this->gbItem->SuspendLayout();
 			this->tpNpc->SuspendLayout();
 			this->gbNpc->SuspendLayout();
+			this->tpHLSItems->SuspendLayout();
+			this->gbHLSItems->SuspendLayout();
 			this->mainMenu->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -221,6 +240,7 @@ namespace DataEditor {
 			this->mainTabs->Controls->Add(this->tpItem);
 			this->mainTabs->Controls->Add(this->tpNpc);
 			this->mainTabs->Controls->Add(this->tpMob);
+			this->mainTabs->Controls->Add(this->tpHLSItems);
 			this->mainTabs->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->mainTabs->Location = System::Drawing::Point(0, 24);
 			this->mainTabs->Name = L"mainTabs";
@@ -676,6 +696,84 @@ namespace DataEditor {
 			this->tpMob->Text = L"Monster Table";
 			this->tpMob->UseVisualStyleBackColor = true;
 			// 
+			// tpHLSItems
+			// 
+			this->tpHLSItems->Controls->Add(this->btnHLSLoad);
+			this->tpHLSItems->Controls->Add(this->gbHLSItems);
+			this->tpHLSItems->Controls->Add(this->lbHLSItems);
+			this->tpHLSItems->Location = System::Drawing::Point(4, 22);
+			this->tpHLSItems->Name = L"tpHLSItems";
+			this->tpHLSItems->Padding = System::Windows::Forms::Padding(3);
+			this->tpHLSItems->Size = System::Drawing::Size(738, 455);
+			this->tpHLSItems->TabIndex = 5;
+			this->tpHLSItems->Text = L"Cash Shop Items";
+			this->tpHLSItems->UseVisualStyleBackColor = true;
+			// 
+			// btnHLSLoad
+			// 
+			this->btnHLSLoad->Enabled = false;
+			this->btnHLSLoad->Location = System::Drawing::Point(7, 390);
+			this->btnHLSLoad->Name = L"btnHLSLoad";
+			this->btnHLSLoad->Size = System::Drawing::Size(75, 28);
+			this->btnHLSLoad->TabIndex = 13;
+			this->btnHLSLoad->Text = L"Load";
+			this->btnHLSLoad->UseVisualStyleBackColor = true;
+			this->btnHLSLoad->Click += gcnew System::EventHandler(this, &MainForm::btnHLSLoad_Click_1);
+			// 
+			// gbHLSItems
+			// 
+			this->gbHLSItems->Controls->Add(this->tbHLSIcon);
+			this->gbHLSItems->Controls->Add(this->label11);
+			this->gbHLSItems->Controls->Add(this->tbHLSName);
+			this->gbHLSItems->Controls->Add(this->label9);
+			this->gbHLSItems->Location = System::Drawing::Point(249, 3);
+			this->gbHLSItems->Name = L"gbHLSItems";
+			this->gbHLSItems->Size = System::Drawing::Size(482, 449);
+			this->gbHLSItems->TabIndex = 12;
+			this->gbHLSItems->TabStop = false;
+			this->gbHLSItems->Text = L"Cash Shop Item Data";
+			// 
+			// tbHLSIcon
+			// 
+			this->tbHLSIcon->Location = System::Drawing::Point(48, 43);
+			this->tbHLSIcon->Name = L"tbHLSIcon";
+			this->tbHLSIcon->Size = System::Drawing::Size(308, 20);
+			this->tbHLSIcon->TabIndex = 3;
+			// 
+			// label11
+			// 
+			this->label11->AutoSize = true;
+			this->label11->Location = System::Drawing::Point(7, 46);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(28, 13);
+			this->label11->TabIndex = 2;
+			this->label11->Text = L"Icon";
+			// 
+			// tbHLSName
+			// 
+			this->tbHLSName->Location = System::Drawing::Point(48, 17);
+			this->tbHLSName->Name = L"tbHLSName";
+			this->tbHLSName->Size = System::Drawing::Size(308, 20);
+			this->tbHLSName->TabIndex = 1;
+			// 
+			// label9
+			// 
+			this->label9->AutoSize = true;
+			this->label9->Location = System::Drawing::Point(7, 20);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(35, 13);
+			this->label9->TabIndex = 0;
+			this->label9->Text = L"Name";
+			// 
+			// lbHLSItems
+			// 
+			this->lbHLSItems->FormattingEnabled = true;
+			this->lbHLSItems->Location = System::Drawing::Point(7, 3);
+			this->lbHLSItems->Name = L"lbHLSItems";
+			this->lbHLSItems->Size = System::Drawing::Size(236, 381);
+			this->lbHLSItems->TabIndex = 11;
+			this->lbHLSItems->SelectedIndexChanged += gcnew System::EventHandler(this, &MainForm::lbHLSItems_SelectedIndexChanged);
+			// 
 			// log
 			// 
 			this->log->BorderStyle = System::Windows::Forms::BorderStyle::None;
@@ -748,6 +846,9 @@ namespace DataEditor {
 			this->tpNpc->ResumeLayout(false);
 			this->gbNpc->ResumeLayout(false);
 			this->gbNpc->PerformLayout();
+			this->tpHLSItems->ResumeLayout(false);
+			this->gbHLSItems->ResumeLayout(false);
+			this->gbHLSItems->PerformLayout();
 			this->mainMenu->ResumeLayout(false);
 			this->mainMenu->PerformLayout();
 			this->ResumeLayout(false);
@@ -795,8 +896,9 @@ private: System::Void MainForm_Load(System::Object^  sender, System::EventArgs^ 
 	flagManager.Set(CTableContainer::TABLE_NPC);
 
 	flagManager.Set(CTableContainer::TABLE_SYSTEM_EFFECT);
-
+	flagManager.Set(CTableContainer::TABLE_HLS_ITEM);
 	
+	flagManager.Set(CTableContainer::TABLE_TEXT_ALL);
 	/*Loadable Tables*/
 	fileNameList.SetFileName(CTableContainer::TABLE_PC, "Table_PC_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_NEWBIE, "Table_Newbie_Data");
@@ -828,9 +930,10 @@ private: System::Void MainForm_Load(System::Object^  sender, System::EventArgs^ 
 
 	fileNameList.SetFileName(CTableContainer::TABLE_MOB, "Table_MOB_Data");
 	fileNameList.SetFileName(CTableContainer::TABLE_NPC, "Table_NPC_Data");
-
+	fileNameList.SetFileName(CTableContainer::TABLE_HLS_ITEM, "table_hls_item_data");
 
 	fileNameList.SetFileName(CTableContainer::TABLE_SYSTEM_EFFECT, "table_system_effect_data");
+	fileNameList.SetFileName(CTableContainer::TABLE_TEXT_ALL, "Table_Text_All_Data");
 
 	this->log->AppendText("---------------------------------------------------------\nTo start go File > Load Game Data\n---------------------------------------------------------\n\n");
 }
@@ -840,6 +943,7 @@ private: System::Void loadGameDataToolStripMenuItem_Click(System::Object^  sende
 	{
 		this->worldTblLoad->Enabled = true;
 		this->btnItemLoad->Enabled = true;
+		this->btnHLSLoad->Enabled = true;
 		//this->worldTblSave->Enabled = true;
 		//this->btnTextAllTblLoad->Enabled = true;
 		this->log->AppendText("Game Data Loaded!\n");
@@ -881,281 +985,311 @@ private: System::Void worldTblSave_Click(System::Object^  sender, System::EventA
 }
 private: System::Void btnTextAllTblLoad_Click(System::Object^  sender, System::EventArgs^  e) {
 	List<ListData^>^ data = gcnew List<ListData^>();
-
-	CTextTable* pTextTbl = container->GetTextAllTable()->GetActionTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	CTextAllTable* pTextAll = container->GetTextAllTable();
+	CTable::TABLE::iterator iter;
+	if (container->GetTextAllTable() == NULL)
 	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
-
-		it->Text = String::Format("{0} [{1}]", "Action", pData->tblidx);
-		it->Value = pData->tblidx;
-
-		data->Add(it);
+		this->log->AppendText("NoTextAllTable ...\n");
+		return;
 	}
-	pTextTbl = container->GetTextAllTable()->GetChatCommandTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+
+	for (int nIndex = 0; nIndex < CTextAllTable::TABLE_COUNT; nIndex++)
 	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+		int nTableType = nIndex;
+		CTextTable* pTextTable = container->GetTextAllTable()->GetTextTbl((CTextAllTable::TABLETYPE)nTableType);
 
-		it->Text = String::Format("{0} [{1}]", "ChatCommand", pData->tblidx);
-		it->Value = pData->tblidx;
+		if (NULL != pTextTable)
+		{
+			int nFieldIdx = 2 * nTableType + 1;
+			int nFieldText = nFieldIdx + 1;
 
-		data->Add(it);
+			// Add data segments
+			int i = 0;
+
+			for (iter = pTextTable->Begin(); pTextTable->End() != iter; iter++)
+			{
+				++i;
+				sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+				ListData^ it = gcnew ListData();
+
+				it->Text = String::Format("{0} [{1}]", "All", pData->tblidx);
+				it->Value = pData->tblidx;
+
+				data->Add(it);
+				
+			}
+		}
 	}
-	pTextTbl = container->GetTextAllTable()->GetCSTextTble();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
 
-		it->Text = String::Format("{0} [{1}]", "CSText", pData->tblidx);
-		it->Value = pData->tblidx;
+	//// Add a line feed
+	//CTextTable* pTextTbl = container->GetTextAllTable()->GetActionTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetChatCommandTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetDBRewardTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "ChatCommand", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "DBReward", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetCSTextTble();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetDragonTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "CSText", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Dragon", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetDBRewardTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetETCTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "DBReward", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "ETC", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetDragonTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetFilteringTable();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Dragon", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Filtering", pData->tblidx);
-		it->Value = pData->tblidx;
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetGMToolTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetETCTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		it->Text = String::Format("{0} [{1}]", "GMTool", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	it->Text = String::Format("{0} [{1}]", "ETC", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetHelpPopoTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetFilteringTable();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		it->Text = String::Format("{0} [{1}]", "HelpPopo", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	it->Text = String::Format("{0} [{1}]", "Filtering", pData->tblidx);
+	//	it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetGMToolTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetHelpTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "GMTool", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Help", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetHelpPopoTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetHTBSetTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "HelpPopo", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "HTBSet", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetHelpTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetItemTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Help", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "NormalItem", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetHTBSetTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetMapNameTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "HTBSet", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "MapName", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetItemTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetMerchantTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "NormalItem", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Merchant", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetMapNameTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetMilePostTable();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "MapName", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "MilePost", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetMerchantTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetMobTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Merchant", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Mob", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetMilePostTable();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetNpcDialogTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "MilePost", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "NpcDialog", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetMobTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetNPCTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Mob", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "NPC", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetNpcDialogTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetObjectTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "NpcDialog", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Object", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetNPCTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetQuestItemTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "NPC", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "QuestItem", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetObjectTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetSkillTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Object", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "Skill", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetQuestItemTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetSystemEffectTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "QuestItem", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "SystemEffect", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetSkillTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetTMQTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "Skill", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "TMQ", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetSystemEffectTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetUseItemTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "SystemEffect", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "UseItem", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetTMQTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
-	pTextTbl = container->GetTextAllTable()->GetDBOTipTbl();
-	for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
-	{
-		sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
-		ListData^ it = gcnew ListData();
+	//	it->Text = String::Format("{0} [{1}]", "TMQ", pData->tblidx);
+	//	it->Value = pData->tblidx;
 
-		it->Text = String::Format("{0} [{1}]", "DBOTip", pData->tblidx);
-		it->Value = pData->tblidx;
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetUseItemTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
 
-		data->Add(it);
-	}
+	//	it->Text = String::Format("{0} [{1}]", "UseItem", pData->tblidx);
+	//	it->Value = pData->tblidx;
+
+	//	data->Add(it);
+	//}
+	//pTextTbl = container->GetTextAllTable()->GetDBOTipTbl();
+	//for (CTable::TABLEIT iter = pTextTbl->Begin(); pTextTbl->End() != iter; iter++)
+	//{
+	//	sTEXT_TBLDAT* pData = (sTEXT_TBLDAT*)(iter->second);
+	//	ListData^ it = gcnew ListData();
+
+	//	it->Text = String::Format("{0} [{1}]", "DBOTip", pData->tblidx);
+	//	it->Value = pData->tblidx;
+
+	//	data->Add(it);
+	//}
 
 	this->textAllTblList->DisplayMember = "Text";
 	this->textAllTblList->ValueMember = "Value";
@@ -1270,9 +1404,42 @@ private: System::Void lbItems_SelectedIndexChanged(System::Object^  sender, Syst
 
 }
 
+private: System::Void btnHLSLoad_Click_1(System::Object^  sender, System::EventArgs^  e) {
+
+	List<ListData^>^ data = gcnew List<ListData^>();
+
+	CHLSItemTable* pHLSTable = container->GetHLSItemTable();
+
+	for (CTable::TABLEIT iter = pHLSTable->Begin(); pHLSTable->End() != iter; iter++)
+	{
+		sHLS_ITEM_TBLDAT* pHLSTableDat = (sHLS_ITEM_TBLDAT*)(iter->second);
+		ListData^ it = gcnew ListData();
+
+		it->Text = String::Format(L"{0} [{1}]", gcnew String(pHLSTableDat->wszName), pHLSTableDat->tblidx);
+		it->Value = pHLSTableDat->tblidx;
+
+		data->Add(it);
+	}
 
 
+	this->lbHLSItems->DisplayMember = "Text";
+	this->lbHLSItems->ValueMember = "Value";
+	this->lbHLSItems->DataSource = data;
+}
+private: System::Void lbHLSItems_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+	unsigned int value = ((ListData^)this->lbHLSItems->SelectedItem)->Value;
+	CHLSItemTable* pItemTable = container->GetHLSItemTable();
 
-//EoF
+	sHLS_ITEM_TBLDAT data = *(sHLS_ITEM_TBLDAT*)pItemTable->FindData(value);
+	try{
+		this->tbHLSName->Text = gcnew String(data.wszName);
+		this->tbHLSIcon->Text = gcnew String(data.wszCJIProductID);
+	}
+	catch (Object^ exc)
+	{
+		throw gcnew System::Exception("something bad happened");
+	}
+
+}
 };
 }

@@ -266,7 +266,7 @@ int CClientSession::OnDispatch(CNtlPacket * pPacket)
 			break;
 		case UG_CHAR_ATTACK_BEGIN:
 		{
-			CClientSession::SendAttackBegin(pPacket,app);
+			CClientSession::SendAttackBegin(pPacket,app); 
 			//CClientSession::SenGiftShop(pPacket, app);
 			
 

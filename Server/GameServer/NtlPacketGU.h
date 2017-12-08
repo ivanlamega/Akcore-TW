@@ -1085,7 +1085,8 @@ BEGIN_PROTOCOL(GU_CHAR_ACTION_SKILL)
 	HOBJECT				hAppointedTarget;
 	bool				bIsSkillHarmful;
 	BYTE				bySkillResultCount;
-	sSKILL_RESULT		aSkillResult[NTL_MAX_NUMBER_OF_SKILL_TARGET];
+	sSKILL_RESULT		aSkillResult[26];//NTL_MAX_NUMBER_OF_SKILL_TARGET];
+	BYTE				Unknown[78];
 END_PROTOCOL()
 //------------------------------------------------------------------
 BEGIN_PROTOCOL(GU_CHAR_ACTION_ITEM)

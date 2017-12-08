@@ -295,6 +295,7 @@ bool CMobManager::RunSpawnCheck(CNtlPacket * pPacket, sVECTOR3 curPos, CClientSe
 				g_pApp->Send(pSession->GetHandle(), &packet);
 			}
 		}
+
 		else if (handleSearch == creaturelist->spawnedForHandle.end())
 		{
 			creaturelist->isSpawned = false;
@@ -469,6 +470,15 @@ bool CMobManager::UpdateDeathStatus(RwUInt32 MobID, bool death_status)
 			creaturelist->IsDead = death_status;
 			creaturelist->CurLP = 0;
 			creaturelist->CurEP = 0;
+			creaturelist->target = 0;
+			creaturelist->StateID = CHARSTATE_FAINTING;
+			CNtlPacket packet(sizeof(sGU_OBJECT_DESTROY));
+			sGU_OBJECT_DESTROY * res = (sGU_OBJECT_DESTROY*)packet.GetPacketData();
+			res->wOpCode = GU_OBJECT_DESTROY;
+			res->handle = creaturelist->UniqueID;
+			packet.SetPacketLen(sizeof(sGU_OBJECT_DESTROY));
+			app->UserBroadcast(&packet);
+
 		}
 		else
 		{

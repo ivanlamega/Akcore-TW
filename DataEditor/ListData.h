@@ -15,6 +15,19 @@ namespace DataEditor {
 		int _Value;
 		String^ _Text;
 	public:
+		property uint32_t uValue
+		{
+			uint32_t get()
+			{
+				return _Value;
+			}
+
+			void set(uint32_t x)
+			{
+				_Value = x;
+			}
+
+		}
 		property int Value
 		{
 			int get()
