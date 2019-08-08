@@ -13,7 +13,7 @@ Very few things are needed for compiing the emulator.
 2. [x86 MySQL C Connector] (http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.5-win32.msi)
 3. [x86 MySQL C++ Connector] (http://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-1.1.3-win32.msi)
 4. A MySQL Database 
-5. Microsoft Visual Studio 2010
+5. Microsoft Visual Studio 2013
 
 
 ## Installation
