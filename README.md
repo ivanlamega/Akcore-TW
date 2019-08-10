@@ -13,7 +13,7 @@ Very few things are needed for compiing the emulator.
 2. [x86 MySQL C Connector] (http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.5-win32.msi)
 3. [x86 MySQL C++ Connector] (http://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-1.1.3-win32.msi)
 4. A MySQL Database 
-5. Microsoft Visual Studio 2010
+5. Microsoft Visual Studio 2013
 
 
 ## Installation
@@ -26,7 +26,7 @@ When it looks like [this](http://puu.sh/a0q9o/946f96747f.png) it is correct.
 Next in the NtlDatabase folder open mysql_wrapper.h and change the database credentials to your database credentials
 (currently the stored procedures require the user to be root@% you can change them if you like)
  
-Now open AKCore.sln with visual studio 2010.
+Now open AKCore.sln with visual studio 2013.
 Select the Debug/win32 configurations and compile.
 
 Congrats you are done with this section
