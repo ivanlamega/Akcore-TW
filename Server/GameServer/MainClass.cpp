@@ -400,7 +400,7 @@ void PlayersMain::FillProfileWithInfo()
 	this->sPlayerProfile->dwMudosaPoint = db->getInt("MudosaPoint");
 	this->sPlayerProfile->dwSpPoint = db->getInt("SpPoint");
 	this->sPlayerProfile->bIsGameMaster = db->getBoolean("GameMaster");
-	this->sPlayerProfile->sMarking.dwCode = db->getInt("title");
+	this->sPlayerProfile->sMarking.dwCode = db->getInt("titulo");
 	this->sPlayerProfile->sMixData.bNormalStart = 0;
 	this->sPlayerProfile->sMixData.bSpecialStart = 0;
 	this->sPlayerProfile->sMixData.byMixLevel = db->getInt("MixLevel");
