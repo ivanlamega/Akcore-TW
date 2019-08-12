@@ -4139,6 +4139,10 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 	plr->SetPlayerFight(true);
 	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
 	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
+	CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_STATE));
+	sGU_UPDATE_CHAR_STATE * res2 = (sGU_UPDATE_CHAR_STATE *)packet2.GetPacketData();
+
+	
 
 	res->wOpCode = GU_CHAR_ACTION_ATTACK;
 	res->hSubject = pBattleData->uiSerialId;
@@ -4147,87 +4151,65 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 	res->byBlockedAction = 255;
 	CMonster::MonsterData *lol = NULL;
 
-	//If we Find the Target as Mob or if the Attacker is Mob
-	if (g_pMobManager->FindCreature(m_uiTargetSerialId))
-	{
-		lol = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
-		if (lol != NULL)
-		{
-			CurHP = lol->CurLP;
-			printf("Frist HP %d\n LP %d\n", CurHP, lol->CurLP);
-		}
+	g_pMobManager->FindCreature(m_uiTargetSerialId);
+	lol = g_pMobManager->GetMobByHandle(m_uiTargetSerialId);
+	CurHP = lol->CurLP;
+	printf("Mob HP %d of %d\n", CurHP, lol->MaxLP);
+
+	formula = 50; //for now it has to be hardcoded to 50. if you try to use the player's stats I think it goes to 0.
+
+	res->wAttackResultValue = formula;
+	res->fReflectedDamage = 0.0;
+	res->vShift.x = 0;
+	res->vShift.y = 0;
+	res->vShift.z = 0;
+
+	res->byAttackSequence = byChainAttack % 6 + NTL_BATTLE_CHAIN_ATTACK_START;
+	printf("AttackSequence is %u\n", byChainAttack);
+	res->bChainAttack = true;
+
+	if (bDamageApply == true){
+		CurHP -= res->wAttackResultValue;
+		g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->CurLP = CurHP;
+		g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->target = pBattleData->uiSerialId;
+		pSession->SendCharUpdateLp(pPacket, app, lol->CurLP, pBattleData->m_uiTargetSerialId);
 	}
-	//if (CurHP <= 1)
-		//CurHP = 0;
 
+	//this is to make sure the mob died. This can be written better so see if anyone can update this statement!
+	if (lol->CurLP <= 42)
 	{
+		lol->CurLP = 0;
+		printf("HP IS 0!\n");
+		bDamageApply = false;
+		lol->IsDead = true;
+		
+	}
+
+	//this is to play the fainting animation! This can also be written better, perhaps.
+	if (lol->IsDead == true)
+	{
+		res2->handle = pBattleData->m_uiTargetSerialId;
+		res2->wOpCode = GU_UPDATE_CHAR_STATE;
+		res2->sCharState.sCharStateBase.byStateID = CHARSTATE_FAINTING;
+		res2->sCharState.sCharStateBase.dwConditionFlag = CHARSTATE_FLAG_FAINTING;
+		res2->sCharState.sCharStateDetail.sCharStateFainting;
+		res2->sCharState.sCharStateDetail.sCharStateFainting.byReason = lol->IsDead;
+
+		packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+		g_pApp->Send(this->pSession->GetHandle(), &packet2);
+		app->UserBroadcast(&packet2);
+	}
+
+	pSession->SendCharUpdateLp(pPacket, app, lol->CurLP, pBattleData->m_uiTargetSerialId);
+
 	
-		formula = 2 * (plr->GetPcProfile()->avatarAttribute.wLastPhysicalOffence + plr->GetPcProfile()->avatarAttribute.byLastStr - lol->Basic_physical_defence * 0.005); //calculation for Demage auto atack...
-		//2 * attack * ((1 - defense / (defense + attacker_lv * 20)) + ((attacker_lv - target_lv) * 0.005))
-		//attack * ((1 - defense / (defense + attacker_lv * 40)) + ((attacker_lv - target_lv) * 0.005))
-		if (formula < 0)
-		{
-			formula = 70;
-		}
-		res->wAttackResultValue = formula;
-		res->fReflectedDamage = 0.0;
-		res->vShift.x = 0;
-		res->vShift.y = 0;
-		res->vShift.z = 0;
-		
-		res->byAttackSequence = byChainAttack % 6 + NTL_BATTLE_CHAIN_ATTACK_START;
-		printf("AttackSequence is %u", byChainAttack);
-		res->bChainAttack = true;
-		
-		
-			RwInt32 iRandValue = rand()%100; //valor random
-		/*	if (iRandValue <=49)
-			{*/
-				res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;//aplica normal demage
-				bDamageApply = true; 
-				byChainAttack++;
-				//}
-			//else if (iRandValue >= 50) 
-			//{
-			//	cout << "Critical "  << endl;
-			//	res->wAttackResultValue = (plr->GetPcProfile()->avatarAttribute.wBasePhysicalOffence ) * 1.2;
-			//	res->byAttackResult = BATTLE_ATTACK_RESULT_CRITICAL_HIT;//aplica critical demage
-			//	bDamageApply = true;
-			//}
 
-			}
-		//res->byAttackSequence = (res->byAttackSequence == 0 ? 1 : res->byAttackSequence);//NEVER LET THE 0 Comes because in Attack they are always 1 if the 0 comes then you got a crash - Luiz45
-		packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
-		int rc = g_pApp->Send(this->pSession->GetHandle(), &packet);
-		app->UserBroadcast(&packet);
-		// update LP
-		if (bDamageApply == true)
-		{
-			if ((CurHP -= (res->wAttackResultValue)) <= 0)
-			CurHP = 0;
-			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->CurLP = CurHP;
-			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->target = pBattleData->uiSerialId;
+	packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
+	g_pApp->Send(this->pSession->GetHandle(), &packet);
+	app->UserBroadcast(&packet);
 
-			printf("HP %d\n LP\n", CurHP);
-		}
-		if (CurHP <= 0)
-		{
-			plr->SetPlayerFight(false);
-			CurHP = 0;
-			pSession->SendCharUpdateFaintingState(pPacket, app, pBattleData->uiSerialId, pBattleData->m_uiTargetSerialId);
-			g_pMobManager->GetMobByHandle(m_uiTargetSerialId)->IsDead = true;
-			lol->IsDead = true;
-			byChainAttack = 1;
-		}
-		else
-			pSession->SendCharUpdateLp(pPacket, app, CurHP, pBattleData->m_uiTargetSerialId);
-		//If we are attacking a Mob then we gonna send a request to attack our little and beautiful player
-		if ((lol != NULL) && (!lol->IsDead))
-		{
-			
-		}
-		
-return ;
+	
+
 }
 void CClientSession::SendMobActionAttack(RwUInt32 uiSerialId, RwUInt32 m_uiTargetSerialId, CNtlPacket * pPacket)
 {
