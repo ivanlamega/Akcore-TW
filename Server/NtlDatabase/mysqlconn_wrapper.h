@@ -18,7 +18,7 @@
 #include <cppconn/prepared_statement.h>
 
 
-#define	IP_SERVER_ALL "192.168.1.65"
+#define	IP_SERVER_ALL "127.0.0.1"
 using namespace std;
 
 class MySQLConnWrapper
@@ -30,7 +30,7 @@ class MySQLConnWrapper
         {
             host     = "tcp://127.0.0.1:3306";
             user     = "root";
-            password = "johnsond";
+            password = "your pass here";
 			database = "dbo";
         };
         ~MySQLConnWrapper();
