@@ -15,6 +15,10 @@ Very few things are needed for compiing the emulator.
 4. A MySQL Database 
 5. Microsoft Visual Studio 2013
 
+## Client Taiwan
+
+1. Main Client: https://dl.dboglobal.to/Installer.rar.torrent
+2. DBOTW Encrupted Here:  http://www.mediafire.com/file/2gxjxjwrz98jwd0/DBOTW.rar/file
 
 ## Installation
 
