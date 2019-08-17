@@ -15,6 +15,10 @@ Very few things are needed for compiing the emulator.
 4. A MySQL Database 
 5. Microsoft Visual Studio 2013
 
+## Client Taiwan
+
+1. Main Client: https://dl.dboglobal.to/Installer.rar.torrent
+2. DBOTW Encrupted Here:  http://www.mediafire.com/file/2gxjxjwrz98jwd0/DBOTW.rar/file
 
 ## Installation
 
@@ -44,12 +48,9 @@ Create your first account by manually entering it in your database.
 Now that you have everything compiled you can setup your server.
 
 Go into the debug folder in the root directory (AKCore) 
-there are 4 files you can edit.
+there is 1 file you can edit.
 
-1. AuthServer.ini
-2. CharServer.ini
-3. ChatServer.ini
-4. GameServer.ini
+1. Server.ini
 
 All you have to do in here is set your ports. If you don't want to that is fine as well.
 This is an optional step.
