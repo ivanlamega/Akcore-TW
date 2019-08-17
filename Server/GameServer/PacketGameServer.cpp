@@ -709,6 +709,10 @@ void CClientSession::SendCharReadyReq(CNtlPacket * pPacket, CGameServer * app)
 	res->Unknown2[3] = 0;
 	res->Unknown2[4] = 0;
 	res->Unknown2[5] = 0;
+	for (int i = 0; i <= 179; i++)
+	{
+		res->Unknown[i] = 0;
+	}
 	res->StateID = 0;
 	res->AspectID = 255;
 	res->mascotID = 6000071;
@@ -4137,13 +4141,12 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 	RwBool bDamageApply = true;
 	float formula;
 	plr->SetPlayerFight(true);
+
 	CNtlPacket packet(sizeof(sGU_CHAR_ACTION_ATTACK));
 	sGU_CHAR_ACTION_ATTACK * res = (sGU_CHAR_ACTION_ATTACK *)packet.GetPacketData();
+
 	CNtlPacket packet2(sizeof(sGU_UPDATE_CHAR_STATE));
 	sGU_UPDATE_CHAR_STATE * res2 = (sGU_UPDATE_CHAR_STATE *)packet2.GetPacketData();
-
-//	MobActivity::CreatureData * loldata = NULL;
-//	loldata->Attack(plr, app);
 
 	res->wOpCode = GU_CHAR_ACTION_ATTACK;
 	res->hSubject = pBattleData->uiSerialId;
@@ -4161,7 +4164,7 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 
 	res->wAttackResultValue = formula;
 	res->fReflectedDamage = 0.0;
-	res->vShift.x = 0;
+	res->vShift.x = 100;
 	res->vShift.y = 0;
 	res->vShift.z = 0;
 
@@ -4178,19 +4181,29 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 	}
 
 	//this is to make sure the mob died. This can be written better so see if anyone can update this statement!
-	if (lol->CurLP < (lol->MaxLP * 0.10))
+	if (lol->CurLP < (lol->MaxLP * 0.20))
 	{
 		lol->CurLP = 0;
+		pSession->SendCharUpdateLp(pPacket, app, lol->CurLP, pBattleData->m_uiTargetSerialId);
 		printf("HP IS 0!\n");
 		bDamageApply = false;
 		lol->IsDead = true;
+		lol->isAggro = false;
+		if (lol->CurLP != 0 && lol->CurLP < (lol->MaxLP * 0.10))
+		{
+			lol->CurLP = 0;
+			lol->IsDead = true;
+		}
 		
 	}
 
 	//to get the mob to react to you attacking it and it attacks back.
-	if (lol->IsDead != true && lol->CurLP < lol->MaxLP)
+	if (lol->isAggro == true && lol->IsDead != true) //lol->IsDead != true && lol->CurLP < lol->MaxLP
 	{
 		lol->FightMode = true;
+		lol->Attack_rate = 1;
+		lol->AttackSpeedRate = 1;
+		lol->Attack_speed_rate = lol->AttackSpeedRate;
 		res->wOpCode = GU_CHAR_ACTION_ATTACK;
 		res->hSubject = pBattleData->m_uiTargetSerialId;
 		res->hTarget = pBattleData->uiSerialId;
@@ -4198,15 +4211,16 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 		res->byBlockedAction = 255;
 
 		float mob_formula;
-		mob_formula = 10; //hardcoded at 10 for now.
+		mob_formula = rand() % (lol->Level * 2) + (lol->Level * 4); //hardcoded at 10 for now.
 
 		res->wAttackResultValue = mob_formula;
 		res->fReflectedDamage = 0;
-		res->bChainAttack = true;
 		res->byAttackResult = BATTLE_ATTACK_RESULT_HIT;
 		res->vShift = plr->GetPlayerPosition();
 
-		lol->chainAttackCount = 1;
+		res->bChainAttack = 0;
+
+		lol->chainAttackCount = 0;
 
 		plr->SetPlayerFight(true);
 		plr->GetPcProfile()->dwCurLP -= res->wAttackResultValue;
@@ -4214,12 +4228,37 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 		packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
 		g_pApp->Send(this->pSession->GetHandle(), &packet);
 		app->UserBroadcast(&packet);
-
 		
 	}
 
+	/*if (lol->isAggro == true && lol->IsDead != true && lol->FightMode == true && lol->curPos.x != plr->GetPlayerPosition().x && lol->curPos.z != plr->GetPlayerPosition().z)
+	{
+		res2->wOpCode = GU_UPDATE_CHAR_STATE;
+		res2->handle = pBattleData->m_uiTargetSerialId;
+		res2->sCharState.sCharStateBase.byStateID = CHARSTATE_DESTMOVE;
+		res2->sCharState.sCharStateBase.dwConditionFlag = CHARSTATE_FLAG_DESTMOVE;
+		res2->sCharState.sCharStateBase.vCurDir.x = plr->GetPlayerDirection().x;
+		res2->sCharState.sCharStateBase.vCurDir.y = plr->GetPlayerDirection().y;
+		res2->sCharState.sCharStateBase.vCurDir.z = plr->GetPlayerDirection().z;
+		res2->sCharState.sCharStateBase.vCurLoc.x = plr->GetPlayerPosition().x - 1;
+		res2->sCharState.sCharStateBase.vCurLoc.y = plr->GetPlayerPosition().y;
+		res2->sCharState.sCharStateBase.vCurLoc.z = plr->GetPlayerPosition().z - 1;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.byMoveFlag = CHARSTATE_FLAG_DESTMOVE;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.avDestLoc[0].x = res2->sCharState.sCharStateBase.vCurLoc.x;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.avDestLoc[0].y = res2->sCharState.sCharStateBase.vCurLoc.y;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.avDestLoc[0].z = res2->sCharState.sCharStateBase.vCurLoc.z;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.dwTimeStamp = 100;
+		res2->sCharState.sCharStateDetail.sCharStateDestMove.bHaveSecondDestLoc = false;
+
+		packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
+		g_pApp->Send(this->pSession->GetHandle(), &packet2);
+		app->UserBroadcast(&packet2);
+
+		printf("MOB IS MOVING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	}*/
 	//this is to play the fainting animation! This can also be written better, perhaps.
-	if (lol->IsDead == true)
+	if (lol->isAggro == false && lol->IsDead == true)
 	{
 		res2->handle = pBattleData->m_uiTargetSerialId;
 		res2->wOpCode = GU_UPDATE_CHAR_STATE;
@@ -4228,14 +4267,17 @@ void CGameServer::SendCharActionAttack(SBattleData *pBattleData)
 		res2->sCharState.sCharStateDetail.sCharStateFainting;
 		res2->sCharState.sCharStateDetail.sCharStateFainting.byReason = lol->IsDead;
 
+		//this is what gives the player exp upon mob's death
+		uint32_t Exp;
+		Exp = lol->Level * 5; //this can be changed. When character's level up you should relog because you will freeze in place after level up.
+		pSession->SendPlayerLevelUpCheck(app, Exp);
+
 		packet2.SetPacketLen(sizeof(sGU_UPDATE_CHAR_STATE));
 		g_pApp->Send(this->pSession->GetHandle(), &packet2);
 		app->UserBroadcast(&packet2);
 	}
 
 	pSession->SendCharUpdateLp(pPacket, app, lol->CurLP, pBattleData->m_uiTargetSerialId);
-
-	
 
 	packet.SetPacketLen(sizeof(sGU_CHAR_ACTION_ATTACK));
 	g_pApp->Send(this->pSession->GetHandle(), &packet);
