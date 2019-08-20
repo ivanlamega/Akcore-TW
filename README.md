@@ -17,7 +17,7 @@ Very few things are needed for compiing the emulator.
 
 ## Client Taiwan
 
-1. Main Client: https://dl.dboglobal.to/Installer.rar.torrent
+1. Main Client: https://mega.nz/#!CxhHzLjL!HTKVsyU-caYO6cXLvnwWDH44h8Le3WkIO6yysQkrIW0 https://dl.dboglobal.to/Installer.rar.torrent
 2. DBOTW Encrupted Here:  http://www.mediafire.com/file/2gxjxjwrz98jwd0/DBOTW.rar/file
 
 ## Installation
