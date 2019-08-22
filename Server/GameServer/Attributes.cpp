@@ -48,10 +48,10 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.byBaseEng = 0;// db->getInt("BaseEng") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastEng = 7 * 1 + db->getInt("Level")*0.4;	
 	//EP/LP
-	this->sPlayerAttribute.wBaseMaxLP = 9000;
-	this->sPlayerAttribute.wLastMaxLP = 9000;
-	this->sPlayerAttribute.wBaseMaxEP = 9000;
-	this->sPlayerAttribute.wLastMaxEP = 9000;
+	this->sPlayerAttribute.wBaseMaxLP = db->getInt("BaseMaxLP") * db->getInt("Level")*0.5;
+	this->sPlayerAttribute.wLastMaxLP = db->getInt("LastMaxLP") * db->getInt("Level")*0.5;
+	this->sPlayerAttribute.wBaseMaxEP = db->getInt("BaseMaxEP") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wLastMaxEP = db->getInt("LastMaxEP") * db->getInt("Level")*0.2;
 	//Physical Atack
 	this->sPlayerAttribute.wBasePhysicalOffence = 0;// db->getInt("BasePhysicalOffence") * db->getInt("Level")*1.5;
 	this->sPlayerAttribute.wLastPhysicalOffence = 28 + this->sPlayerAttribute.byLastStr * db->getInt("Level")*0.10;
@@ -170,10 +170,10 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.fEnergyCriticalDamageBonusRate = 1;
 	this->sPlayerAttribute.fItemUpgradeBonusRate = 2;
 	this->sPlayerAttribute.fItemUpgradeBreakBonusRate = 3;
-	this->sPlayerAttribute.fBaseAirDash2Speed = 30.0f;//Dash Fly2 TW
-	this->sPlayerAttribute.fLastAirDash2Speed = 30.0f;//Dash Fly2 TW
-	this->sPlayerAttribute.fBaseAirDashSpeed = 20.0f;//Dash Fly TW
-	this->sPlayerAttribute.fLastAirDashSpeed = 20.0f;//Dash Fly TW
+	this->sPlayerAttribute.fBaseAirDash2Speed = 60.0f;//Dash Fly2 TW
+	this->sPlayerAttribute.fLastAirDash2Speed = 60.0f;//Dash Fly2 TW
+	this->sPlayerAttribute.fBaseAirDashSpeed = 30.0f;//Dash Fly TW
+	this->sPlayerAttribute.fLastAirDashSpeed = 30.0f;//Dash Fly TW
 	this->sPlayerAttribute.fBaseRunSpeed = 30;//Base Run TW
 	this->sPlayerAttribute.fLastAirSpeed = 15;//LastAir Speed TW
 	this->sPlayerAttribute.wLastMaxAp = 450000;// db->getInt("LastMaxAp");//Max AP
