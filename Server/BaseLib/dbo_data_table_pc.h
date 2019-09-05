@@ -10,8 +10,7 @@ typedef struct
 {
 #if DBO_VERSION_NEW
 	uint32_t basic_lp;
-#else
-	uint16_t basic_lp;
+
 #endif
 
 	uint16_t basic_ep;
@@ -26,13 +25,6 @@ typedef struct
 	uint16_t dex;
 	uint16_t sol;
 	uint16_t eng;
-#else
-	uint8_t str;
-	uint8_t con;
-	uint8_t foc;
-	uint8_t dex;
-	uint8_t sol;
-	uint8_t eng;
 #endif
 
 	float scale;
@@ -81,7 +73,6 @@ typedef struct
 	float unknown1[12];
 #endif
 	
-	uint16_t basic_lp;
 	uint16_t basic_physical_offence;
 	uint16_t basic_energy_offence;
 
@@ -103,7 +94,9 @@ typedef struct
 	float level_up_dex;
 	float level_up_sol;
 	float level_up_eng;
-
+#if DBO_VERSION_NEW
+	uint32_t unknown3;
+#endif
 } dbo_data_table_pc_st;
 
 class dbo_data_table_pc: public dbo_data_table
