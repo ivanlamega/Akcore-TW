@@ -765,6 +765,8 @@ struct sCHARSTATE_BASE
 	sASPECTSTATE	aspectState;
 	bool			bFightMode : 1;
 
+	BYTE			unknown1[5];
+
 	sVECTOR3		vCurLoc;
 	sVECTOR3		vCurDir;
 };
@@ -954,12 +956,18 @@ struct sPC_BRIEF
 	DWORD			dwMaxLP;
 	WORD			wCurEP;
 	WORD			wMaxEP;
-	DWORD			dwCurAP;
-	DWORD			dwMaxAP;
+	WORD			dwCurAP;
+	WORD			dwMaxAP;
 	BYTE			byLevel;
 	float			fSpeed;
 
-	WORD			wUnknow1;
+	BYTE			wUnknow1[20];
+	BYTE			WorkshopAlignment;
+	BYTE			unknown2[8];
+	TBLIDX			mascotID;
+	BYTE			Size;
+	DWORD			unknown3;
+	BYTE			unknown4;
 
 	sITEM_BRIEF		sItemBrief[EQUIP_SLOT_TYPE_COUNT]; // 장착 아이템 정보
 
