@@ -28,47 +28,50 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	db->fetch();
 	int level = db->getInt("Level");
 	sPC_TBLDAT *pTblData;
+	dbo_data_table_pc *pc = new dbo_data_table_pc();
+	pc->load("data/table_pc_data.rdf");
+	const dbo_data_table_pc_st *pcDat = pc->pc_data_get(db->getInt("Race"), db->getInt("Class"), db->getInt("Gender"));
 	//Load All Attributes One time only - Luiz  IN ORDER --Kalisto
 	//STR 
-	this->sPlayerAttribute.byBaseStr = 0;// db->getInt("BaseStr") + db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseStr = pcDat->table_char.str;// db->getInt("BaseStr") + db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastStr = 14 * 1 + db->getInt("Level")*0.4;
 	//Constitucion
-	this->sPlayerAttribute.byBaseCon = 0;// db->getInt("BaseCon") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseCon = pcDat->table_char.con;// db->getInt("BaseCon") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastCon = 9 * 1 + db->getInt("Level")*0.4;
 	//Focus
-	this->sPlayerAttribute.byBaseFoc = 0;// db->getInt("BaseFoc") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseFoc = pcDat->table_char.foc;// db->getInt("BaseFoc") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastFoc = 9 * 1 + db->getInt("Level")*0.4;
 	//Dextry
-	this->sPlayerAttribute.byBaseDex = 0;// db->getInt("BaseDex") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseDex = pcDat->table_char.dex;// db->getInt("BaseDex") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastDex = 14 * 1 + db->getInt("Level")*0.4;
 	//Soul
-	this->sPlayerAttribute.byBaseSol = 0;// *db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseSol = pcDat->table_char.sol;// *db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastSol = 9 * 1 + db->getInt("Level")*0.4;
 	//Energy
-	this->sPlayerAttribute.byBaseEng = 0;// db->getInt("BaseEng") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.byBaseEng = pcDat->table_char.eng;// db->getInt("BaseEng") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.byLastEng = 7 * 1 + db->getInt("Level")*0.4;	
 	//EP/LP
-	this->sPlayerAttribute.wBaseMaxLP = db->getInt("BaseMaxLP") * db->getInt("Level")*0.5;
-	this->sPlayerAttribute.wLastMaxLP = db->getInt("LastMaxLP") * db->getInt("Level")*0.5;
-	this->sPlayerAttribute.wBaseMaxEP = db->getInt("BaseMaxEP") * db->getInt("Level")*0.2;
-	this->sPlayerAttribute.wLastMaxEP = db->getInt("LastMaxEP") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBaseMaxLP = 600 + (pcDat->table_char.str * 10) + (db->getInt("LastMaxLP") * 0.2);
+	this->sPlayerAttribute.wLastMaxLP = 600 + (pcDat->table_char.str * 10) + (db->getInt("LastMaxLP") * 0.2);
+	this->sPlayerAttribute.wBaseMaxEP = 600 + (pcDat->table_char.eng * 10) + (db->getInt("LastMaxEP") * 0.2);
+	this->sPlayerAttribute.wLastMaxEP = 600 + (pcDat->table_char.eng * 10) + (db->getInt("LastMaxEP") * 0.2);
 	//Physical Atack
-	this->sPlayerAttribute.wBasePhysicalOffence = 0;// db->getInt("BasePhysicalOffence") * db->getInt("Level")*1.5;
+	this->sPlayerAttribute.wBasePhysicalOffence = pcDat->basic_physical_offence;// db->getInt("BasePhysicalOffence") * db->getInt("Level")*1.5;
 	this->sPlayerAttribute.wLastPhysicalOffence = 28 + this->sPlayerAttribute.byLastStr * db->getInt("Level")*0.10;
 	//Physical Defese
-	this->sPlayerAttribute.wBasePhysicalDefence = 0;// db->getInt("BasePhysicalDefence") * db->getInt("Level")*1.2;
-	this->sPlayerAttribute.wLastPhysicalDefence = 0 *db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBasePhysicalDefence = pcDat->table_char.basic_physical_defence;// db->getInt("BasePhysicalDefence") * db->getInt("Level")*1.2;
+	this->sPlayerAttribute.wLastPhysicalDefence = 10 * db->getInt("Level")*0.2;
 	//Energy Atack
-	this->sPlayerAttribute.wBaseEnergyOffence = 0;// db->getInt("BaseEnergyOffence") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBaseEnergyOffence = pcDat->basic_energy_offence;// db->getInt("BaseEnergyOffence") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.wLastEnergyOffence = 15 + this->sPlayerAttribute.byLastSol * db->getInt("Level")*0.07;
 	//Energy Defese
-	this->sPlayerAttribute.wBaseEnergyDefence = 0;// db->getInt("BaseEnergyDefence") * db->getInt("Level")*0.2;
-	this->sPlayerAttribute.wLastEnergyDefence = 0 * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBaseEnergyDefence = pcDat->table_char.basic_energy_defence;// db->getInt("BaseEnergyDefence") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wLastEnergyDefence = 10 * db->getInt("Level")*0.2;
 	//Hit Rate
-	this->sPlayerAttribute.wBaseAttackRate = 0;// db->getInt("BaseAttackRate") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBaseAttackRate = pcDat->table_char.attack_rate;// db->getInt("BaseAttackRate") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.wLastAttackRate = 70 + this->sPlayerAttribute.byLastFoc * db->getInt("Level")*0.3;
 	//Dogge Rate
-	this->sPlayerAttribute.wBaseDodgeRate = 0;// db->getInt("BaseDodgeRate") * db->getInt("Level")*0.2;
+	this->sPlayerAttribute.wBaseDodgeRate = pcDat->table_char.dodge_rate;// db->getInt("BaseDodgeRate") * db->getInt("Level")*0.2;
 	this->sPlayerAttribute.wLastDodgeRate = 90 + this->sPlayerAttribute.byLastDex * db->getInt("Level")*0.2;
 	//Physical Critical Rate
 	this->sPlayerAttribute.wBasePhysicalCriticalRate = 0;// db->getInt("BasePhysicalCriticalRate") * db->getInt("Level")*0.2;
@@ -80,16 +83,16 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.wBaseMaxRP = 0;// db->getInt("BaseMaxRP");
 	this->sPlayerAttribute.wLastMaxRP = 0;// db->getInt("LastMaxRP");
 	//Block Rate 
-	this->sPlayerAttribute.wBaseBlockRate = 0;//db->getInt("BaseBlockRate");
+	this->sPlayerAttribute.wBaseBlockRate = pcDat->table_char.block_rate;//db->getInt("BaseBlockRate");
 	this->sPlayerAttribute.wLastBlockRate = 0;// db->getInt("LastBlockRate");
 	//Run Speed
-	this->sPlayerAttribute.fLastRunSpeed = 10;// (float)db->getDouble("LastRunSpeed");
+	this->sPlayerAttribute.fLastRunSpeed = (float)pcDat->child_run_speed;// (float)db->getDouble("LastRunSpeed");
 	//Atack Speed
-	this->sPlayerAttribute.wBaseAttackSpeedRate = 1000;// (float)db->getInt("BaseAttackSpeedRate");
-	this->sPlayerAttribute.wLastAttackSpeedRate = 1000;//(float)db->getInt("LastAttackSpeedRate");
+	this->sPlayerAttribute.wBaseAttackSpeedRate = 0;// (float)db->getInt("BaseAttackSpeedRate");
+	this->sPlayerAttribute.wLastAttackSpeedRate = 0;//(float)db->getInt("LastAttackSpeedRate");
 	//Atack Range
-	this->sPlayerAttribute.fLastAttackRange = 0;// (float)db->getInt("LastAttackRange");
-	this->sPlayerAttribute.fBaseAttackRange = 0;// (float)db->getInt("BaseAttackRange");
+	this->sPlayerAttribute.fBaseAttackRange = pcDat->table_char.attack_range / 2;// (float)db->getInt("BaseAttackRange");
+	this->sPlayerAttribute.fLastAttackRange = pcDat->table_char.attack_range / 2;// (float)db->getInt("LastAttackRange");
 	//nao sei....
 	this->sPlayerAttribute.unknown_int16[0] = 0;
 	this->sPlayerAttribute.unknown_int16[1] = 0;
@@ -119,10 +122,10 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	//RP diminution
 	this->sPlayerAttribute.wLastRpDimimutionRate = 0;
 	//Curse Sucess Rate
-	this->sPlayerAttribute.wBaseCurseSuccessRate = 0;
+	this->sPlayerAttribute.wBaseCurseSuccessRate = pcDat->table_char.curse_success_rate;
 	this->sPlayerAttribute.wLastCurseSuccessRate = 0;
 	//Curse Tolerance Rate
-	this->sPlayerAttribute.wBaseCurseToleranceRate = 0;
+	this->sPlayerAttribute.wBaseCurseToleranceRate = pcDat->table_char.curse_tolerance_rate;
 	this->sPlayerAttribute.wLastCurseToleranceRate = 0;
 	//Nao sei
 	this->sPlayerAttribute.fCastingTimeChangePercent = 0;
@@ -170,11 +173,11 @@ void PlayerAttributes::LoadAttributesFromDB(int charID)
 	this->sPlayerAttribute.fEnergyCriticalDamageBonusRate = 1;
 	this->sPlayerAttribute.fItemUpgradeBonusRate = 2;
 	this->sPlayerAttribute.fItemUpgradeBreakBonusRate = 3;
-	this->sPlayerAttribute.fBaseAirDash2Speed = 60.0f;//Dash Fly2 TW
-	this->sPlayerAttribute.fLastAirDash2Speed = 60.0f;//Dash Fly2 TW
-	this->sPlayerAttribute.fBaseAirDashSpeed = 30.0f;//Dash Fly TW
-	this->sPlayerAttribute.fLastAirDashSpeed = 30.0f;//Dash Fly TW
-	this->sPlayerAttribute.fBaseRunSpeed = 30;//Base Run TW
+	this->sPlayerAttribute.fBaseAirDash2Speed = 30.0f;//Dash Fly2 TW
+	this->sPlayerAttribute.fLastAirDash2Speed = 30.0f;//Dash Fly2 TW
+	this->sPlayerAttribute.fBaseAirDashSpeed = 20.0f;//Dash Fly TW
+	this->sPlayerAttribute.fLastAirDashSpeed = 20.0f;//Dash Fly TW
+	this->sPlayerAttribute.fBaseRunSpeed = (float)pcDat->child_run_speed_origin;//Base Run TW
 	this->sPlayerAttribute.fLastAirSpeed = 15;//LastAir Speed TW
 	this->sPlayerAttribute.wLastMaxAp = 450000;// db->getInt("LastMaxAp");//Max AP
 	this->sPlayerAttribute.wBaseMaxAp = 450000;// db->getInt("BaseMaxAp");//Base Max Ap
