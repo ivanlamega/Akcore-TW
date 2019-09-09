@@ -961,7 +961,7 @@ struct sPC_BRIEF
 	BYTE			byLevel;
 	float			fSpeed;
 
-	BYTE			wUnknow1[20];
+	BYTE			wUnknow1[32];
 	BYTE			WorkshopAlignment;
 	BYTE			unknown2[8];
 	TBLIDX			mascotID;
